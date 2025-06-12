@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,4 +36,9 @@ public class ProductDetail {
     @ManyToOne
     @JoinColumn(name = "colorId")
     private Color color;
+
+
+    @OneToMany(mappedBy = "productDetail", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> image;
+
 }

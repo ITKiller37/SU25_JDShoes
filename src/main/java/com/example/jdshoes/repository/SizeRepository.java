@@ -15,4 +15,6 @@ public interface SizeRepository extends JpaRepository<Size, Long> {
 
     @Query(value = "select distinct s from Size s join ProductDetail pd on s.id = pd.size.id where pd.product = :product and pd.color = :color")
     List<Size> findSizesByProductAndColor(Product product, Color color);
+
+    boolean existsByCode(String code);
 }

@@ -7,14 +7,19 @@ import com.example.jdshoes.entity.Color;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.Size;
 import com.example.jdshoes.exception.NotFoundException;
+import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.ColorRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.repository.SizeRepository;
 import com.example.jdshoes.service.ColorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ColorServiceImpl implements ColorService {
@@ -49,6 +54,54 @@ public class ColorServiceImpl implements ColorService {
         color.setDeleteFlag(false);
         Color savedColor = colorRepository.save(color);
         return convertToDto(savedColor);
+    }
+
+    @Override
+    public Page<Color> findAll(Pageable pageable) {
+        return colorRepository.findAll(pageable);
+    }
+
+    @Override
+    public Color createColor(Color color) {
+        if(colorRepository.existsByCode(color.getCode())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
+        }
+        color.setDeleteFlag(false);
+        return colorRepository.save(color);
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return colorRepository.existsById(id);
+    }
+
+    @Override
+    public Color updateColor(Color color) {
+        Color existingColor = colorRepository.findById(color.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có mã " + color.getCode()) );
+        if(!existingColor.getCode().equals(color.getCode())) {
+            if(colorRepository.existsByCode(color.getCode())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
+            }
+        }
+        color.setDeleteFlag(false);
+        return colorRepository.save(color);
+    }
+
+    @Override
+    public Optional<Color> findById(Long id) {
+        return colorRepository.findById(id);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Color existingColor = colorRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có id " + id) );
+        existingColor.setDeleteFlag(true);
+        colorRepository.save(existingColor);
+    }
+
+    @Override
+    public List<Color> findAll() {
+        return colorRepository.findAll();
     }
 
     private Color convertToEntity(ColorDto colorDto) {

@@ -2,6 +2,7 @@ package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.dto.Product.ProductDto;
+import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.repository.ProductDetailRepository;
@@ -35,6 +36,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getByProductDetailId(Long detailId) {
         return convertToDto(productRepository.findByProductDetail_Id(detailId));
+    }
+
+    @Override
+    public Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable) {
+        Page<ProductSearchDto> productSearchDtos = productRepository.listSearchProduct(maSanPham,tenSanPham,nhanHang,chatLieu,theLoai,trangThai,pageable);
+        return productSearchDtos;
+    }
+
+    @Override
+    public Page<ProductSearchDto> getAll(Pageable pageable) {
+        return productRepository.getAll(pageable);
     }
 
     private ProductDto convertToDto(Product product) {

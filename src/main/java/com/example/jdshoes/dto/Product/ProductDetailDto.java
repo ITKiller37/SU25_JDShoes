@@ -23,4 +23,5 @@ public class ProductDetailDto {
     private Long productId;
     private Size size;
     private Color color;
+    private String imageUrl;
 }
