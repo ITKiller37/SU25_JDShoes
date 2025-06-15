@@ -15,33 +15,23 @@ import java.time.LocalDate;
 public class DiscountDto {
     private Long id;
 
-    @NotBlank(message = "không được để trống")
     private String code;
 
-    @NotBlank(message = "không được để trống")
     private String name;
 
-    @NotBlank(message = "không được để trống")
     private String type;
 
-    @NotNull(message = "không được để trống")
     private LocalDate startDate;
 
-    @NotNull(message = "không được để trống")
     private LocalDate endDate;
 
-    @NotNull(message = "không được để trống")
     private BigDecimal discountAmount;
 
-    @NotNull(message = "không được để trống")
     private BigDecimal maximumAmount;
 
-    @NotNull(message = "không được để trống")
     private BigDecimal minimumAmount;
 
-    @NotNull(message = "không được để trống")
     private Integer maximumUsage;
 
-    @NotBlank(message = "không được để trống")
     private String status;
 }

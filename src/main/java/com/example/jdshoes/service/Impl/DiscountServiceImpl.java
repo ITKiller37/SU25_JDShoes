@@ -4,6 +4,8 @@ import com.example.jdshoes.entity.Discount;
 import com.example.jdshoes.repository.DiscountRepository;
 import com.example.jdshoes.service.DiscountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,8 +18,8 @@ public class DiscountServiceImpl implements DiscountService {
     private final DiscountRepository discountRepository;
 
     @Override
-    public List<Discount> getAllDiscounts() {
-        return discountRepository.findAll();
+    public Page<Discount> getAllDiscounts(Pageable pageable) {
+        return discountRepository.findAll(pageable);
     }
 
     @Override
@@ -31,8 +33,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     @Override
-    public Discount updateDiscount(Integer id, Discount discount) {
-        discount.setId(id);
+    public Discount updateDiscount( Discount discount) {
         return discountRepository.save(discount);
     }
     @Override

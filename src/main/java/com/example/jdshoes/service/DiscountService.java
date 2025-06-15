@@ -1,16 +1,18 @@
 package com.example.jdshoes.service;
 
 import com.example.jdshoes.entity.Discount;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface DiscountService {
 
-    List<Discount> getAllDiscounts();
+    Page<Discount> getAllDiscounts(Pageable pageable);
     Optional<Discount> getDiscountById(Integer id);
     Discount createDiscount(Discount discount);
-    Discount updateDiscount(Integer id, Discount discount);
+    Discount updateDiscount( Discount discount);
     void deleteDiscount(Integer id);
 
 }
