@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách khuyến mãi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="mb-4">Danh sách khuyến mãi</h2>
+
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Tìm theo tên khuyến mãi...">
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mã</th>
+            <th>Tên</th>
+            <th>Loại</th>
+            <th>Giá trị</th>
+            <th>Trạng thái</th>
+            <th>Mô tả</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody id="discountTableBody">
+        </tbody>
+    </table>
+    <nav>
+        <ul class="pagination" id="pagination"></ul>
+    </nav>
+
+    <hr>
+    <h4>Thêm mới khuyến mãi</h4>
+    <form id="addForm" class="mb-5">
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" id="addCode" class="form-control" placeholder="Mã" required>
+            </div>
+            <div class="col">
+                <input type="text" id="addName" class="form-control" placeholder="Tên" required>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" id="addType" class="form-control" placeholder="Loại" required>
+            </div>
+            <div class="col">
+                <input type="number" id="addValue" class="form-control" placeholder="Giá trị" required>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" id="addStatus" class="form-control" placeholder="Trạng thái" required>
+            </div>
+            <div class="col">
+                <input type="text" id="addDescription" class="form-control" placeholder="Mô tả" required>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="date" id="addStartDate" class="form-control" required>
+            </div>
+            <div class="col">
+                <input type="date" id="addEndDate" class="form-control" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Thêm mới</button>
+    </form>
+
+    <h4>Cập nhật khuyến mãi</h4>
+    <form id="updateForm">
+        <input type="hidden" id="discountId">
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" id="code" class="form-control" placeholder="Mã" required>
+            </div>
+            <div class="col">
+                <input type="text" id="name" class="form-control" placeholder="Tên" required>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" id="type" class="form-control" placeholder="Loại" required>
+            </div>
+            <div class="col">
+                <input type="number" id="value" class="form-control" placeholder="Giá trị" required>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" id="status" class="form-control" placeholder="Trạng thái" required>
+            </div>
+            <div class="col">
+                <input type="text" id="description" class="form-control" placeholder="Mô tả" required>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="date" id="startDate" class="form-control" required>
+            </div>
+            <div class="col">
+                <input type="date" id="endDate" class="form-control" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+        <button type="button" class="btn btn-secondary ms-2" onclick="resetForm()">Làm mới</button>
+    </form>
+</div>
+
+<script>
+    const apiUrl = 'http://localhost:8080/api/discounts';
+    let discounts = [];
+    let filteredDiscounts = [];
+    let currentPage = 1;
+    const rowsPerPage = 3;
+
+    async function fetchDiscounts() {
+        const response = await fetch(apiUrl);
+        discounts = await response.json();
+        filteredDiscounts = [...discounts];
+        displayTable();
+        setupPagination();
+    }
+
+    function displayTable() {
+        const tbody = document.getElementById('discountTableBody');
+        tbody.innerHTML = '';
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = filteredDiscounts.slice(start, end);
+
+        for (const d of pageData) {
+            const row = `<tr>
+                <td>${d.id}</td>
+                <td>${d.code}</td>
+                <td>${d.name}</td>
+                <td>${d.type}</td>
+                <td>${d.value}</td>
+                <td>${d.status}</td>
+                <td>${d.description}</td>
+                <td>${d.startDate}</td>
+                <td>${d.endDate}</td>
+                <td>
+                    <button class="btn btn-info btn-sm me-1" onclick='fillForm(${JSON.stringify(d)})'>Chi tiết</button>
+                    <button class="btn btn-danger btn-sm" onclick='deleteDiscount(${d.id})'>Xóa</button>
+                </td>
+            </tr>`;
+            tbody.innerHTML += row;
+        }
+    }
+
+    function setupPagination() {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        const pageCount = Math.ceil(filteredDiscounts.length / rowsPerPage);
+        for (let i = 1; i <= pageCount; i++) {
+            const li = document.createElement('li');
+            li.className = 'page-item' + (i === currentPage ? ' active' : '');
+            li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            li.addEventListener('click', function () {
+                currentPage = i;
+                displayTable();
+                setupPagination();
+            });
+            pagination.appendChild(li);
+        }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function (e) {
+        const keyword = e.target.value.toLowerCase();
+        filteredDiscounts = discounts.filter(d => d.name.toLowerCase().includes(keyword));
+        currentPage = 1;
+        displayTable();
+        setupPagination();
+    });
+
+    function fillForm(data) {
+        document.getElementById('discountId').value = data.id;
+        document.getElementById('code').value = data.code;
+        document.getElementById('name').value = data.name;
+        document.getElementById('type').value = data.type;
+        document.getElementById('value').value = data.value;
+        document.getElementById('status').value = data.status;
+        document.getElementById('description').value = data.description;
+        document.getElementById('startDate').value = data.startDate;
+        document.getElementById('endDate').value = data.endDate;
+    }
+
+    function resetForm() {
+        document.getElementById('updateForm').reset();
+        document.getElementById('discountId').value = '';
+    }
+
+    document.getElementById('updateForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const id = document.getElementById('discountId').value;
+        const updatedDiscount = {
+            id: id,
+            code: document.getElementById('code').value,
+            name: document.getElementById('name').value,
+            type: document.getElementById('type').value,
+            value: document.getElementById('value').value,
+            status: document.getElementById('status').value,
+            description: document.getElementById('description').value,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+        };
+
+        await fetch(`${apiUrl}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedDiscount)
+        });
+
+        await fetchDiscounts();
+        alert("Cập nhật thành công");
+        e.target.reset();
+        document.getElementById('discountId').value = '';
+    });
+
+    document.getElementById('addForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const newDiscount = {
+            code: document.getElementById('addCode').value,
+            name: document.getElementById('addName').value,
+            type: document.getElementById('addType').value,
+            value: document.getElementById('addValue').value,
+            status: document.getElementById('addStatus').value,
+            description: document.getElementById('addDescription').value,
+            startDate: document.getElementById('addStartDate').value,
+            endDate: document.getElementById('addEndDate').value,
+        };
+
+        await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newDiscount)
+        });
+
+        await fetchDiscounts();
+        alert("Thêm mới thành công");
+        e.target.reset();
+    });
+
+    async function deleteDiscount(id) {
+        if (confirm("Bạn có chắc muốn xóa khuyến mãi này không?")) {
+            await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+            await fetchDiscounts();
+        }
+    }
+
+    fetchDiscounts();
+</script>
+</body>
+</html>
