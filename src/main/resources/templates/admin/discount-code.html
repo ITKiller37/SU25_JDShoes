@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout.html}">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div id="app" layout:fragment="content">
+  <h4>Mã giảm giá</h4>
+
+  <div class="my-3">
+    <form action="/admin-only/searchDiscounts" method="get">
+      <div class="form-row align-items-end">
+        <div class="form-group col-md-4">
+          <label for="searchTerm">Tìm kiếm giảm giá</label>
+          <input type="text" class="form-control" id="searchTerm" name="searchTerm" th:value="${searchTerm}" placeholder="Mã, tên, hoặc số tiền...">
+        </div>
+
+        <div class="form-group col-md-2">
+          <button type="submit" id="search-btn" class="btn btn-primary btn-block">
+            <i class="fa fa-search"></i> Tìm kiếm
+          </button>
+        </div>
+
+        <div class="form-group col-md-2">
+          <a href="/admin-only/searchDiscounts" class="btn btn-secondary btn-block">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-bottom: 3px;">
+              <path fill="currentColor"
+                    d="M2.57 3h18.86l-6.93 9.817V21h-5v-8.183L2.57 3Zm3.86 2l5.07 7.183V19h1v-6.817L17.57 5H6.43Zm11.45 8.465L20 15.586l2.122-2.121l1.414 1.414L21.415 17l2.121 2.122l-1.414 1.414L20 18.414l-2.12-2.122l-1.415-1.415l2.121-2.12l-2.121-2.122l1.414-1.414Z" />
+            </svg>
+            Hủy bỏ
+          </a>
+        </div>
+      </div>
+    </form>
+
+    <form th:action="@{/admin-only/form-add-discount}" method="get" style="display:inline;">
+      <button type="submit" class="btn btn-success rounded-pill" style="width: 100px">Thêm</button>
+    </form>
+
+  </div>
+  <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+  <table class="table my-3">
+    <thead class="thead-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Mã giảm giá</th>
+      <th scope="col">Tên mã giảm giá</th>
+      <th scope="col">Bắt đầu</th>
+      <th scope="col">Kết thúc</th>
+      <th scope="col">Mức giảm</th> <!-- Đã gộp -->
+      <th scope="col">Giảm tối đa</th>
+      <th scope="col">Đơn tối thiểu</th>
+      <th scope="col">Số lượng</th>
+      <th scope="col">Trạng thái</th>
+      <th>Công cụ</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="discountCode, iStat : ${discountPage.content}">
+      <th scope="row" th:text="${iStat.count}"></th>
+      <td th:text="${discountCode.code}"></td>
+      <td th:text="${discountCode.name}"></td>
+      <td th:text="${discountCode.startDate}"></td>
+      <td th:text="${discountCode.endDate}"></td>
+      <td th:text="${discountCode.type == 1 ? discountCode.percentage + ' %' : #numbers.formatDecimal(discountCode.discountAmount, 0, 'POINT', 0, 'COMMA') + ' đ'}"></td>
+      <td th:text="${discountCode.maximumAmount}"></td>
+      <td th:text="${discountCode.minimumAmount}"></td>
+      <td th:text="${discountCode.maximumUsage}"></td>
+      <td th:text="${discountCode.status ? 'Hoạt động':'Đã đóng'}"></td>
+      <td>
+        <form th:action="@{/admin-only/detailDiscount/{id}(id=${discountCode.id})}" method="get" class="form-open-discount d-inline">
+          <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Mở mã giảm giá">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512">
+              <path fill="none" stroke="green" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M384 224v184a40 40 0 0 1-40 40H104a40 40 0 0 1-40-40V168a40 40 0 0 1 40-40h167.48M336 64h112v112M224 288L440 72"/>
+            </svg>
+          </button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <nav>
+    <ul class="pagination">
+      <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+        <a class="page-link" th:href="@{/admin-only/discounts(page=${currentPage - 1}, size=${discountPage.size})}">Trước</a>
+      </li>
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+          th:classappend="${i == currentPage} ? 'active'">
+        <a class="page-link" th:href="@{/admin-only/discounts(page=${i}, size=${discountPage.size})}" th:text="${i + 1}">1</a>
+      </li>
+      <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+        <a class="page-link" th:href="@{/admin-only/discounts(page=${currentPage + 1}, size=${discountPage.size})}">Tiếp</a>
+      </li>
+    </ul>
+  </nav>
+  <div class="float-right">
+    <ul id="pagination" class=""></ul>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" th:inline="javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js"></script>
+  <script th:inline="javascript">
+    var totalPage = /*[[${totalPage}]]*/ '';
+    var currentPage = /*[[${currentPage}]]*/ '';
+
+    $(".form-close-discount").on('submit', function (e) {
+      e.preventDefault();
+      var form = this; // select the form
+
+      Swal.fire({
+        title: 'Đóng mã giảm giá',
+        text: 'Bạn chắc chắc muốn đóng mã giảm giá này?',
+        icon: 'warning',
+        showCancelButton: true,
+        cancelButtonText: 'Hủy',
+        confirmButtonText: 'Xác nhận',
+        reverseButtons: true
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+
+          form.submit()
+        }
+      })
+    })
+
+    var url = '/admin-only/discount-code?page=0';
+    $('#search-btn').on('click', function () {
+
+      var code = $('#code').val().trim()
+      // var detail = $("#name").val().trim()
+      var startDate = $("#startDate").val()
+      var endDate = $("#endDate").val()
+      var status = $("#status").val()
+
+      if(startDate && endDate) {
+        if(startDate >= endDate) {
+          Swal.fire({
+            text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc',
+            icon: 'error'
+          })
+          return
+        }
+
+      }
+
+      if (code) {
+        url += '&code=' + code
+      }
+      // if(detail) {
+      //     url += '&detail=' + detail
+      // }
+      if(startDate) {
+        url += '&startDate=' + startDate
+      }
+      if(endDate) {
+        url += '&endDate=' + endDate
+      }
+      if(status) {
+        url += '&status=' + status
+      }
+      window.location.href = url
+    })
+
+    $('#pagination').twbsPagination({
+      startPage: parseInt(currentPage) + 1,
+      totalPages: parseInt(totalPage),
+      visiblePages: 5,
+      first: '<i class="fas fa-angle-double-left"></i>',
+      next: '<i class="fas fa-angle-left"></i>',
+      prev: '<i class="fas fa-angle-right"></i>',
+      last: '<i class="fas fa-angle-double-right"></i>',
+      initiateStartPageClick:false,
+
+      onPageClick: function (event, page) {
+        var cleanedUrl = url.replace(/[?&]page=\d+/, '');
+        cleanedUrl += '&page=' + page
+        window.location.href = cleanedUrl
+      }
+    });
+  </script>
+</div>
+
+</body>
+</html>
