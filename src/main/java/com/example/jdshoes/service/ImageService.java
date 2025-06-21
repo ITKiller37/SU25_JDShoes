@@ -10,5 +10,5 @@ import java.util.List;
 @Service
 public interface ImageService {
 
-    List<Image> getAllImagesByProductDetailId(Long productDetailId, Size size, Color color);
+    List<Image> getAllImagesByProductDetailId(Long productDetailId);
 }

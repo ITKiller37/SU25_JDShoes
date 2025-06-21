@@ -24,4 +24,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query(value = "SELECT p.id as idSanPham,p.code as maSanPham,p.name as tenSanPham,p.brand.name as nhanHang,p.material.name as chatLieu,p.category.name as theLoai,p.status as trangThai FROM Product p where p.deleteFlag = false")
     Page<ProductSearchDto> getAll(Pageable pageable);
+
+    boolean existsByCode(String code);
+
+    Product findTopByOrderByIdDesc();
+
+    Product findByCode(String code);
 }

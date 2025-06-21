@@ -8,12 +8,15 @@ import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductService;
+import com.example.jdshoes.utils.QRCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +50,46 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductSearchDto> getAll(Pageable pageable) {
         return productRepository.getAll(pageable);
+    }
+
+    @Override
+    public boolean existsByCode(String code) {
+        return productRepository.existsByCode(code);
+    }
+
+    @Override
+    public Product save(Product product) throws IOException {
+
+        if(product.getCode().trim() == "" || product.getCode() == null) {
+            Product productCurrent = productRepository.findTopByOrderByIdDesc();
+            Long nextCode = (productCurrent == null) ? 1 : productCurrent.getId() + 1;
+            String productCode = "SP" + String.format("%04d", nextCode);
+            product.setCode(productCode);
+        }
+
+        BigDecimal minPrice = new BigDecimal("1000000000");
+        for (ProductDetail productDetail : product.getProductDetails()) {
+            if (productDetail.getPrice().compareTo(minPrice) < 0) {
+                minPrice = productDetail.getPrice();
+            }
+            QRCodeService.generateQRCode(productDetail.getBarcode(), productDetail.getBarcode());
+        }
+
+        product.setPrice(minPrice);
+        product.setDeleteFlag(false);
+        product.setCreateDate(LocalDateTime.now());
+        product.setUpdatedDate(LocalDateTime.now());
+        return productRepository.save(product);
+    }
+
+    @Override
+    public Product getProductByCode(String code) {
+        Product product = productRepository.findByCode(code);
+        if(product != null) {
+
+            return product;
+        }
+        return null;
     }
 
     private ProductDto convertToDto(Product product) {
