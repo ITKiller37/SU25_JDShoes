@@ -2,19 +2,19 @@ package com.example.jdshoes.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class ShoesApiException extends RuntimeException{
+public class ShopApiException extends RuntimeException{
     private HttpStatus status;
     private String message;
 
-    public ShoesApiException(HttpStatus status, String message) {
+    public ShopApiException(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public ShoesApiException(HttpStatus status, String message, String messageError) {
-        super(messageError);
+    public ShopApiException(String message, HttpStatus status, String message1) {
+        super(message);
         this.status = status;
-        this.message = message;
+        this.message = message1;
     }
 
     public HttpStatus getStatus() {

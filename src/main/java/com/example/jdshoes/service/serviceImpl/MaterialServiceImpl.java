@@ -1,11 +1,11 @@
-package com.example.jdshoes.service.Impl;
+package com.example.jdshoes.service.serviceImpl;
 
-import com.example.jdshoes.dto.Color.ColorDto;
+
+
 import com.example.jdshoes.dto.Material.MaterialDto;
-import com.example.jdshoes.entity.Color;
 import com.example.jdshoes.entity.Material;
 import com.example.jdshoes.exception.NotFoundException;
-import com.example.jdshoes.exception.ShoesApiException;
+import com.example.jdshoes.exception.ShopApiException;
 import com.example.jdshoes.repository.MaterialRepository;
 import com.example.jdshoes.service.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class MaterialServiceImpl implements MaterialService {
@@ -42,7 +43,7 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public Material createMaterial(Material material) {
         if(materialRepository.existsByCode(material.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu " + material.getCode() + " đã tồn tại");
+            throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu " + material.getCode() + " đã tồn tại");
         }
         material.setDeleteFlag(false);
         return materialRepository.save(material);
@@ -65,7 +66,7 @@ public class MaterialServiceImpl implements MaterialService {
         Material existingMaterial = materialRepository.findById(material.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy chất liệu"));
         if(!existingMaterial.getCode().equals(material.getCode())) {
             if(materialRepository.existsByCode(material.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu " + material.getCode() + " đã tồn tại");
+                throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu " + material.getCode() + " đã tồn tại");
             }
         }
         material.setDeleteFlag(false);

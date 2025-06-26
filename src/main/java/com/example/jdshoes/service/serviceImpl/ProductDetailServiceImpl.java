@@ -1,4 +1,5 @@
-package com.example.jdshoes.service.Impl;
+package com.example.jdshoes.service.serviceImpl;
+
 
 import com.example.jdshoes.service.ProductDetailService;
 import org.springframework.stereotype.Service;

@@ -1,13 +1,13 @@
-package com.example.jdshoes.service.Impl;
+package com.example.jdshoes.service.serviceImpl;
 
-import com.example.jdshoes.dto.Category.CategoryDto;
+
+
 import com.example.jdshoes.dto.Color.ColorDto;
-import com.example.jdshoes.entity.Category;
 import com.example.jdshoes.entity.Color;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.Size;
 import com.example.jdshoes.exception.NotFoundException;
-import com.example.jdshoes.exception.ShoesApiException;
+import com.example.jdshoes.exception.ShopApiException;
 import com.example.jdshoes.repository.ColorRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.repository.SizeRepository;
@@ -64,7 +64,7 @@ public class ColorServiceImpl implements ColorService {
     @Override
     public Color createColor(Color color) {
         if(colorRepository.existsByCode(color.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
+            throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
         }
         color.setDeleteFlag(false);
         return colorRepository.save(color);
@@ -80,7 +80,7 @@ public class ColorServiceImpl implements ColorService {
         Color existingColor = colorRepository.findById(color.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có mã " + color.getCode()) );
         if(!existingColor.getCode().equals(color.getCode())) {
             if(colorRepository.existsByCode(color.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
+                throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
             }
         }
         color.setDeleteFlag(false);

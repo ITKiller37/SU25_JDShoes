@@ -1,8 +1,8 @@
 package com.example.jdshoes.repository;
 
-import com.example.jdshoes.entity.Color;
+
+
 import com.example.jdshoes.entity.ProductDetail;
-import com.example.jdshoes.entity.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

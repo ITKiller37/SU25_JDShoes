@@ -1,8 +1,10 @@
-package com.example.jdshoes.service.Impl;
+package com.example.jdshoes.service.serviceImpl;
+
+
 
 import com.example.jdshoes.dto.Brand.BrandDto;
 import com.example.jdshoes.entity.Brand;
-import com.example.jdshoes.exception.ShoesApiException;
+import com.example.jdshoes.exception.ShopApiException;
 import com.example.jdshoes.repository.BrandRepository;
 import com.example.jdshoes.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,10 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public Brand createBrand(Brand brand) {
         if(brand.getCode() == null) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
+            throw new ShopApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
         }
         if(brandRepository.existsByCode(brand.getCode().trim())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng đã tồn tại");
+            throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng đã tồn tại");
         }
         brand.setStatus(1);
         brand.setDeleteFlag(false);
@@ -61,12 +63,12 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public Brand updateBrand(Long id, Brand brand) {
         if(brand.getCode() == null) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
+            throw new ShopApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
         }
         Brand existingBrand = brandRepository.findById(brand.getId()).orElseThrow(null);
         if(!existingBrand.getCode().equals(brand.getCode())) {
             if(brandRepository.existsByCode(brand.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng " + brand.getCode() + " đã tồn tại");
+                throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng " + brand.getCode() + " đã tồn tại");
             }
         }
         brand.setDeleteFlag(false);

@@ -1,8 +1,9 @@
-package com.example.jdshoes.service.Impl;
+package com.example.jdshoes.service.serviceImpl;
+
 
 import com.example.jdshoes.dto.Category.CategoryDto;
 import com.example.jdshoes.entity.Category;
-import com.example.jdshoes.exception.ShoesApiException;
+import com.example.jdshoes.exception.ShopApiException;
 import com.example.jdshoes.repository.CategoryRepository;
 import com.example.jdshoes.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category createCategory(Category category) {
         if(categoryRepository.existsByCode(category.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã loại " + category.getCode() + " đã tồn tại");
+            throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã loại " + category.getCode() + " đã tồn tại");
         }
         category.setDeleteFlag(false);
         return categoryRepository.save(category);
@@ -58,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category existingCategory = categoryRepository.findById(category.getId()).orElseThrow(null);
         if(!existingCategory.getCode().equals(category.getCode())) {
             if(categoryRepository.existsByCode(category.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã loại " + category.getCode() + " đã tồn tại");
+                throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã loại " + category.getCode() + " đã tồn tại");
             }
         }
         category.setDeleteFlag(false);

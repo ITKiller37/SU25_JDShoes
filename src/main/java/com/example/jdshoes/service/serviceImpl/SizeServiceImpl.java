@@ -1,13 +1,13 @@
-package com.example.jdshoes.service.Impl;
+package com.example.jdshoes.service.serviceImpl;
 
-import com.example.jdshoes.dto.Material.MaterialDto;
+
+
 import com.example.jdshoes.dto.Size.SizeDto;
 import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.entity.Material;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.Size;
 import com.example.jdshoes.exception.NotFoundException;
-import com.example.jdshoes.exception.ShoesApiException;
+import com.example.jdshoes.exception.ShopApiException;
 import com.example.jdshoes.repository.ColorRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.repository.SizeRepository;
@@ -64,7 +64,7 @@ public class SizeServiceImpl implements SizeService {
     @Override
     public Size createSize(Size size) {
         if(sizeRepository.existsByCode(size.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã cỡ " + size.getCode() + " đã tồn tại");
+            throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã cỡ " + size.getCode() + " đã tồn tại");
         }
 
         size.setDeleteFlag(false);
@@ -76,7 +76,7 @@ public class SizeServiceImpl implements SizeService {
         Size existingSize = sizeRepository.findById(size.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy cỡ có mã " + size.getCode()) );
         if(!existingSize.getCode().equals(size.getCode())) {
             if(sizeRepository.existsByCode(size.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã cỡ " + size.getCode() + " đã tồn tại");
+                throw new ShopApiException(HttpStatus.BAD_REQUEST, "Mã cỡ " + size.getCode() + " đã tồn tại");
             }
         }
         size.setDeleteFlag(false);

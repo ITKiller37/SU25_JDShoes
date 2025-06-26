@@ -1,7 +1,7 @@
 package com.example.jdshoes.exception;
 
-public class NotFoundException extends RuntimeException {
-    public NotFoundException(String message) {
-        super(message);
+public class NotFoundException extends RuntimeException{
+    public NotFoundException(String s) {
+        super(s);
     }
 }

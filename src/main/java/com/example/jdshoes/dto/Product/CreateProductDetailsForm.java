@@ -1,5 +1,7 @@
 package com.example.jdshoes.dto.Product;
 
+
+
 import com.example.jdshoes.entity.ProductDetail;
 import lombok.Data;
 

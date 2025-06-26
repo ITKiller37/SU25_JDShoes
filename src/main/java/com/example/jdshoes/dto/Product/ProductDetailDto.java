@@ -1,12 +1,14 @@
 package com.example.jdshoes.dto.Product;
 
+
+
 import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.entity.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @NoArgsConstructor
