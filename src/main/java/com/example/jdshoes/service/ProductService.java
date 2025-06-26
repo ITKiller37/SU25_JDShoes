@@ -2,12 +2,15 @@ package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.ProductSearchDto;
+import com.example.jdshoes.dto.Product.SearchProductDto;
 import com.example.jdshoes.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
+
 @Service
 public interface ProductService {
     Page<ProductDto> getAllProductApi(Pageable pageable);
@@ -23,4 +26,6 @@ public interface ProductService {
     Product save(Product product) throws IOException;
 
     Product getProductByCode(String code);
+
+    List<ProductDto> getAllProductNoPaginationApi(SearchProductDto searchRequest);
 }

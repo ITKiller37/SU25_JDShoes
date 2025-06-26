@@ -3,15 +3,18 @@ package com.example.jdshoes.service.Impl;
 import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.ProductSearchDto;
+import com.example.jdshoes.dto.Product.SearchProductDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
+import com.example.jdshoes.repository.Specification.ProductSpecification;
 import com.example.jdshoes.service.ProductService;
 import com.example.jdshoes.utils.QRCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -121,5 +125,11 @@ public class ProductServiceImpl implements ProductService {
         productDto.setPriceMin(priceMin);
         productDto.setProductDetailDtos(productDetailDtoList);
         return productDto;
+    }
+    @Override
+    public List<ProductDto> getAllProductNoPaginationApi(SearchProductDto searchRequest) {
+        Specification<Product> spec = new ProductSpecification(searchRequest);
+        List<Product> products = productRepository.findAll(spec);
+        return products.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 }
