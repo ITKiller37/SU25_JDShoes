@@ -1,12 +1,11 @@
 package com.example.jdshoes.service.serviceImpl;
 
-
-
 import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
+import com.example.jdshoes.entity.Size;
 import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductService;
@@ -16,7 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.Size;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -115,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
             productDetailDto.setId(productDetail.getId());
             productDetailDto.setProductId(product.getId());
             productDetailDto.setColor(productDetail.getColor());
-            productDetailDto.setSize((Size) productDetail.getSize());
+            productDetailDto.setSize(productDetail.getSize());
             productDetailDto.setPrice(productDetail.getPrice());
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());

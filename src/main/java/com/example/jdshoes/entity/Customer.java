@@ -1,6 +1,7 @@
 package com.example.jdshoes.entity;
 
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
 
-import javax.persistence.*;
+
 import java.util.List;
 
 @Getter
