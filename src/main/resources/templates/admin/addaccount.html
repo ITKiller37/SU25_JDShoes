@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="d-flex">
+        <h4>Thêm tài khoản</h4>
+
+    </div>
+    <div class="col-sm-6">
+        <form method="post" th:object="${account}">
+            <label class="lb-form">Email</label>
+            <input th:field="*{email}" type="text" class="form-control">
+            <th:block th:if="${error}">
+                <p th:text="${error}" style="color: red"></p>
+            </th:block>
+
+            <label class="lb-form">Họ tên</label>
+            <input name="name" type="text" class="form-control">
+            <label class="lb-form">Số điện thoại</label>
+            <input name="phone" type="text" class="form-control">
+            <label class="lb-form">Ngày sinh</label>
+            <input th:field="*{birthDay}" type="date" class="form-control">
+            <label class="lb-form">Mật khẩu</label>
+            <input th:field="*{password}" type="password" class="form-control">
+            <label class="lb-form">Chọn quyền</label>
+            <select class="form-control" th:field="*{role}">
+                <option value="1">Quyền admin</option>
+                <option value="2">Quyền employee</option>
+            </select><br>
+            <button th:text="${param.id == null?'Thêm tài khoản':'Cập nhật tài khoản'}" class="btn btn-primary form-control"></button>
+        </form>
+    </div>
+</div>
+
+</body>
+
+</html>
