@@ -1,11 +1,9 @@
 package com.example.jdshoes.service.serviceImpl;
-
 import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
-import com.example.jdshoes.entity.Size;
 import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductService;
