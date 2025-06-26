@@ -44,7 +44,7 @@
           </select>
         </div>
         <div class="form-group col-md-2">
-          <label>Thể loại</label>
+          <label>Loại sản phẩm</label>
           <select class="form-select" id="theLoai" name="theLoai" th:value="${theLoai}">
             <option th:value="null">Tất cả</option>
             <option th:value="${category.id}" th:each="category: ${listCategory}"
@@ -83,7 +83,7 @@
         <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'chatLieu' && sortDirection == 'asc' ? 'chatLieu,desc' : 'chatLieu,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
         <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'chatLieu' && sortDirection == 'desc' ? 'chatLieu,asc' : 'chatLieu,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
       </th>
-      <th scope="col">Thể loại
+      <th scope="col">Loại sản phẩm
       </th>
       <th scope="col">Trạng thái</th>
       <th scope="col">Thao tác</th>
