@@ -17,6 +17,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class DiscountController {
@@ -38,22 +41,22 @@ public class DiscountController {
         Page<Discount> discountPage = discountService.getAllDiscounts(pageable);
 
 
-//        LocalDateTime now = LocalDateTime.now();
-//        // Cập nhật trạng thái và lưu vào DB
-//        List<Discount> discounts = discountPage.getContent();
-//        for (Discount discount : discounts) {
-//            boolean newStatus;
-//
-//            if (now.isBefore(discount.getStartDate())) {
-//                newStatus = false; // chưa đến thời gian
-//            } else if (now.isAfter(discount.getEndDate())) {
-//                newStatus = false; // đã hết hạn
-//            } else {
-//                newStatus = true; // đang hoạt động
-//            }
-//            discount.setStatus(newStatus);
-////            discountService.createDiscount(discount);
-//        }
+        LocalDateTime now = LocalDateTime.now();
+        // Cập nhật trạng thái và lưu vào DB
+        List<Discount> discounts = discountPage.getContent();
+        for (Discount discount : discounts) {
+            boolean deleteFlag;
+
+            if (now.isBefore(discount.getStartDate())) {
+                deleteFlag = false; // chưa đến thời gian
+            } else if (now.isAfter(discount.getEndDate())) {
+                deleteFlag = false; // đã hết hạn
+            } else {
+                deleteFlag = true; // đang hoạt động
+            }
+            discount.setDeleteFlag(deleteFlag);
+            discountService.createDiscount(discount);
+        }
 
         model.addAttribute("discountPage", discountPage);
         model.addAttribute("currentPage", page);
@@ -65,6 +68,7 @@ public class DiscountController {
     public String formAddDiscount(Model model) {
         // Thêm một đối tượng Discount trống vào model với tên "discount"
         Discount newDiscount = new Discount();
+        newDiscount.setDeleteFlag(false);
         newDiscount.setType(1); // Mặc định là giảm theo phần trăm (Integer 1)
         model.addAttribute("discount", newDiscount);
         return "admin/discount-code-create";
@@ -120,22 +124,6 @@ public class DiscountController {
 
         return "admin/discount-code";
     }
-//    @GetMapping("/admin/update-discount-status/{id}")
-//    public String trangThai( RedirectAttributes redirectAttributes, @PathVariable("id") Integer id) {
-//        Discount discount = discountRepository.findById(id).orElse(null);
-//        if (discount != null) {
-//            Boolean currentStatus = discount.getStatus();
-//            discount.setStatus(!currentStatus);
-//            try {
-//                discountRepository.save(discount);
-//                redirectAttributes.addFlashAttribute("message", "Mã giảm giá đã được cập nhật");
-//            } catch (NotFoundException ex) {
-//                redirectAttributes.addFlashAttribute("message", ex.getMessage());
-//            }
-//
-//        }
-//        return "redirect:/admin-only/discounts";
-//    }
     @PostMapping("/admin/update-discount-status/{status}")
     public String updateDiscountCodeStatus(Model model, RedirectAttributes redirectAttributes, @ModelAttribute("id") Integer id, @PathVariable int status) {
         try {

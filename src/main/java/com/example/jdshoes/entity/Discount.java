@@ -63,6 +63,9 @@ public class Discount {
     @Column(name = "Note")
     private String note;
 
+    @Column(name = "deleteFlag")
+    private boolean deleteFlag;
+
     @Column(name = "Status")
     private Integer status;
 }
