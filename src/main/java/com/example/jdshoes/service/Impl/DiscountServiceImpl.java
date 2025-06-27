@@ -81,7 +81,7 @@ public class DiscountServiceImpl implements DiscountService {
         dto.setEndDate(discountCode.getEndDate());
         dto.setType(discountCode.getType());
         dto.setMaximumUsage(discountCode.getMaximumUsage());
-        dto.setDeleteFlag(discountCode.isDeleteFlag());
+        dto.setDeleteFlag(discountCode.getDeleteFlag());
         dto.setStatus(discountCode.getStatus());
         dto.setNote(discountCode.getNote());
         return dto;
