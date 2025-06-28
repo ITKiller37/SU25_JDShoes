@@ -8,24 +8,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, Integer> {
-    @Query(
-            """
-                    SELECT d FROM Discount d WHERE
-                    (:searchTerm IS NULL OR
-                    LOWER(d.code) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
-                    LOWER(d.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
-                    CAST(d.startDate AS string) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
-                    CAST(d.endDate AS string) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
-                    CAST(d.discountAmount AS string) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
-                    CAST(d.percentage AS string) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
-                    CAST(d.maximumAmount AS string) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR
-                    CAST(d.minimumAmount AS string) LIKE LOWER(CONCAT('%', :searchTerm, '%'))
-                    )
-            """
-    )
-    Page<Discount> findBySingleSearchTermPaged(
-            @Param("searchTerm") String searchTerm,
+    @Query("SELECT d FROM Discount d " +
+            "WHERE (:keyword IS NULL OR " +
+            "LOWER(d.code) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(d.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:startDate IS NULL OR d.startDate >= :startDate) " +
+            "AND (:endDate IS NULL OR d.endDate <= :endDate) " +
+            "AND (:status IS NULL OR d.status = :status) " +
+            "AND (:maximumUsage IS NULL OR d.maximumUsage = :maximumUsage)")
+    Page<Discount> findDiscountsByFilter(
+            @Param("keyword") String keyword,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate,
+            @Param("status") Integer status,
+            @Param("maximumUsage") Integer maximumUsage,
             Pageable pageable);
+
 }
