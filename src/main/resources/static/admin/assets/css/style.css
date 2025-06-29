@@ -2971,16 +2971,16 @@ header .form-inline {
   background-color: rgba(0,0,0,0.4);
 }
 
-.modal-content {
-  position: relative;
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 400px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+/*.modal-content {*/
+/*  position: relative;*/
+/*  background-color: #fefefe;*/
+/*  margin: 15% auto;*/
+/*  padding: 20px;*/
+/*  border: 1px solid #888;*/
+/*  width: 80%;*/
+/*  max-width: 400px;*/
+/*  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+/*}*/
 
 /* Style the close button */
 .close {

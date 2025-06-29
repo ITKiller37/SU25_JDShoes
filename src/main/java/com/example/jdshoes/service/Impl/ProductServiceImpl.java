@@ -115,8 +115,8 @@ public class ProductServiceImpl implements ProductService {
             ProductDetailDto productDetailDto = new ProductDetailDto();
             productDetailDto.setId(productDetail.getId());
             productDetailDto.setProductId(product.getId());
-            productDetailDto.setColor(productDetail.getColor());
-            productDetailDto.setSize(productDetail.getSize());
+            productDetailDto.setColorName(productDetail.getColor().getName());
+            productDetailDto.setSizeName(productDetail.getSize().getName());
             productDetailDto.setPrice(productDetail.getPrice());
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());
