@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -58,7 +59,7 @@ public class DiscountController {
     public String formAddDiscount(Model model) {
         // Thêm một đối tượng Discount trốg vào model với tên "discount"
         Discount newDiscount = new Discount();
-        newDiscount.setDeleteFlag(false);
+        newDiscount.setDeleteFlag(true);
         newDiscount.setType(1); // Mặc định là giảm theo phần trăm (Integer 1)
         model.addAttribute("discount", newDiscount);
         return "admin/discount-code-create";
@@ -88,20 +89,7 @@ public class DiscountController {
         discountService.updateDiscount(discount);
         return "redirect:/admin-only/discounts";
     }
-    @GetMapping("/admin-only/discount-statuses")
-    @ResponseBody
-    public List<Map<String, Object>> getDiscountStatuses() {
-        List<Discount> list = discountService.findAll();
-        List<Map<String, Object>> result = new ArrayList<>();
 
-        for (Discount discount : list) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("id", discount.getId());
-            item.put("status", discount.getStatus());
-            result.add(item);
-        }
-        return result;
-    }
     @PostMapping("/admin-only/change-discount-status")
     public String changeDiscountStatus(@RequestParam("id") Integer id, RedirectAttributes redirectAttributes) {
         try {
@@ -129,5 +117,19 @@ public class DiscountController {
         return "redirect:/admin-only/discounts";
     }
 
+    @PostMapping("/admin-only/api/discounts/update-status")
+    @ResponseBody
+    public ResponseEntity<Void> updateStatus(@RequestBody Map<String, Object> payload) {
+        Integer id = Integer.valueOf(payload.get("id").toString());
+        int status = Integer.parseInt(payload.get("status").toString());
+
+        Discount d = discountService.findById(id);
+        if (d != null) {
+            d.setStatus(status);
+            discountService.createDiscount(d);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
 
 }
