@@ -78,6 +78,7 @@ public class DiscountServiceImpl implements DiscountService {
             discountRepository.save(existingDiscount);
         }
     }
+
 //    @Override
 //    public Discount updateStatus(Integer discountCodeId, int status) {
 //        Discount discountCode = discountRepository.findById(discountCodeId).orElseThrow(() -> new NotFoundException("Không tìm thấy mã giảm giá"));
@@ -102,4 +103,6 @@ public class DiscountServiceImpl implements DiscountService {
 //        dto.setNote(discountCode.getNote());
 //        return dto;
 //    }
+
+  
 }

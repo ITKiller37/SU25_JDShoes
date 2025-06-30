@@ -44,21 +44,21 @@
         <div class="modal-content rounded">
             <span class="close" >&times;</span>
             <div class="modal-header mb-1">
-                <h5>Thêm loại hàng mới</h5>
+                <h5>Thêm loại sản phẩm mới</h5>
             </div>
             <form id="category-form">
                 <div class="form-group">
-                    <label for="categoryCode">Mã loại:</label>
+                    <label for="categoryCode">Mã loại sản phẩm:</label>
                     <span class="red_require"> *</span>
-                    <input class="form-control" type="text" name="categoryCode" id="categoryCode" placeholder="Nhập mã loại">
+                    <input class="form-control" type="text" name="categoryCode" id="categoryCode" placeholder="Nhập mã loại sản phẩm">
                     <span class="error"></span>
                     <!-- Add more fields as needed -->
                 </div>
 
                 <div class="form-group">
-                    <label for="categoryName">Tên loại:</label>
+                    <label for="categoryName">Tên loại sản phẩm:</label>
                     <span class="red_require"> *</span>
-                    <input class="form-control" type="text" name="categoryName" id="categoryName" placeholder="Nhập tên loại">
+                    <input class="form-control" type="text" name="categoryName" id="categoryName" placeholder="Nhập tên loại sản phẩm">
                     <span class="error"></span>
                     <!-- Add more fields as needed -->
                 </div>
@@ -128,7 +128,7 @@
                 </div>
                 <div class="form-group col-md-6">
                     <div class="select-container">
-                        <label>Thể loại</label>
+                        <label>Loại sản phẩm</label>
                         <span class="red_require"> *</span>
                         <select class="form-select" th:field="*{category}">
                             <option th:value="${category.id}" th:each="category: ${listCategory}"
@@ -240,8 +240,8 @@
                 formGroupSelector: '.form-group',
                 errorSelector: '.error',
                 rules: [
-                    Validator.isRequired('#categoryCode', 'Vui lòng nhập mã loại hàng'),
-                    Validator.isRequired('#categoryName', 'Vui lòng nhập tên loại hàng'),
+                    Validator.isRequired('#categoryCode', 'Vui lòng nhập mã loại sản phẩm'),
+                    Validator.isRequired('#categoryName', 'Vui lòng nhập tên loại sản phẩm'),
                     Validator.maxLength('#categoryName', 30),
                     Validator.maxLength('#categoryCode', 20)
                 ],

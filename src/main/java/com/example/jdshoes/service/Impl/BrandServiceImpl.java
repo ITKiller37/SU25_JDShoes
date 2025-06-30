@@ -23,6 +23,24 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public BrandDto createBrandApi(BrandDto brandDto) {
 
+        // 1. Kiểm tra nếu tên nhãn hàng rỗng hoặc chỉ chứa khoảng trắng
+        if (brandDto.getName() == null || brandDto.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên nhãn hàng");
+        }
+        // 2. Kiểm tra nếu tên nhãn hàng đã tồn tại
+        if (brandRepository.existsByName(brandDto.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên nhãn hàng '" + brandDto.getName() + "' đã tồn tại");
+        }
+
+        // 3. Kiểm tra nếu mã nhãn hàng rỗng hoặc chỉ chứa khoảng trắng
+        if (brandDto.getCode() == null || brandDto.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
+        }
+        // 4. Kiểm tra nếu mã nhãn hàng đã tồn tại
+        if (brandRepository.existsByCode(brandDto.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng '" + brandDto.getCode() + "' đã tồn tại");
+        }
+
         Brand brand = convertToEntity(brandDto);
         brand.setStatus(1);
         brand.setDeleteFlag(false);
@@ -37,11 +55,20 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public Brand createBrand(Brand brand) {
-        if(brand.getCode() == null) {
+        // Kiểm tra mã
+        if (brand.getCode() == null || brand.getCode().trim().isEmpty()) {
             throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
         }
-        if(brandRepository.existsByCode(brand.getCode().trim())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng đã tồn tại");
+        if (brandRepository.existsByCode(brand.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng '" + brand.getCode() + "' đã tồn tại");
+        }
+
+        // Kiểm tra tên
+        if (brand.getName() == null || brand.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên nhãn hàng");
+        }
+        if (brandRepository.existsByName(brand.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên nhãn hàng '" + brand.getName() + "' đã tồn tại");
         }
         brand.setStatus(1);
         brand.setDeleteFlag(false);
@@ -60,17 +87,39 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public Brand updateBrand(Long id, Brand brand) {
-        if(brand.getCode() == null) {
+        // Lấy brand hiện có từ DB
+        Brand existingBrand = brandRepository.findById(id)
+                .orElseThrow(() -> new ShoesApiException(HttpStatus.NOT_FOUND, "Không tìm thấy nhãn hàng với ID: " + id));
+
+        // Kiểm tra mã nhãn hàng
+        if (brand.getCode() == null || brand.getCode().trim().isEmpty()) {
             throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
         }
-        Brand existingBrand = brandRepository.findById(brand.getId()).orElseThrow(null);
-        if(!existingBrand.getCode().equals(brand.getCode())) {
-            if(brandRepository.existsByCode(brand.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng " + brand.getCode() + " đã tồn tại");
+        // Chỉ kiểm tra trùng mã nếu mã mới khác mã cũ
+        if (!existingBrand.getCode().equals(brand.getCode().trim())) {
+            if (brandRepository.existsByCode(brand.getCode().trim())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng '" + brand.getCode() + "' đã tồn tại");
             }
         }
-        brand.setDeleteFlag(false);
-        return brandRepository.save(brand);
+
+        // Kiểm tra tên khi sửa
+        if (brand.getName() == null || brand.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên nhãn hàng");
+        }
+        // Chỉ kiểm tra trùng tên nếu tên mới khác tên cũ, và tên đó không phải của chính bản ghi đang sửa
+        if (!existingBrand.getName().equals(brand.getName().trim())) {
+            if (brandRepository.existsByNameAndIdNot(brand.getName().trim(), id)) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên nhãn hàng '" + brand.getName() + "' đã tồn tại");
+            }
+        }
+
+        // Cập nhật các trường của existingBrand
+        existingBrand.setCode(brand.getCode().trim());
+        existingBrand.setName(brand.getName().trim());
+        existingBrand.setStatus(brand.getStatus()); // Giữ nguyên trạng thái hoặc cập nhật nếu có từ request
+        existingBrand.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
+
+        return brandRepository.save(existingBrand);
     }
 
     @Override

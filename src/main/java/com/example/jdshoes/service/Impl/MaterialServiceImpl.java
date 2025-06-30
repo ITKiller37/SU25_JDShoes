@@ -27,6 +27,21 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public MaterialDto createMaterialApi(MaterialDto materialDto) {
 
+        // Kiểm tra tên và mã khi tạo Material qua API
+        if (materialDto.getName() == null || materialDto.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên chất liệu");
+        }
+        if (materialRepository.existsByName(materialDto.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên chất liệu '" + materialDto.getName() + "' đã tồn tại");
+        }
+
+        if (materialDto.getCode() == null || materialDto.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã chất liệu");
+        }
+        if (materialRepository.existsByCode(materialDto.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu '" + materialDto.getCode() + "' đã tồn tại");
+        }
+
         Material material = convertToEntity(materialDto);
         material.setStatus(1);
         material.setDeleteFlag(false);
@@ -41,9 +56,22 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public Material createMaterial(Material material) {
-        if(materialRepository.existsByCode(material.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu " + material.getCode() + " đã tồn tại");
+        // Kiểm tra mã
+        if (material.getCode() == null || material.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã chất liệu");
         }
+        if(materialRepository.existsByCode(material.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu '" + material.getCode() + "' đã tồn tại");
+        }
+
+        // THÊM KIỂM TRA TÊN KHI THÊM
+        if (material.getName() == null || material.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên chất liệu");
+        }
+        if (materialRepository.existsByName(material.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên chất liệu '" + material.getName() + "' đã tồn tại");
+        }
+
         material.setDeleteFlag(false);
         return materialRepository.save(material);
     }
@@ -62,13 +90,38 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public Material updateMaterial(Material material) {
-        Material existingMaterial = materialRepository.findById(material.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy chất liệu"));
-        if(!existingMaterial.getCode().equals(material.getCode())) {
-            if(materialRepository.existsByCode(material.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu " + material.getCode() + " đã tồn tại");
+        // Lấy material hiện có từ DB
+        Material existingMaterial = materialRepository.findById(material.getId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy chất liệu với ID: " + material.getId())); // Thêm thông báo lỗi rõ ràng
+
+        // Kiểm tra mã chất liệu
+        if (material.getCode() == null || material.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã chất liệu");
+        }
+        // Chỉ kiểm tra trùng mã nếu mã mới khác mã cũ
+        if(!existingMaterial.getCode().equals(material.getCode().trim())) {
+            if(materialRepository.existsByCode(material.getCode().trim())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã chất liệu '" + material.getCode() + "' đã tồn tại");
             }
         }
-        material.setDeleteFlag(false);
+
+        // THÊM KIỂM TRA TÊN KHI SỬA
+        if (material.getName() == null || material.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên chất liệu");
+        }
+        // Chỉ kiểm tra trùng tên nếu tên mới khác tên cũ, và tên đó không phải của chính bản ghi đang sửa
+        if (!existingMaterial.getName().equals(material.getName().trim())) {
+            if (materialRepository.existsByNameAndIdNot(material.getName().trim(), material.getId())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên chất liệu '" + material.getName() + "' đã tồn tại");
+            }
+        }
+
+        // Cập nhật các trường của existingMaterial
+        existingMaterial.setCode(material.getCode().trim());
+        existingMaterial.setName(material.getName().trim());
+        existingMaterial.setStatus(material.getStatus()); // Giữ nguyên trạng thái hoặc cập nhật nếu có từ request
+        existingMaterial.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
+
         return materialRepository.save(material);
     }
 

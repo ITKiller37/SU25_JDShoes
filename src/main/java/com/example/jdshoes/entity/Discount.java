@@ -48,6 +48,7 @@ public class Discount {
 
     private String note;
 
+
     private boolean deleteFlag;
 
     private Integer status;
