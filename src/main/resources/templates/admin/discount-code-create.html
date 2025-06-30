@@ -152,73 +152,73 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script th:inline="javascript">
         $(document).ready(function () {
-            var discountType = [[${discount.type}]];
-
-            function toggleDiscountFields(type) {
-                if (type == 2) { // Giảm theo số tiền
-                    $("#discount-by-percent").hide();
-                    $("#max-amount-by-percent").hide();
-                    $("#discountAmount").prop('disabled', false).closest('.row').show(); // Hiển thị dòng số tiền giảm
-                    $('#percentage').prop('disabled', true);
-                    $('#maximumAmount').prop('disabled', true);
-                } else { // Giảm theo phần trăm
-                    $("#discount-by-money").hide();
-                    $("#discountAmount").prop('disabled', true);
-                    $("#discount-by-percent").show().find('#percentage').prop('disabled', false); // Hiển thị dòng phần trăm giảm
-                    $("#max-amount-by-percent").show().find('#maximumAmount').prop('disabled', false); // Hiển thị dòng số tiền giảm tối đa
-                }
+            var type = /*[[${discount.type}]]*/ '';
+            $("#discount-by-money").hide()
+            $("#discountAmount").prop('disabled', true)
+            if(type == 2) {
+                $("#discount-by-percent").hide()
+                $("#max-amount-by-percent").hide()
+                $("#discount-by-money").show()
+                $("#discountAmount").prop('disabled', false)
+                $('#percentage').prop('disabled', true)
+                $('#maximumAmount').prop('disabled', true)
             }
 
-            toggleDiscountFields(discountType);
-
             $("#type1").on("click", function () {
-                toggleDiscountFields(1); // Phần trăm
-            });
+                $("#discount-by-money").hide()
+                $("#discount-by-percent").show()
+                $("#max-amount-by-percent").show()
+                $("#discountAmount").prop('disabled', true)
+                $('#percentage').prop('disabled', false)
+                $('#maximumAmount').prop('disabled', false)
+            })
 
             $("#type2").on("click", function () {
-                toggleDiscountFields(2); // Số tiền
-            });
+                $("#discount-by-money").show()
+                $("#discount-by-percent").hide()
+                $("#max-amount-by-percent").hide()
+                $("#discountAmount").prop('disabled', false)
+                $('#percentage').prop('disabled', true)
+                $('#maximumAmount').prop('disabled', true)
+
+            })
 
             Validator({
                 form: '#discount-code-form',
                 formGroupSelector: '.form-group',
                 errorSelector: '.error',
                 rules: [
+                    // Validator.isRequired('#code', 'Vui lòng nhập mã giảm giá'),
                     Validator.isRequired('#name', 'Vui lòng nhập tên giảm giá'),
                     Validator.isRequired('#startDate', 'Vui lòng nhập ngày bắt đầu'),
                     Validator.isRequired('#endDate', 'Vui lòng nhập ngày kết thúc'),
                     Validator.isRequired('#maximumUsage', "Vui lòng nhập số lượng tối đa"),
+                    Validator.isRequired('#discountAmount', "Vui lòng nhập số tiền giảm giá"),
                     Validator.isRequired('#minimumAmount', "Vui lòng nhập số tiền áp dụng cho đơn tối thiểu"),
+                    Validator.isRequired('#percentage', 'Vui lòng nhập phần trăm giảm'),
+                    Validator.isRequired('#maximumAmount', 'Vui lòng nhập số tiền giảm tối đa mỗi đơn'),
                     Validator.isRequired('#note', 'Vui lòng nhập ghi chú'),
-
-                    function (value) {
-                        if ($("#type2").is(":checked")) {
-                            return Validator.isRequired('#discountAmount', "Vui lòng nhập số tiền giảm giá").test(document.querySelector('#discountAmount').value);
-                        }
-                        return true;
-                    },
-                    function (value) {
-                        if ($("#type1").is(":checked")) {
-                            return Validator.isRequired('#percentage', 'Vui lòng nhập phần trăm giảm').test(document.querySelector('#percentage').value);
-                        }
-                        return true;
-                    },
-                    function (value) {
-                        if ($("#type1").is(":checked")) {
-                            return Validator.isRequired('#maximumAmount', 'Vui lòng nhập số tiền giảm tối đa mỗi đơn').test(document.querySelector('#maximumAmount').value);
-                        }
-                        return true;
-                    },
-
-                    Validator.isValidStartDateEndDate('#startDate', () => {
+                    // Validator.maxLength('#code', 50),
+                    Validator.isValidStartDateEndDate('#startDate', () =>  {
                         return document.querySelector('#discount-code-form #endDate').value;
                     }, 'Ngày áp dụng phải nhỏ hơn ngày kết thúc')
                 ]
             });
 
+            // $('#discount-code-form').on('submit', function () {
+            //     if($('#startDate').val() >= $('#endDate').val()) {
+            //         Swal.fire({
+            //             text:'Ngày áp dụng phải nhỏ hơn ngày kết thúc',
+            //             icon: 'error'
+            //         })
+            //         return false;
+            //     }
+            //     return true
+            // })
+
+
             $("#percentage").on('input', function () {
-                let percentageValue = parseInt($(this).val());
-                if (percentageValue > 98) {
+                if(parseInt($(this).val()) > 98) {
                     $(this).val(98);
                     Toastify({
                         text: "Giảm giá tối đa 98%",
@@ -229,21 +229,41 @@
                         }
                     }).showToast();
                 }
+            })
+
+            $("#discountAmount").on('keypress', function (e) {
+                onlyAllowNumberInput(e)
+            });
+
+            $("#percentage").on('keypress', function (e) {
+                onlyAllowNumberInput(e)
+            });
+
+            $('#maximumAmount').on('keypress', function (e) {
+                onlyAllowNumberInput(e)
+            })
+
+            $("#minimumAmountInCart").on('keypress', function (e) {
+                onlyAllowNumberInput(e)
+            });
+
+            $("#maximumUsage").on('keypress', function (e) {
+                onlyAllowNumberInput(e)
             });
 
             function onlyAllowNumberInput(e) {
                 const key = e.key;
-                if (!/\d/.test(key) && key !== 'Backspace' && key !== 'Delete' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
+                if (!/[\d\b]/.test(key)) {
                     e.preventDefault();
                 }
             }
 
-            $("#discountAmount").on('keypress', onlyAllowNumberInput);
-            $("#percentage").on('keypress', onlyAllowNumberInput);
-            $('#maximumAmount').on('keypress', onlyAllowNumberInput);
-            $("#minimumAmount").on('keypress', onlyAllowNumberInput);
-            $("#maximumUsage").on('keypress', onlyAllowNumberInput);
-        });
+            function removeAnyNonDigit(value) {
+                return value.replace(/\D/g, '');
+            }
+
+
+        })
     </script>
 </div>
 </body>
