@@ -1,5 +1,6 @@
 package com.example.jdshoes.service.Impl;
 
+import com.example.jdshoes.dto.Discount.SearchDiscountCodeDto;
 import com.example.jdshoes.entity.Discount;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.repository.DiscountRepository;
@@ -32,11 +33,26 @@ public class DiscountServiceImpl implements DiscountService {
     public Optional<Discount> getDiscountById(Integer id){
         return discountRepository.findById(id);
     }
-
+    @Override
+    public Page<Discount> searchDiscounts(SearchDiscountCodeDto searchDto, Pageable pageable) {
+        return discountRepository.findDiscountsByFilter(
+                searchDto.getCode(),
+                searchDto.getStartDate(),
+                searchDto.getEndDate(),
+                searchDto.getStatus(),
+                searchDto.getMaximumUsage(),
+                pageable
+        );
+    }
     @Override
     public Discount createDiscount (Discount discount){
         return discountRepository.save(discount);
     }
+
+    public Discount findById(Integer id) {
+        return discountRepository.findById(id).orElse(null);
+    }
+
 
     @Override
     public void updateDiscount(Discount discountInput) {
@@ -62,28 +78,31 @@ public class DiscountServiceImpl implements DiscountService {
             discountRepository.save(existingDiscount);
         }
     }
-    @Override
-    public Discount updateStatus(Integer discountCodeId, int status) {
-        Discount discountCode = discountRepository.findById(discountCodeId).orElseThrow(() -> new NotFoundException("Không tìm thấy mã giảm giá"));
-        discountCode.setStatus(status);
-        return convertToDto(discountRepository.save(discountCode));
-    }
-    private Discount convertToDto(Discount discountCode) {
-        Discount dto = new Discount();
-        dto.setId(discountCode.getId());
-        dto.setCode(discountCode.getCode().trim());
-        dto.setName(discountCode.getName().trim());
-        dto.setDiscountAmount(discountCode.getDiscountAmount());
-        dto.setMaximumAmount(discountCode.getMaximumAmount());
-        dto.setMinimumAmount(discountCode.getMinimumAmount());
-        dto.setPercentage(discountCode.getPercentage());
-        dto.setStartDate(discountCode.getStartDate());
-        dto.setEndDate(discountCode.getEndDate());
-        dto.setType(discountCode.getType());
-        dto.setMaximumUsage(discountCode.getMaximumUsage());
-        dto.setDeleteFlag(discountCode.getDeleteFlag());
-        dto.setStatus(discountCode.getStatus());
-        dto.setNote(discountCode.getNote());
-        return dto;
-    }
+
+//    @Override
+//    public Discount updateStatus(Integer discountCodeId, int status) {
+//        Discount discountCode = discountRepository.findById(discountCodeId).orElseThrow(() -> new NotFoundException("Không tìm thấy mã giảm giá"));
+//        discountCode.setStatus(status);
+//        return convertToDto(discountRepository.save(discountCode));
+//    }
+//    private Discount convertToDto(Discount discountCode) {
+//        Discount dto = new Discount();
+//        dto.setId(discountCode.getId());
+//        dto.setCode(discountCode.getCode().trim());
+//        dto.setName(discountCode.getName().trim());
+//        dto.setDiscountAmount(discountCode.getDiscountAmount());
+//        dto.setMaximumAmount(discountCode.getMaximumAmount());
+//        dto.setMinimumAmount(discountCode.getMinimumAmount());
+//        dto.setPercentage(discountCode.getPercentage());
+//        dto.setStartDate(discountCode.getStartDate());
+//        dto.setEndDate(discountCode.getEndDate());
+//        dto.setType(discountCode.getType());
+//        dto.setMaximumUsage(discountCode.getMaximumUsage());
+//        dto.setDeleteFlag(discountCode.isDeleteFlag());
+//        dto.setStatus(discountCode.getStatus());
+//        dto.setNote(discountCode.getNote());
+//        return dto;
+//    }
+
+  
 }

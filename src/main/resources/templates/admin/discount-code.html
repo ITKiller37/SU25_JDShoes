@@ -7,41 +7,54 @@
 </head>
 <body>
 <div id="app" layout:fragment="content">
-    <h4>Mã giảm giá</h4>
+    <h4>Danh sách mã giảm giá</h4>
 
     <div class="my-3">
-        <form action="/admin-only/searchDiscounts" method="get">
-            <div class="form-row align-items-end">
-                <div class="form-group col-md-4">
-                    <label for="searchTerm">Tìm kiếm giảm giá</label>
-                    <input type="text" class="form-control" id="searchTerm" name="searchTerm" th:value="${searchTerm}" placeholder="Mã, tên, hoặc số tiền...">
+        <form th:action="@{/admin-only/discounts}" method="get" class="my-3">
+            <div class="form-row">
+                <div class="form-group col-md-2">
+                    <label for="code">Mã giảm giá</label>
+                    <input type="text" class="form-control" id="code" name="code" placeholder="Nhập mã, tên" th:value="${dataSearch.keyword}">
                 </div>
 
                 <div class="form-group col-md-2">
-                    <button type="submit" id="search-btn" class="btn btn-primary btn-block">
-                        <i class="fa fa-search"></i> Tìm kiếm
-                    </button>
+                    <label>Ngày áp dụng</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate" th:value="${#dates.format(dataSearch.startDate, 'yyyy-MM-dd')}">
                 </div>
 
                 <div class="form-group col-md-2">
-                    <a href="/admin-only/searchDiscounts" class="btn btn-secondary btn-block">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" style="margin-bottom: 3px;">
-                            <path fill="currentColor"
-                                  d="M2.57 3h18.86l-6.93 9.817V21h-5v-8.183L2.57 3Zm3.86 2l5.07 7.183V19h1v-6.817L17.57 5H6.43Zm11.45 8.465L20 15.586l2.122-2.121l1.414 1.414L21.415 17l2.121 2.122l-1.414 1.414L20 18.414l-2.12-2.122l-1.415-1.415l2.121-2.12l-2.121-2.122l1.414-1.414Z" />
-                        </svg>
-                        Hủy bỏ
-                    </a>
+                    <label>Ngày kết thúc</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate" th:value="${#dates.format(dataSearch.endDate, 'yyyy-MM-dd')}">
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label>Trạng thái</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="">Tất cả</option>
+                        <option value="1" th:selected="${dataSearch.status == 1}">Đang hoạt động</option>
+                        <option value="0" th:selected="${dataSearch.status == 0}">Đã đóng</option>
+                        <option value="2" th:selected="${dataSearch.status == 2}">Sắp diễn ra</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label>Số lượng còn</label>
+                    <input type="text" class="form-control" id="maximumUsage" name="maximumUsage" placeholder="1234" th:value="${dataSearch.maximumUsage}">
                 </div>
             </div>
+
+            <button type="submit" class="btn btn-primary m-1">
+                <i class="fa fa-search"></i> Tìm kiếm
+            </button>
+            <a th:href="@{/admin-only/discounts}" class="btn btn-secondary m-1">Hủy bỏ</a>
         </form>
         <div class="text-right">
             <form th:action="@{/admin-only/form-add-discount}" method="get" style="display:inline;">
                 <button type="submit" class="btn btn-success rounded-pill" style="width: 100px">Thêm</button>
             </form>
         </div>
-
-
     </div>
+
     <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
     <table class="table my-3">
         <thead class="thead-light">
@@ -55,7 +68,6 @@
             <th scope="col">Giảm tối đa</th>
             <th scope="col">Đơn tối thiểu</th>
             <th scope="col">Số lượng</th>
-            <th scope="col">Tình trạng</th>
             <th scope="col">Trạng thái</th>
             <th scope="col">Thao tác</th>
         </tr>
@@ -68,32 +80,36 @@
             <td th:text="${#temporals.format(discountCode.startDate, 'dd/MM/yyyy HH:mm:ss')}"></td>
             <td th:text="${#temporals.format(discountCode.endDate, 'dd/MM/yyyy HH:mm:ss')}"></td>
             <td th:text="${discountCode.type == 1 ? discountCode.percentage + ' %' : #numbers.formatDecimal(discountCode.discountAmount, 0, 'POINT', 0, 'COMMA') + ' đ'}"></td>
-            <td th:text="${discountCode.maximumAmount}"></td>
-            <td th:text="${discountCode.minimumAmount}"></td>
+            <td th:if="${discountCode.maximumAmount != null}"
+                th:text="${#numbers.formatDecimal(discountCode.maximumAmount, 0, 'POINT', 0, 'COMMA') + ' đ'}">
+            </td>
+            <td th:if="${discountCode.maximumAmount == null}"></td>
+
+
+            <td th:text="${#numbers.formatDecimal(discountCode.minimumAmount, 0, 'POINT', 0, 'COMMA') + ' đ'}"></td>
             <td th:text="${discountCode.maximumUsage}"></td>
             <td>
-                <span th:if="${discountCode.deleteFlag}" class="border border-success text-success rounded px-1">Đang diễn ra</span>
-                <span th:unless="${discountCode.deleteFlag}" class="border border-danger text-danger rounded px-1">Đã đóng</span>
+                <span th:if="${discountCode.status == 1}"
+                      th:id="'status-' + ${discountCode.id}"
+                      class="border border-success text-success rounded px-1">Đang hoạt động</span>
+                <span th:if="${discountCode.status == 0}"
+                      th:id="'status-' + ${discountCode.id}"
+                      class="border border-danger text-danger rounded px-1">Đã đóng</span>
+                <span th:if="${discountCode.status == 2}"
+                      th:id="'status-' + ${discountCode.id}"
+                      class="border border-warning text-warning rounded px-1">Sắp diễn ra</span>
+
             </td>
             <td>
-                <span th:if="${discountCode.status == 1}" class="border border-success text-success rounded px-1">Hoạt động</span>
-                <span th:if="${discountCode.status == 0}" class="border border-danger text-danger rounded px-1">Đã đóng</span>
-            </td>
-            <td>
-                <form th:if="${discountCode.status == 1}" th:action="@{/admin/update-discount-status/0}" method="post" class="form-close-discount d-inline" >
+                <form th:action="@{/admin-only/change-discount-status}" method="post" class="form-close-discount d-inline">
                     <input type="hidden" name="id" th:value="${discountCode.id}">
-                    <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Đóng mã giảm giá">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="red" d="M2.93 17.07A10 10 0 1 1 17.07 2.93A10 10 0 0 1 2.93 17.07zm1.41-1.41A8 8 0 1 0 15.66 4.34A8 8 0 0 0 4.34 15.66zm9.9-8.49L11.41 10l2.83 2.83l-1.41 1.41L10 11.41l-2.83 2.83l-1.41-1.41L8.59 10L5.76 7.17l1.41-1.41L10 8.59l2.83-2.83l1.41 1.41z"/></svg>
+                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Đổi trạng thái">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                        </svg>
                     </button>
                 </form>
-
-                <form th:if="${discountCode.status == 0}" th:action="@{/admin/update-discount-status/1}" method="post" class="form-open-discount d-inline" >
-                    <input type="hidden" name="id" th:value="${discountCode.id}">
-                    <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Mở mã giảm giá">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><path fill="none" stroke="green" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M384 224v184a40 40 0 0 1-40 40H104a40 40 0 0 1-40-40V168a40 40 0 0 1 40-40h167.48M336 64h112v112M224 288L440 72"/></svg>
-                    </button>
-                </form>
-
                 <form th:action="@{/admin-only/detailDiscount/{id}(id=${discountCode.id})}" method="get" class="form-open-discount d-inline">
                     <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Mở mã giảm giá">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m7 17.013l4.413-.015l9.632-9.54c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586c-.756-.756-2.075-.752-2.825-.003L7 12.583v4.43zM18.045 4.458l1.589 1.583l-1.597 1.582l-1.586-1.585l1.594-1.58zM9 13.417l6.03-5.973l1.586 1.586l-6.029 5.971L9 15.006v-1.589z"/><path fill="currentColor" d="M5 21h14c1.103 0 2-.897 2-2v-8.668l-2 2V19H8.158c-.026 0-.053.01-.079.01c-.033 0-.066-.009-.1-.01H5V5h6.847l2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2z"/></svg>
@@ -134,8 +150,8 @@
             var form = this; // select the form
 
             Swal.fire({
-                title: 'Đóng mã giảm giá',
-                text: 'Bạn chắc chắc muốn đóng mã giảm giá này?',
+                title: 'Đổi trạng thái mã giảm giá',
+                text: 'Bạn chắc chắc muốn đổi trạng thái mã giảm giá này?',
                 icon: 'warning',
                 showCancelButton: true,
                 cancelButtonText: 'Hủy',
@@ -204,6 +220,32 @@
             }
         });
     </script>
+    <script>
+        function updateStatuses() {
+            fetch('/admin-only/discount-statuses')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        const element = document.getElementById('status-' + item.id);
+                        if (element) {
+                            if (item.status === 1) {
+                                element.textContent = 'Đang hoạt động';
+                                element.className = 'border border-success text-success rounded px-1';
+                            } else if (item.status === 0) {
+                                element.textContent = 'Đã đóng';
+                                element.className = 'border border-danger text-danger rounded px-1';
+                            } else if (item.status === 2) {
+                                element.textContent = 'Sắp diễn ra';
+                                element.className = 'border border-warning text-warning rounded px-1';
+                            }
+                        }
+                    });
+                });
+        }
+        setInterval(updateStatuses, 60000); // cập nhật mỗi 5 giây
+    </script>
+
+
 </div>
 
 </body>
