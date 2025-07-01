@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -22,17 +23,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                )
-                .securityContext(context -> context
-                        .securityContextRepository(fakeAdminContextRepository())
-                )
-                .csrf(csrf -> csrf.disable())
-                .build();
-    }
+        http
+                .csrf().disable()
+                .authorizeRequests()
+                .anyRequest().permitAll()
+                .and()
+                .securityContext()
+                .securityContextRepository(fakeAdminContextRepository());
 
+        return http.build();
+    }
 
     private SecurityContextRepository fakeAdminContextRepository() {
         return new SecurityContextRepository() {
@@ -41,7 +41,7 @@ public class SecurityConfig {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
 
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        "admin@example.com",
+                        new User("admin@example.com", "", Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))),
                         null,
                         Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
                 );

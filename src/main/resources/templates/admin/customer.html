@@ -18,6 +18,7 @@
         </form>
         <button form="formsearch" class="btn btn-primary">Tìm kiếm</button>
         <a href="/admin/customers" class="btn btn-primary" style="margin-left: 20px"><i class="fa fa-refresh"></i></a>
+        <a href="/admin/add-customer" class="btn btn-primary" style="margin-left: 20px"><i class="fa fa-plus"></i></a>
     </div>
     <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
     <table class="table my-3">
@@ -32,6 +33,8 @@
             <th scope="col">Số điện thoại</th>
             <th scope="col">Email</th>
             <th scope="col">Mã tài khoản</th>
+            <th scope="col">Địa chỉ</th>
+            <th scope="col">Thao tác</th>
         </tr>
         </thead>
         <tbody>
@@ -42,6 +45,18 @@
             <td th:text="${items.phoneNumber}"></td>
             <td th:text="${items.email}"></td>
             <td th:text="${items.account == null ? '':items.account.code}"></td>
+            <td>
+<!--                <select class="form-control">-->
+<!--                    <option th:each="add:${items.addressShippings}" th:text="${add.address}"></option>-->
+<!--                </select>-->
+                <div style="max-height: 120px; overflow: auto">
+                    <span th:each="add:${items.addressShippings}" th:text="${add.address}" style="display: block"></span>
+                </div>
+            </td>
+            <td>
+                <a th:href="@{/admin/delete-customer(id=${items.id})}" onclick="return confirm('Bạn có chắc chắn muốn xóa khách hàng này?');"><i class="fa fa-trash" ></i></a>
+<!--                <a th:href="@{/admin/edit-customer(id=${items.id})}"><i class="fa fa-edit" ></i></a>-->
+            </td>
         </tr>
         </tbody>
     </table>
