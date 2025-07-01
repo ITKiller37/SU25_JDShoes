@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
->
-<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      lang="en">
 <head th:replace="fragments-admin::page_head('Admin page')">
     <script>
 
@@ -40,24 +41,24 @@
                     <a th:href="@{/admin}"> <i class="menu-icon fas fa-home"></i>Trang chủ </a>
                 </li>
                 <li class="active">
-                    <a th:href="@{/admin/pos}"> <i class="menu-icon fa fa-shopping-bag"></i>Bán hàng tại quầy </a>
+                    <a th:href="@{/admin/pos}"> <i class="menu-icon fas fa-shopping-cart"></i>Bán hàng tại quầy </a>
                 </li>
                 <h3 class="menu-title">QUẢN LÝ</h3><!-- /.menu-title -->
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false"> <i class="menu-icon fa fa-laptop"></i>Quản lý sản phẩm</a>
+                       aria-expanded="false"> <i class="menu-icon fas fa-shoe-prints"></i>Quản lý sản phẩm</a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fas fa-tshirt"></i><a th:href="@{/admin/product-all}">Sản phẩm</a></li>
-                        <li><i class="fas fa-palette"></i><a th:href="@{/admin/color-list}">Màu sắc</a></li>
-                        <li><i class="fas fa-cubes"></i><a th:href="@{/admin/category-all}">Loại sản phẩm</a></li>
-                        <li><i class="fab fa-cotton-bureau"></i><a th:href="@{/admin/material-all}">Chất liệu</a></li>
+                        <li><i class="fas fa-socks"></i><a th:href="@{/admin/product-all}">Sản phẩm</a></li>
+                        <li><i class="fas fa-palette"></i><a th:href="@{/admin/color-all}">Màu sắc</a></li>
+                        <li><i class="fas fa-tags"></i><a th:href="@{/admin/category-all}">Loại sản phẩm</a></li>
+                        <li><i class="fas fa-layer-group"></i><a th:href="@{/admin/material-all}">Chất liệu</a></li>
                         <li><i class="fas fa-ruler"></i><a th:href="@{/admin/size-all}">Kích cỡ</a></li>
-                        <li><i class="far fa-copyright"></i><a th:href="@{/admin/brand-all}">Nhãn hàng</a></li>
+                        <li><i class="fas fa-medal"></i><a th:href="@{/admin/brand-all}">Nhãn hàng</a></li>
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false"> <i class="menu-icon fa fa-table"></i>Quản lý hóa đơn</a>
+                       aria-expanded="false"> <i class="menu-icon fas fa-file-invoice-dollar"></i>Quản lý hóa đơn</a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="fas fa-file-invoice"></i><a th:href="@{/admin/bill-list}">Hóa đơn</a></li>
                         <li sec:authorize="hasRole('ADMIN')"><i class="fas fa-exchange-alt"></i><a th:href="@{/admin-only/bill-return}">Đổi trả</a></li>
@@ -66,16 +67,16 @@
                 </li>
                 <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false"> <i class="menu-icon fa fa-american-sign-language-interpreting"></i>Công cụ khuyến mãi</a>
+                       aria-expanded="false"> <i class="menu-icon fas fa-tags"></i>Giảm giá</a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-hand-peace-o"></i><a th:href="@{/admin-only/discount-code}">Mã giảm giá</a></li>
+                        <li><i class="fas fa-ticket-alt"></i><a th:href="@{/admin-only/discounts}">Phiếu giảm giá</a></li>
                         <li><i class="fas fa-tag"></i><a th:href="@{/admin-only/product-discount}">Giảm giá sản phẩm</a></li>
                     </ul>
                 </li>
 
                 <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false"> <i class="menu-icon fas fa-shopping-basket"></i>Giao dịch</a>
+                       aria-expanded="false"> <i class="menu-icon fas fa-exchange-alt"></i>Giao dịch</a>
                     <ul class="sub-menu children dropdown-menu">
                         <!--                        <li><i class="fas fa-cash-register"></i><a th:href="@{/admin/transaction}">Theo dõi thanh toán online</a></li>-->
                         <li><i class="fas fa-undo"></i><a th:href="@{/admin-only/need-refund-mng}">Đơn hoàn tiền</a></li>
@@ -84,7 +85,7 @@
 
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false"> <i class="menu-icon fas fa-project-diagram"></i>Thống kê</a>
+                       aria-expanded="false"> <i class="menu-icon fas fa-chart-bar"></i>Thống kê</a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="fas fa-chart-line"></i><a th:href="@{/admin/thong-ke-doanh-thu}">Doanh Thu</a></li>
                         <li><i class="fas fa-chart-pie"></i><a th:href="@{/admin/thong-ke-san-pham}">Sản phẩm</a></li>
@@ -105,8 +106,8 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                        aria-expanded="false"> <i class="menu-icon fa fa-glass"></i>Khác</a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="menu-icon fa fa-sign-in"></i><a th:href="@{/user_logout}">Đăng xuất</a></li>
-                        <li><i class="menu-icon fa fa-paper-plane"></i><a th:href="@{/profile}">Cập nhật thông tin</a>
+                        <li><i class="fas fa-sign-out-alt"></i><a th:href="@{/user_logout}">Đăng xuất</a></li>
+                        <li><i class="fas fa-user-edit"></i><a th:href="@{/profile}">Cập nhật thông tin</a>
                         </li>
                     </ul>
                 </li>
@@ -125,10 +126,10 @@
 
         <div class="col-sm-5">
             <div class="user-area dropdown float-right">
-                <span sec:authentication="principal.username"></span>
+
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                    aria-expanded="false">
-                    <img class="user-avatar rounded-circle" src="https://www.kkday.com/vi/blog/wp-content/uploads/chup-anh-dep-bang-dien-thoai-25.jpg" alt="User Avatar" style="border-radius: 50%; height: 34px; width: 34px;">
+                    <img class="user-avatar rounded-circle" th:src="@{/admin/images/icons8-admin1.png}" alt="Logo" style="border-radius: 50%; height: 34px; width: 34px;">
                 </a>
 
                 <div class="user-menu">
