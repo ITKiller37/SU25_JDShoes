@@ -1,7 +1,5 @@
 package com.example.jdshoes.repository;
 
-
-
 import com.example.jdshoes.dto.Statistic.TopCustomerBuy;
 import com.example.jdshoes.entity.Customer;
 import org.springframework.data.domain.Page;
@@ -22,6 +20,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT c FROM Customer c WHERE c.code LIKE %:keyword% OR c.name LIKE %:keyword% OR c.phoneNumber LIKE %:keyword%")
     Page<Customer> searchCustomerKeyword(String keyword,Pageable pageable);
 
+
     @Query(value = "SELECT LIMIT 5 c.code, c.name, COUNT(c.id) AS totalPurchases, sum(b.amount) as revenue\n" +
             "           FROM Customer c\n" +
             "           JOIN bill b on b.customer_id = c.id\n" +
@@ -35,25 +34,14 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Customer findByPhoneNumber(String phoneNumber);
 
     Customer findByAccount_Id(Long id);
+    Customer findByAccount_Email(String email);
 
-
-    @Query("SELECT c FROM Customer c " +
-            "JOIN Account a ON a.customer = c " +
-            "JOIN Role r ON a.role = r " +
-            "WHERE r.name = 'ROLE_USER'")
+    @Query("select c from Customer c where c.name = ?1 and c.phoneNumber = ?2 and c.email = ?3 and (c.deleted is null or c.deleted = false)")
     Customer findByAll(String fullName, String phone, String email );
 
-    @Query("SELECT c FROM Customer c " +
-            "JOIN Account a ON a.customer = c " +
-            "JOIN Role r ON a.role = r " +
-            "WHERE r.name = 'ROLE_USER'")
-    Page<Customer> findAllCustomerRoleUser(Pageable pageable);
+    @Query("select c from Customer c where (c.phoneNumber like ?1 or c.name like ?1 or c.code like ?1) and (c.deleted is null or c.deleted = false)")
+    Page<Customer> findByParam(String search, Pageable pageable);
 
-    @Query("SELECT c FROM Customer c " +
-            "JOIN Account a ON a.customer = c " +
-            "JOIN Role r ON a.role = r " +
-            "WHERE r.name = 'ROLE_USER' AND " +
-            "(c.phoneNumber LIKE :search OR c.name LIKE :search OR c.code LIKE :search)")
-    Page<Customer> searchByParamAndRole(@Param("search") String search, Pageable pageable);
-
+    @Query("select c from Customer c where (c.deleted is null or c.deleted = false)")
+    Page<Customer> findAll(Pageable pageable);
 }
