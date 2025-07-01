@@ -28,4 +28,8 @@ public interface ProductService {
     Product getProductByCode(String code);
 
     List<ProductDto> getAllProductNoPaginationApi(SearchProductDto searchRequest);
+
+    Page<Product> getAllProduct(Pageable able);
+
+    Page<ProductDto> searchProduct(SearchProductDto searchRequest, Pageable page);
 }
