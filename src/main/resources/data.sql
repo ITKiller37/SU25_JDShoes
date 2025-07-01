@@ -1,9 +1,4 @@
 
-DELETE FROM Account;
-DELETE FROM AddressShipping;
-DELETE FROM Customer;
-DELETE FROM Role;
-
 SET IDENTITY_INSERT Role ON;
 INSERT INTO Role (id, name, createDate, updateDate)
 VALUES
