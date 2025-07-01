@@ -34,6 +34,7 @@ VALUES
     (9, N'17 Phan Đình Phùng, Huế', 5);
 SET IDENTITY_INSERT AddressShipping OFF;
 
+SET IDENTITY_INSERT Account ON;
 INSERT INTO Account (code, birthDay, email, password, createDate, updateDate, isNonLocked, customer_id, roleId)
 VALUES
     ('TK001', '1999-01-01', 'hieule@gmail.com', 'pass123', GETDATE(), GETDATE(), 1, 1, 1),
@@ -43,4 +44,4 @@ VALUES
     ('TK025', '2002-11-12', 'vanhai@gmail.com', 'passxyz', GETDATE(), GETDATE(), 1, 5, 2),
     ('TK030', '2002-11-12', 'hieugiang@gmail.com', 'passxyz', GETDATE(), GETDATE(), 1, 7, 2),
     ('TK031', '2002-11-12', 'trungkien@gmail.com', 'passfz', GETDATE(), GETDATE(), 1, 8, 2);
-
+SET IDENTITY_INSERT Account OFF;
