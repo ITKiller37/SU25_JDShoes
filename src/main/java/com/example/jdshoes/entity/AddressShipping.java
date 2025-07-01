@@ -19,13 +19,6 @@ public class AddressShipping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    private int provinceId;
-//    private int districtId;
-//    private int wardId;
-//
-//
-//    private String street;
-
 
     @Nationalized
     @Column(nullable = false, length = 150)

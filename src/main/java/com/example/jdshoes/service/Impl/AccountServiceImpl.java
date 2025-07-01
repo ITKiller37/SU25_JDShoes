@@ -1,7 +1,6 @@
 package com.example.jdshoes.service.Impl;
 
 
-
 import com.example.jdshoes.dto.Account.AccountDto;
 import com.example.jdshoes.dto.Account.ChangePasswordDto;
 import com.example.jdshoes.dto.AddressShipping.AddressShippingDto;
@@ -10,6 +9,7 @@ import com.example.jdshoes.entity.Account;
 import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.entity.Role;
+import com.example.jdshoes.entity.enumClass.RoleName;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.AccountRepository;
 import com.example.jdshoes.repository.AddressShippingRepository;
@@ -48,6 +48,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> findAllAccount() {
         return accountRepository.findAll();
+    }
+
+    @Override
+    public List<Account> findByRole(RoleName role) {
+        return accountRepository.findByRole(role);
     }
 
     @Override

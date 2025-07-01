@@ -1,13 +1,12 @@
 package com.example.jdshoes.entity;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -29,7 +28,9 @@ public class Account implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthDay;
 
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
@@ -41,6 +42,6 @@ public class Account implements Serializable {
 
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "roleId")
     private Role role;
 }

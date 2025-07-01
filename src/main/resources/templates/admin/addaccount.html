@@ -29,11 +29,7 @@
             <input th:field="*{birthDay}" type="date" class="form-control">
             <label class="lb-form">Mật khẩu</label>
             <input th:field="*{password}" type="password" class="form-control">
-            <label class="lb-form">Chọn quyền</label>
-            <select class="form-control" th:field="*{role}">
-                <option value="1">Quyền admin</option>
-                <option value="2">Quyền employee</option>
-            </select><br>
+            <br>
             <button th:text="${param.id == null?'Thêm tài khoản':'Cập nhật tài khoản'}" class="btn btn-primary form-control"></button>
         </form>
     </div>
