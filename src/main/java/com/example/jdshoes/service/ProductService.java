@@ -19,6 +19,8 @@ public interface ProductService {
 
     Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable);
 
+    Page<ProductDto> searchProduct(SearchProductDto searchDto, Pageable pageable);
+
     Page<ProductSearchDto> getAll(Pageable pageable);
 
     boolean existsByCode(String code);

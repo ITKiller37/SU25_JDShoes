@@ -26,6 +26,7 @@ public class Discount {
 
     private String code;
 
+    @Nationalized
     private String name;
 
     private Integer type;
