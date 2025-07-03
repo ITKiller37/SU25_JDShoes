@@ -21,8 +21,8 @@
     <tr>
       <th scope="col">#</th>
       <th scope="col">Mã màu
-        <a th:href="@{/admin/color-all(page=0, sort='id,asc')}" class="sort-link">↑</a>
-        <a th:href="@{/admin/color-all(page=0, sort='id,desc')}" class="sort-link">↓</a>
+        <a th:href="@{/src/main/webapp/admin/color-all(page=0, sort='id,asc')}" class="sort-link">↑</a>
+        <a th:href="@{/src/main/webapp/admin/color-all(page=0, sort='id,desc')}" class="sort-link">↓</a>
       </th>
       <th scope="col">Tên màu</th>
       <th scope="col">Thao tác</th>
@@ -42,25 +42,25 @@
   <div class="clearfix float-right">
     <ul class="pagination">
       <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/color-list(page=0, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+        <a th:href="@{/src/main/webapp/admin/color-list(page=0, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
            class="page-link">
           <i class="fas fa-angle-double-left"></i>
         </a>
       </li>
       <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/color-list(page=${items.number - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+        <a th:href="@{/src/main/webapp/admin/color-list(page=${items.number - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
            class="page-link">
           <i class="fas fa-angle-left"></i>
         </a>
       </li>
       <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/color-list(page=${items.number + 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+        <a th:href="@{/src/main/webapp/admin/color-list(page=${items.number + 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
            class="page-link">
           <i class="fas fa-angle-right"></i>
         </a>
       </li>
       <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/color-list(page=${items.totalPages - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+        <a th:href="@{/src/main/webapp/admin/color-list(page=${items.totalPages - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
            class="page-link">
           <i class="fas fa-angle-double-right"></i>
         </a>

@@ -59,7 +59,7 @@
   </div>
 
   <h4>Thông tin sản phẩm chi tiết</h4>
-  <form th:object="${form}" th:method="post" th:action="@{/admin/product-save}" enctype="multipart/form-data" id="myForm">
+  <form th:object="${form}" th:method="post" th:action="@{/src/main/webapp/admin/product-save}" enctype="multipart/form-data" id="myForm">
     <div class="my-3 attr-list">
       <div class="form-table" th:each="productDetail, iterStat : *{productDetailList}">
         <div class="form-row align-items-center">

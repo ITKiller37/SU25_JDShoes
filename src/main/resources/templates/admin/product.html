@@ -15,7 +15,7 @@
 
   <h4>Quản lý sản phẩm</h4>
 
-  <form th:action="@{/admin/product-all}" method="GET" >
+  <form th:action="@{/src/main/webapp/admin/product-all}" method="GET" >
     <div class="my-3">
       <div class="form-row">
         <div class="form-group col-md-2">
@@ -61,7 +61,7 @@
         </div>
       </div>
       <button type="submit" class="btn btn-primary m-1"><i class="fa fa-search"></i> Tìm kiếm</button>
-      <a th:href="@{/admin/product-all}" class="btn btn-secondary m-1"> Hủy bỏ</a>
+      <a th:href="@{/src/main/webapp/admin/product-all}" class="btn btn-secondary m-1"> Hủy bỏ</a>
     </div>
   </form>
 
@@ -70,18 +70,18 @@
     <thead class="thead-light">
     <tr>
       <th scope="col">Mã sản phẩm
-        <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'id' && sortDirection == 'asc' ? 'id,desc' : 'id,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
-        <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'id' && sortDirection == 'desc' ? 'id,asc' : 'id,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
+        <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'id' && sortDirection == 'asc' ? 'id,desc' : 'id,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
+        <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'id' && sortDirection == 'desc' ? 'id,asc' : 'id,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
       </th>
       <th scope="col">Tên sản phẩm
-        <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'tenSanPham' && sortDirection == 'asc' ? 'tenSanPham,desc' : 'tenSanPham,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
-        <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'tenSanPham' && sortDirection == 'desc' ? 'tenSanPham,asc' : 'tenSanPham,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
+        <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'tenSanPham' && sortDirection == 'asc' ? 'tenSanPham,desc' : 'tenSanPham,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
+        <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'tenSanPham' && sortDirection == 'desc' ? 'tenSanPham,asc' : 'tenSanPham,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
       </th>
       <th scope="col">Nhãn hàng
       </th>
       <th scope="col">Chất liệu
-        <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'chatLieu' && sortDirection == 'asc' ? 'chatLieu,desc' : 'chatLieu,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
-        <a th:href="@{/admin/product-all(page=0, sort=${sortField == 'chatLieu' && sortDirection == 'desc' ? 'chatLieu,asc' : 'chatLieu,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
+        <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'chatLieu' && sortDirection == 'asc' ? 'chatLieu,desc' : 'chatLieu,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
+        <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'chatLieu' && sortDirection == 'desc' ? 'chatLieu,asc' : 'chatLieu,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
       </th>
       <th scope="col">Thể loại
       </th>
@@ -114,22 +114,22 @@
   <div class="clearfix float-right">
     <ul class="pagination">
       <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/product-all(page=0,sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
+        <a th:href="@{/src/main/webapp/admin/product-all(page=0,sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
           <i class="fas fa-angle-double-left"></i>
         </a>
       </li>
       <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/product-all(page=${items.number - 1}, sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
+        <a th:href="@{/src/main/webapp/admin/product-all(page=${items.number - 1}, sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
           <i class="fas fa-angle-left"></i>
         </a>
       </li>
       <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/product-all(page=${items.number + 1}, sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
+        <a th:href="@{/src/main/webapp/admin/product-all(page=${items.number + 1}, sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
           <i class="fas fa-angle-right"></i>
         </a>
       </li>
       <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-        <a th:href="@{/admin/product-all(page=${items.totalPages - 1}, sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
+        <a th:href="@{/src/main/webapp/admin/product-all(page=${items.totalPages - 1}, sort=${sortField}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="page-link">
           <i class="fas fa-angle-double-right"></i>
         </a>
       </li>

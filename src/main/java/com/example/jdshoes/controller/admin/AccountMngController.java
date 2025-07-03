@@ -2,13 +2,17 @@ package com.example.jdshoes.controller.admin;
 
 
 import com.example.jdshoes.entity.Account;
+import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.entity.enumClass.RoleName;
 import com.example.jdshoes.repository.AccountRepository;
+import com.example.jdshoes.repository.AddressShippingRepository;
 import com.example.jdshoes.repository.CustomerRepository;
 import com.example.jdshoes.repository.RoleRepository;
 import com.example.jdshoes.service.AccountService;
 import com.example.jdshoes.utils.MailServices;
+import com.example.jdshoes.utils.RandomUtils;
+import com.example.jdshoes.utils.VNCharacterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,7 +20,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -32,6 +39,9 @@ public class AccountMngController {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private AddressShippingRepository addressShippingRepository;
 
     @Autowired
     private MailServices mailServices;
@@ -62,13 +72,16 @@ public class AccountMngController {
 
     @PostMapping("/admin-only/addacount")
     public String postAccount(@ModelAttribute Account account, @RequestParam String name, @RequestParam String phone,
-                              RedirectAttributes redirectAttributes){
+                              RedirectAttributes redirectAttributes,@RequestParam String tinh, @RequestParam String huyen, @RequestParam String xa, @RequestParam String tenduong){
         account.setRole(roleRepository.findByRoleName(RoleName.ROLE_EMPLOYEE));
-        String passDecode = account.getPassword();
+        String passDecode = RandomUtils.randomPass();
+        if(isAtLeast15YearsOld(account.getBirthDay()) == false){
+            redirectAttributes.addFlashAttribute("errorBirth", "Tuổi phải đủ 15!");
+            return "redirect:/admin-only/addacount";
+        }
         if(account.getId() == null){
             if(accountRepository.findByEmail(account.getEmail()) != null){
                 redirectAttributes.addFlashAttribute("error", "Email đã được sử dụng!");
-                System.out.println("Tài khoản đã được sử dụng");
                 return "redirect:/admin-only/addacount";
             }
             Customer customerCurrent = customerRepository.findTopByOrderByIdDesc();
@@ -83,7 +96,7 @@ public class AccountMngController {
             customer.setCode(productCode);
             customerRepository.save(customer);
             account.setCustomer(customer);
-            account.setPassword(passwordEncoder.encode(account.getPassword()));
+            account.setPassword(passwordEncoder.encode(passDecode));
             account.setCreateDate(LocalDateTime.now());
             account.setNonLocked(true);
             account.setCode(accCode);
@@ -104,9 +117,18 @@ public class AccountMngController {
             account.setNonLocked(ex.isNonLocked());
         }
         accountRepository.save(account);
+        String content = VNCharacterUtils.buildAccountInfoEmail(account.getEmail(), passDecode);
         mailServices.sendEmail(account.getEmail(), "Thông tin tài khoản",
-                "Email đăng nhập hệ thống của bạn là: "+account.getEmail()+"<br>Mật khẩu đăng nhập là: "+passDecode,
+                content,
                 false, true);
+        AddressShipping addressShipping = new AddressShipping();
+        addressShipping.setStreet(tenduong);
+        addressShipping.setWard(xa);
+        addressShipping.setDistrict(huyen);
+        addressShipping.setProvince(tinh);
+        addressShipping.setAddress(tenduong+", "+xa+", "+huyen+", "+tinh);
+        addressShipping.setCustomer(account.getCustomer());
+        addressShippingRepository.save(addressShipping);
         return "redirect:/admin-only/account-management";
     }
 
@@ -129,5 +151,18 @@ public class AccountMngController {
         Account account = accountService.changeRole(email, roleId);
         redirectAttributes.addFlashAttribute("message", "Tài khoản " + account.getEmail() + " đã đổi thành quyền thành công");
         return "redirect:/admin-only/account-management";
+    }
+
+
+    public static boolean isAtLeast15YearsOld(Date date) {
+        if (date == null) return false;
+        java.sql.Date birthDate = new java.sql.Date(date.getTime());
+        LocalDate birthLocalDate = birthDate.toLocalDate();
+        LocalDate today = LocalDate.now();
+
+        Period age = Period.between(birthLocalDate, today);
+
+        return age.getYears() > 15 || (age.getYears() == 15 &&
+                (age.getMonths() > 0 || age.getDays() >= 0));
     }
 }

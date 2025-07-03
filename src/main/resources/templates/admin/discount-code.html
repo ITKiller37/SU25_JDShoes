@@ -77,14 +77,14 @@
                 <span class="border border-success text-success rounded px-1">Hoạt động</span>
             </td>
             <td>
-                <form th:if="${discountCode.status == 1}" th:action="@{/admin/update-discount-status/0}" method="post" class="form-close-discount d-inline" >
+                <form th:if="${discountCode.status == 1}" th:action="@{/src/main/webapp/admin/update-discount-status/0}" method="post" class="form-close-discount d-inline" >
                     <input type="hidden" name="id" th:value="${discountCode.id}">
                     <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Đóng mã giảm giá">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="red" d="M2.93 17.07A10 10 0 1 1 17.07 2.93A10 10 0 0 1 2.93 17.07zm1.41-1.41A8 8 0 1 0 15.66 4.34A8 8 0 0 0 4.34 15.66zm9.9-8.49L11.41 10l2.83 2.83l-1.41 1.41L10 11.41l-2.83 2.83l-1.41-1.41L8.59 10L5.76 7.17l1.41-1.41L10 8.59l2.83-2.83l1.41 1.41z"/></svg>
                     </button>
                 </form>
 
-                <form th:if="${discountCode.status == 0}" th:action="@{/admin/update-discount-status/1}" method="post" class="form-open-discount d-inline" >
+                <form th:if="${discountCode.status == 0}" th:action="@{/src/main/webapp/admin/update-discount-status/1}" method="post" class="form-open-discount d-inline" >
                     <input type="hidden" name="id" th:value="${discountCode.id}">
                     <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Mở mã giảm giá">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 512 512"><path fill="none" stroke="green" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M384 224v184a40 40 0 0 1-40 40H104a40 40 0 0 1-40-40V168a40 40 0 0 1 40-40h167.48M336 64h112v112M224 288L440 72"/></svg>
