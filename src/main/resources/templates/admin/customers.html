@@ -95,27 +95,6 @@
         </ul>
     </div>
 
-    <script>
-        $(document).ready(function () {
-            $('.delete-btn').on('click', function (e) {
-                Swal.fire({
-                    title: "Xác nhận?",
-                    text: `Bạn chắc chắn muốn xóa chất liệu này`,
-                    icon: "warning",
-                    showCancelButton: true,
-                    cancelButtonText: 'Hủy',
-                    confirmButtonText: 'Xác nhận',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // const id = $(this).attr('data-product-id')
-                        var url = $(this).attr('data-link')
-                        window.location.href = url
-                    }
-                });
-            })
-        })
-    </script>
 </div>
 </body>
 </html>

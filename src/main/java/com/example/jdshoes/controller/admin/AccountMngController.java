@@ -14,6 +14,9 @@ import com.example.jdshoes.utils.MailServices;
 import com.example.jdshoes.utils.RandomUtils;
 import com.example.jdshoes.utils.VNCharacterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,11 +55,24 @@ public class AccountMngController {
     }
 
     @GetMapping("/admin-only/account-management")
-    public String viewAccountManagementPage(Model model) {
-        List<Account> accountList = accountService.findByRole(RoleName.ROLE_EMPLOYEE);
-        model.addAttribute("accountList", accountList);
+    public String getAccountManagement(@RequestParam(defaultValue = "") String search,
+                                       @RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "5") int size,
+                                       Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Account> accountPage;
+
+        if (search.trim().isEmpty()) {
+            accountPage = accountService.findByRoleWithPaging(RoleName.ROLE_EMPLOYEE, pageable);
+        } else {
+            accountPage = accountService.searchEmployeeByEmailOrName(RoleName.ROLE_EMPLOYEE, search, pageable);
+        }
+
+        model.addAttribute("accountList", accountPage);
+        model.addAttribute("search", search);
         return "admin/account";
     }
+
 
     @GetMapping("/admin-only/addacount")
     public String addAcountPage(Model model, @RequestParam(required = false) Long id) {

@@ -20,7 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +52,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> findByRole(RoleName role) {
-        return accountRepository.findByRole(role);
+    public Page<Account> findByRoleWithPaging(RoleName role, Pageable pageable) {
+        return accountRepository.findByRole_Name(role, pageable);
     }
 
     @Override
@@ -81,6 +82,13 @@ public class AccountServiceImpl implements AccountService {
         account.setNonLocked(false);
         return accountRepository.save(account);
     }
+
+
+    @Override
+    public Page<Account> searchEmployeeByEmailOrName(RoleName role, String keyword, Pageable pageable) {
+        return accountRepository.searchEmployeeByEmailOrName(role, keyword, pageable);
+    }
+
 
     @Override
     public Account openAccount(Long id) {
