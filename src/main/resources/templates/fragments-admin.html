@@ -41,9 +41,7 @@
 <body>
 
 <th:block th:fragment="script">
-  <!-- Giữ jQuery ban đầu, xóa bản trùng lặp -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ...></script> -->
-  <!-- Giữ một phiên bản Popper.js -->
+
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
   <!-- Thêm Bootstrap 4 và 5 JS để hỗ trợ modal -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"  crossorigin="anonymous"></script>
@@ -53,8 +51,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script th:inline="javascript" th:src="@{/admin/assets/js/main.js}"></script>
   <script th:src="@{/admin/assets/js/validator.js}"></script>
-  <!-- Xóa SweetAlert2 trùng lặp -->
-  <!--   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>-->
+
 
   <script>
     // Sử dụng jQuery.noConflict để tránh xung đột
