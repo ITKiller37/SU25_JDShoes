@@ -18,7 +18,7 @@ public class BuyAtTheCounterController {
 
     @GetMapping("/admin/pos")
     public String getIndex(Model model) {
-        Pageable able = PageRequest.of(0, 2);
+        Pageable able = PageRequest.of(0, 10);
         Page<Product> productPage = productService.getAllProduct(able);
         model.addAttribute("products", productPage);
         return "admin/buy_at_the_counter";

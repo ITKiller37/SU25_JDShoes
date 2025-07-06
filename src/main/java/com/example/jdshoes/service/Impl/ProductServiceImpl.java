@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto getByProductDetailId(Long detailId) {
-        return convertToDto(productRepository.findByProductDetail_Id(detailId));
+        return convertToDto(productRepository.findByProductDetailId(detailId));
     }
 
     @Override

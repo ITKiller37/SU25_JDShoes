@@ -442,7 +442,10 @@
             if (value === null || isNaN(value)) {
                 return '';
             }
-            return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(value);
+            const numValue = typeof value === 'string' ?
+                parseFloat(value.replace(/\./g, '').replace(',', '.')) :
+                value;
+            return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(numValue);
         }
 
         // Tự động định dạng giá tiền khi nhập và khi load modal
@@ -598,7 +601,10 @@
         $('#saveProductDetailBtn').on('click', async function () {
             const productDetailId = $('#modalProductDetailId').val();
             const quantity = parseInt($('#modalQuantity').val());
-            const price = parseFloat($('#modalPrice').val().replace(/\./g, '').replace(',', ''));
+            const priceInput = $('#modalPrice').val();
+            const price = typeof priceInput === 'string' ?
+                parseFloat(priceInput.replace(/\./g, '').replace(',', '.')) :
+                priceInput;
             const description = $('#modalProductDescription').val(); // Lấy giá trị description từ textarea
 
             if (isNaN(quantity) || quantity < 0) {

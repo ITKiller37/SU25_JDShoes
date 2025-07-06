@@ -15,7 +15,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> , JpaSpe
     Page<Product> findAllByDeleteFlagFalse(Pageable pageable);
 
     @Query("select p from Product p join ProductDetail pd on p.id = pd.product.id where pd.id = :productDetailId")
-    Product findByProductDetail_Id(Long productDetailId);
+    Product findByProductDetailId(Long productDetailId);
 
     @Query(value = """
     SELECT p.id as idSanPham,
@@ -60,4 +60,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> , JpaSpe
     Product findTopByOrderByIdDesc();
 
     Product findByCode(String code);
+
 }
