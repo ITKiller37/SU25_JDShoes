@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 
+
 import jakarta.persistence.*;
+import java.sql.Date;
 import java.util.List;
 
 @Getter
@@ -25,6 +27,8 @@ public class Customer {
     private String name;
     private String phoneNumber;
     private String email;
+    private String gender;
+    private Date birthDay;
     private Boolean deleted = false;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)

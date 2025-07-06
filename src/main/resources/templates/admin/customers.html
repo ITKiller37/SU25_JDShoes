@@ -12,13 +12,13 @@
 <div layout:fragment="content">
 
     <div class="d-flex">
-        <h4>Quản lý khách hàng</h4>
+        <h4>Danh sách khách hàng</h4>
         <form id="formsearch" class="col-sm-4" style="margin-left: 100px">
             <input th:value="${search == null?'':search}" required name="search" placeholder="Tìm kiếm" class="form-control">
         </form>
         <button form="formsearch" class="btn btn-primary">Tìm kiếm</button>
         <a href="/admin/customers" class="btn btn-primary" style="margin-left: 20px"><i class="fa fa-refresh"></i></a>
-        <a href="/admin/add-customer" class="btn btn-primary" style="margin-left: 20px"><i class="fa fa-plus"></i></a>
+        <a href="/admin/add-customer" class="btn btn-success" style="margin-left: 20px"><i class="fa fa-plus"></i> Thêm khách hàng</a>
     </div>
     <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
     <table class="table my-3">
@@ -95,27 +95,6 @@
         </ul>
     </div>
 
-    <script>
-        $(document).ready(function () {
-            $('.delete-btn').on('click', function (e) {
-                Swal.fire({
-                    title: "Xác nhận?",
-                    text: `Bạn chắc chắn muốn xóa chất liệu này`,
-                    icon: "warning",
-                    showCancelButton: true,
-                    cancelButtonText: 'Hủy',
-                    confirmButtonText: 'Xác nhận',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // const id = $(this).attr('data-product-id')
-                        var url = $(this).attr('data-link')
-                        window.location.href = url
-                    }
-                });
-            })
-        })
-    </script>
 </div>
 </body>
 </html>

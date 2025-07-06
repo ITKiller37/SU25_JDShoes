@@ -2,12 +2,16 @@ package com.example.jdshoes.controller.admin;
 
 
 import com.example.jdshoes.entity.Account;
+import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.entity.enumClass.RoleName;
 import com.example.jdshoes.repository.AccountRepository;
+import com.example.jdshoes.repository.AddressShippingRepository;
 import com.example.jdshoes.repository.CustomerRepository;
 import com.example.jdshoes.repository.RoleRepository;
 import com.example.jdshoes.utils.MailServices;
+import com.example.jdshoes.utils.RandomUtils;
+import com.example.jdshoes.utils.VNCharacterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +43,9 @@ public class AdminCustomerController {
 
     @Autowired
     private MailServices mailServices;
+
+    @Autowired
+    private AddressShippingRepository addressShippingRepository;
 
     @GetMapping("/customers")
     public String viewPage(Model model,@RequestParam(name = "page", defaultValue = "0") int page,
@@ -72,7 +79,7 @@ public class AdminCustomerController {
             model.addAttribute("search", "");
         }
         model.addAttribute("items", materialPage);
-        return "admin/customer";
+        return "admin/customers";
     }
 
     @GetMapping("/delete-customer")
@@ -105,11 +112,18 @@ public class AdminCustomerController {
     }
     @PostMapping("/add-customer")
     public String addCustomerPost(@ModelAttribute Customer customer,
-                                  @RequestParam String password,
-                                  RedirectAttributes redirectAttributes) {
+                                  RedirectAttributes redirectAttributes,
+                                  @RequestParam String tinh, @RequestParam String huyen, @RequestParam String xa, @RequestParam String tenduong) {
+        AddressShipping addressShipping = new AddressShipping();
+        addressShipping.setStreet(tenduong);
+        addressShipping.setWard(xa);
+        addressShipping.setDistrict(huyen);
+        addressShipping.setProvince(tinh);
+        addressShipping.setAddress(tenduong+", "+xa+", "+huyen+", "+tinh);
 
         if (customer.getId() == null) {
             // Check email trùng
+            String passDecode = RandomUtils.randomPass();
             if (accountRepository.findByEmail(customer.getEmail()) != null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Email đã được sử dụng");
                 return "redirect:/admin/add-customer";
@@ -132,7 +146,7 @@ public class AdminCustomerController {
             Account account = new Account();
             account.setCode(accountCode);
             account.setEmail(customer.getEmail());
-            account.setPassword(passwordEncoder.encode(password));
+            account.setPassword(passwordEncoder.encode(passDecode));
             account.setCreateDate(LocalDateTime.now());
             account.setUpdateDate(LocalDateTime.now());
             account.setRole(roleRepository.findByRoleName(RoleName.ROLE_USER));
@@ -146,14 +160,17 @@ public class AdminCustomerController {
             accountRepository.save(account);
 
             // Gửi email
+            String content = VNCharacterUtils.buildAccountInfoEmail(account.getEmail(), passDecode);
             mailServices.sendEmail(
                     account.getEmail(),
                     "Thông tin tài khoản",
-                    "Email đăng nhập hệ thống của bạn là: " + account.getEmail() +
-                            "<br>Mật khẩu đăng nhập là: " + password,
+                    content,
                     false,
                     true
             );
+
+            addressShipping.setCustomer(account.getCustomer());
+            addressShippingRepository.save(addressShipping);
         }
 
         return "redirect:/admin/customers";
