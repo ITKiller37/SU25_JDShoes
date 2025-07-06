@@ -156,13 +156,13 @@
             var type = /*[[${discount.type}]]*/ '';
             $("#discount-by-money").hide()
             $("#discountAmount").prop('disabled', true)
-            if (type == 2) {
+            if(type == 2) {
                 $("#discount-by-percent").hide()
-                $("#max-amount-by-percent").hide()
+                $("#max-amount-by-percent").show()
                 $("#discount-by-money").show()
                 $("#discountAmount").prop('disabled', false)
                 $('#percentage').prop('disabled', true)
-                $('#maximumAmount').prop('disabled', true)
+                $('#maximumAmount').prop('disabled', false)
             }
 
             $("#type1").on("click", function () {
@@ -177,10 +177,10 @@
             $("#type2").on("click", function () {
                 $("#discount-by-money").show()
                 $("#discount-by-percent").hide()
-                $("#max-amount-by-percent").hide()
+                $("#max-amount-by-percent").show()
                 $("#discountAmount").prop('disabled', false)
                 $('#percentage').prop('disabled', true)
-                $('#maximumAmount').prop('disabled', true)
+                $('#maximumAmount').prop('disabled', false)
 
             })
 
@@ -207,10 +207,10 @@
             });
 
             $("#percentage").on('input', function () {
-                if (parseInt($(this).val()) > 98) {
-                    $(this).val(98);
+                if (parseInt($(this).val()) > 100) {
+                    $(this).val(100);
                     Toastify({
-                        text: "Giảm giá tối đa 98%",
+                        text: "Giảm giá tối đa 100%",
                         className: "error",
                         style: {
                             color: "white",

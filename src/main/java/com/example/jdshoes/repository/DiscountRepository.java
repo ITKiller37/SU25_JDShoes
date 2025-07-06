@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface DiscountRepository extends JpaRepository<Discount, Integer>, JpaSpecificationExecutor<Discount> {
@@ -29,6 +30,12 @@ public interface DiscountRepository extends JpaRepository<Discount, Integer>, Jp
             @Param("status") Integer status,
             @Param("maximumUsage") Integer maximumUsage,
             Pageable pageable);
+
+
+
+    @Query("SELECT d FROM Discount d WHERE d.deleteFlag = true ORDER BY d.id DESC")
+    Page<Discount> findAllByOrderByIdDesc(Pageable pageable);
+
 
     @Query(value = "SELECT * FROM Discount WHERE status = 1 AND startDate < GETDATE() AND endDate > GETDATE() AND deleteFlag = 'true' AND maximumUsage > 0", nativeQuery = true)
     Page<Discount> findAllAvailableValid(Pageable pageable);

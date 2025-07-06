@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,15 +45,30 @@ public class DiscountController {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        // Gọi service để tìm kiếm theo điều kiện trong DTO
-        Page<Discount> discountPage = discountService.searchDiscounts(searchDto, pageable);
+        // Kiểm tra nếu không nhập gì trong form tìm kiếm
+        boolean isEmptySearch =
+                (searchDto.getKeyword() == null || searchDto.getKeyword().isEmpty()) &&
+                        searchDto.getStartDate() == null &&
+                        searchDto.getEndDate() == null &&
+                        searchDto.getStatus() == null &&
+                        searchDto.getMaximumUsage() == null;
+
+        Page<Discount> discountPage;
+
+        if (isEmptySearch) {
+            // Không tìm kiếm gì thì load mặc định theo ID giảm dần
+            discountPage = discountRepository.findAllByOrderByIdDesc(pageable);
+        } else {
+            // Có tìm kiếm thì gọi service xử lý
+            discountPage = discountService.searchDiscounts(searchDto, pageable);
+        }
 
         model.addAttribute("discount", new Discount()); // để form thêm mới không lỗi
         model.addAttribute("discountPage", discountPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", discountPage.getTotalPages());
 
-        return "admin/discount-code"; // trả về view
+        return "admin/discount-code"; // Trả về trang hiển thị
     }
 
     @GetMapping("/admin-only/form-add-discount")
@@ -72,7 +88,7 @@ public class DiscountController {
         // Tự sinh mã ngẫu nhiên, ví dụ: KM + 4 số random
         String maTuSinh = "KM" + (int)(Math.random() * 9000 + 1000);
         discount.setCode(maTuSinh);
-        discount.setStatus(0);
+        discount.setDeleteFlag(true);
         discountService.createDiscount(discount);
         return "redirect:/admin-only/discounts";
     }
@@ -85,35 +101,8 @@ public class DiscountController {
     }
     @PostMapping("/admin-only/updateDiscount/{id}")
     public String updateDiscount(Discount discount){
-        discount.setStatus(1);
+//        discount.setStatus(1);
         discountService.updateDiscount(discount);
-        return "redirect:/admin-only/discounts";
-    }
-
-    @PostMapping("/admin-only/change-discount-status")
-    public String changeDiscountStatus(@RequestParam("id") Integer id, RedirectAttributes redirectAttributes) {
-        try {
-            Discount discount = discountService.findById(id); // đảm bảo bạn có phương thức này
-            if (discount == null) {
-                redirectAttributes.addFlashAttribute("message", "Không tìm thấy mã giảm giá!");
-                return "redirect:/admin-only/discounts";
-            }
-
-            int currentStatus = discount.getStatus();
-            int newStatus = switch (currentStatus) {
-                case 2 -> 1; // Sắp diễn ra → Hoạt động
-                case 1 -> 0; // Hoạt động → Đã đóng
-                case 0 -> 2; // Đã đóng → Sắp diễn ra
-                default -> 2; // fallback nếu status sai
-            };
-
-            discount.setStatus(newStatus);
-            discountService.createDiscount(discount); // hoặc updateDiscount(discount)
-            redirectAttributes.addFlashAttribute("message", "Cập nhật trạng thái thành công!");
-        } catch (Exception ex) {
-            redirectAttributes.addFlashAttribute("message", "Lỗi khi cập nhật trạng thái: " + ex.getMessage());
-        }
-
         return "redirect:/admin-only/discounts";
     }
 
@@ -130,6 +119,33 @@ public class DiscountController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
+    }
+    @GetMapping("/admin-only/discount/change-deleteflag/{id}")
+    public String changeDiscountStatus(@PathVariable("id") Integer id) {
+        Discount discount = discountRepository.findById(id).orElse(null);
+        if (discount != null) {
+            discount.setDeleteFlag(!discount.isDeleteFlag()); // Đổi trạng thái
+            discountRepository.save(discount);       // Lưu lại vào DB
+        }
+        return "redirect:/admin-only/discounts"; // Điều hướng lại trang danh sách
+    }
+
+    @Scheduled(fixedRate = 30000) // 30 giây một lần
+    public void updateDiscountStatusAutomatically() {
+        List<Discount> discounts = discountRepository.findAll();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Discount discount : discounts) {
+            if (now.isBefore(discount.getStartDate())) {
+                discount.setStatus(2); // Sắp diễn ra
+            } else if (now.isAfter(discount.getEndDate())) {
+                discount.setStatus(0); // Đã đóng
+            } else {
+                discount.setStatus(1); // Đang hoạt động
+            }
+            discountRepository.save(discount);
+        }
     }
 
 }

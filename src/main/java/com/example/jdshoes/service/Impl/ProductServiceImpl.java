@@ -53,6 +53,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<ProductDto> searchProduct(SearchProductDto searchDto, Pageable pageable) {
+        Specification<Product> spec = new ProductSpecification(searchDto);
+        Page<Product> products = productRepository.findAll(spec, pageable);
+        return products.map(this::convertToDto);
+    }
+
+    @Override
     public Page<ProductSearchDto> getAll(Pageable pageable) {
         return productRepository.getAll(pageable);
     }
@@ -122,6 +129,12 @@ public class ProductServiceImpl implements ProductService {
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());
 
+            // ✅ Gán imageUrl từ ảnh đầu tiên (nếu có)
+            if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
+                productDetailDto.setImageUrl(productDetail.getImages().get(0).getLink());
+            } else {
+                productDetailDto.setImageUrl("images/default.jpg"); // hoặc null nếu không muốn ảnh mặc định
+
             // Ánh xạ danh sách ảnh
             if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
                 List<ImageDto> imageDtos = productDetail.getImages().stream()
@@ -134,6 +147,7 @@ public class ProductServiceImpl implements ProductService {
                 productDetailDto.setImages(imageDtos);
             } else {
                 productDetailDto.setImages(new ArrayList<>()); // Đặt danh sách rỗng nếu không có ảnh
+
             }
 
             productDetailDtoList.add(productDetailDto);
