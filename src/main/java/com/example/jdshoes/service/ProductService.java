@@ -33,5 +33,4 @@ public interface ProductService {
 
     Page<Product> getAllProduct(Pageable able);
 
-    Page<ProductDto> searchProduct(SearchProductDto searchRequest, Pageable page);
 }

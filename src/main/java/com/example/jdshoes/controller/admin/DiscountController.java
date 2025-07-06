@@ -45,10 +45,6 @@ public class DiscountController {
 
         Pageable pageable = PageRequest.of(page, size);
 
-
-        // Gọi service để tìm kiếm theo điều kiện trong DTO
-        Page<Discount> discountPage = discountService.searchDiscounts(searchDto, pageable);
-
         // Kiểm tra nếu không nhập gì trong form tìm kiếm
         boolean isEmptySearch =
                 (searchDto.getKeyword() == null || searchDto.getKeyword().isEmpty()) &&
@@ -71,7 +67,6 @@ public class DiscountController {
         model.addAttribute("discountPage", discountPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", discountPage.getTotalPages());
-
 
         return "admin/discount-code"; // Trả về trang hiển thị
     }

@@ -47,7 +47,7 @@
             <nav class="limiter-menu-desktop p-l-45">
                 <!-- Logo desktop -->
                 <a th:href="@{/}" class="logo">
-                    <img src="/image1/icons/logo-view.png" alt="IMG-LOGO">
+                    <img src="/image1/icons/logo-view1.png" alt="IMG-LOGO">
                 </a>
                 <!-- Menu desktop -->
                 <div class="menu-desktop">
@@ -409,14 +409,14 @@
                         <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
                             <div class="layer-slick1 animated visible-false" data-appear="rollIn" data-delay="0">
 								<span class="ltext-202 txt-center cl0 respon2">
-									Giầy nam mới
+									Giày nam mới
 								</span>
                             </div>
 
                             <div class="layer-slick1 animated visible-false" data-appear="lightSpeedIn"
                                  data-delay="800">
                                 <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
-                                    Giầy ra
+                                    Giày da
                                 </h2>
                             </div>
 
@@ -766,7 +766,7 @@
                                     <span class="ribbon1"><span>Sale</span></span>
                                 </div>
                                 <div class="block2-pic hov-img0 label-new" data-label="New" style="height: 340px">
-                                    <img th:src="@{'/' + ${product.productDetailDtos[0].imageUrl}}" alt="IMG-PRODUCT" style="height: 100%; width: 100%">
+<!--                                    <img th:src="@{'/' + ${product.productDetailDtos[0].images[0].getLink()}}" alt="IMG-PRODUCT" style="height: 100%; width: 100%">-->
                                     <a th:href="@{product-detail/{id} (id = ${product.code})}"
                                                                    class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 ">
                                         Chi Tiết
