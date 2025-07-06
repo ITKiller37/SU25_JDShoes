@@ -36,11 +36,6 @@
                         <option value="2" th:selected="${dataSearch.status == 2}">Sắp diễn ra</option>
                     </select>
                 </div>
-
-                <div class="form-group col-md-2">
-                    <label>Số lượng còn</label>
-                    <input type="text" class="form-control" id="maximumUsage" name="maximumUsage" placeholder="1234" th:value="${dataSearch.maximumUsage}">
-                </div>
             </div>
 
             <button type="submit" class="btn btn-primary m-1">
@@ -95,18 +90,18 @@
             </td>
 
             <td>
-                <form th:action="@{/admin-only/change-discount-status}" method="post" class="form-close-discount d-inline">
-                    <input type="hidden" name="id" th:value="${discountCode.id}">
-                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Đổi trạng thái">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
-                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
-                        </svg>
+                <form th:action="@{/admin-only/detailDiscount/{id}(id=${discountCode.id})}" method="get" class="form-open-discount d-inline">
+                    <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Mở chi tiết mã giảm giá">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m7 17.013l4.413-.015l9.632-9.54c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586c-.756-.756-2.075-.752-2.825-.003L7 12.583v4.43zM18.045 4.458l1.589 1.583l-1.597 1.582l-1.586-1.585l1.594-1.58zM9 13.417l6.03-5.973l1.586 1.586l-6.029 5.971L9 15.006v-1.589z"/><path fill="currentColor" d="M5 21h14c1.103 0 2-.897 2-2v-8.668l-2 2V19H8.158c-.026 0-.053.01-.079.01c-.033 0-.066-.009-.1-.01H5V5h6.847l2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2z"/></svg>
                     </button>
                 </form>
-                <form th:action="@{/admin-only/detailDiscount/{id}(id=${discountCode.id})}" method="get" class="form-open-discount d-inline">
-                    <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Mở mã giảm giá">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m7 17.013l4.413-.015l9.632-9.54c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586c-.756-.756-2.075-.752-2.825-.003L7 12.583v4.43zM18.045 4.458l1.589 1.583l-1.597 1.582l-1.586-1.585l1.594-1.58zM9 13.417l6.03-5.973l1.586 1.586l-6.029 5.971L9 15.006v-1.589z"/><path fill="currentColor" d="M5 21h14c1.103 0 2-.897 2-2v-8.668l-2 2V19H8.158c-.026 0-.053.01-.079.01c-.033 0-.066-.009-.1-.01H5V5h6.847l2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2z"/></svg>
+                <form th:action="@{/admin-only/discount/change-deleteflag/{id}(id=${discountCode.id})}" method="get" class="form-close-discount d-inline">
+                    <button type="submit" class="border-0 bg-transparent close-btn cursor-pointer" title="Đóng giảm giá">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 24 24" style="color: red">
+                            <path d="M5 6h14v2H5z"/>
+                            <path d="M6 8h12v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8zm4 2v8h2v-8h-2zm4 0v8h2v-8h-2z"/>
+                            <path d="M9 4h6v2H9z"/>
+                        </svg>
                     </button>
                 </form>
             </td>
@@ -182,9 +177,6 @@
             if (code) {
                 url += '&code=' + code
             }
-            // if(detail) {
-            //     url += '&detail=' + detail
-            // }
             if(startDate) {
                 url += '&startDate=' + startDate
             }
@@ -251,6 +243,42 @@
                     setTimeout(() => setStatus('Đã đóng', 'bg-secondary text-white'), end - now);
                 }
             });
+        });
+    </script>
+    <script>
+        function capNhatTrangThaiDongBo() {
+            const now = new Date().getTime();
+
+            document.querySelectorAll('td[id^="status-"]').forEach(td => {
+                const startStr = td.dataset.start;
+                const endStr = td.dataset.end;
+                const badge = td.querySelector('.badge');
+
+                if (!startStr || !endStr || !badge) return;
+
+                const start = new Date(startStr).getTime();
+                const end = new Date(endStr).getTime();
+
+                function setStatus(text, className) {
+                    badge.textContent = text;
+                    badge.className = 'badge ' + className;
+                }
+
+                // Cập nhật trạng thái mỗi lần gọi
+                if (now < start) {
+                    setStatus('Sắp diễn ra', 'bg-warning text-dark');
+                } else if (now >= start && now <= end) {
+                    setStatus('Đang hoạt động', 'bg-success text-white');
+                } else {
+                    setStatus('Đã đóng', 'bg-secondary text-white');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            capNhatTrangThaiDongBo(); // Lần đầu
+
+            setInterval(capNhatTrangThaiDongBo, 30000); // Cập nhật mỗi 30 giây
         });
     </script>
 

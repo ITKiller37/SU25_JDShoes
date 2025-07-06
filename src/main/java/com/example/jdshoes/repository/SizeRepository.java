@@ -17,4 +17,8 @@ public interface SizeRepository extends JpaRepository<Size, Long> {
     List<Size> findSizesByProductAndColor(Product product, Color color);
 
     boolean existsByCode(String code);
+
+    boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }

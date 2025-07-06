@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.Nationalized;
 
 import jakarta.persistence.*;
@@ -26,7 +27,7 @@ public class Image {
     private String link;
     private String fileType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "productDetailId")
     private ProductDetail productDetail;
 }

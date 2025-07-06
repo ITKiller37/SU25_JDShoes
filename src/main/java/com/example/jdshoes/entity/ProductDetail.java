@@ -42,4 +42,11 @@ public class ProductDetail {
     @OneToMany(mappedBy = "productDetail", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
+    // Thêm các trường tạm để nhận colorId và sizeId từ form
+    @Transient
+    private Long colorId;
+
+    @Transient
+    private Long sizeId;
+
 }

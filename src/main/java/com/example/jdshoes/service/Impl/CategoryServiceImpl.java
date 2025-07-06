@@ -22,6 +22,22 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto createCategoryApi(CategoryDto categoryDto) {
+
+        // Kiểm tra tên và mã khi tạo Category qua API
+        if (categoryDto.getName() == null || categoryDto.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên loại");
+        }
+        if (categoryRepository.existsByName(categoryDto.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên loại '" + categoryDto.getName() + "' đã tồn tại");
+        }
+
+        if (categoryDto.getCode() == null || categoryDto.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã loại");
+        }
+        if (categoryRepository.existsByCode(categoryDto.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã loại '" + categoryDto.getCode() + "' đã tồn tại");
+        }
+
         Category category = convertToEntity(categoryDto);
         category.setStatus(1);
         category.setDeleteFlag(false);
@@ -36,9 +52,22 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category createCategory(Category category) {
-        if(categoryRepository.existsByCode(category.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã loại " + category.getCode() + " đã tồn tại");
+        // Kiểm tra mã
+        if (category.getCode() == null || category.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã loại sản phẩm");
         }
+        if(categoryRepository.existsByCode(category.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã loại sản phẩm '" + category.getCode() + "' đã tồn tại");
+        }
+
+        // THÊM KIỂM TRA TÊN KHI THÊM
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên loại sản phẩm");
+        }
+        if (categoryRepository.existsByName(category.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên loại sản phẩm '" + category.getName() + "' đã tồn tại");
+        }
+
         category.setDeleteFlag(false);
         return categoryRepository.save(category);
     }
@@ -55,13 +84,38 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category updateCategory(Category category) {
-        Category existingCategory = categoryRepository.findById(category.getId()).orElseThrow(null);
-        if(!existingCategory.getCode().equals(category.getCode())) {
-            if(categoryRepository.existsByCode(category.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã loại " + category.getCode() + " đã tồn tại");
+        // Lấy category hiện có từ DB
+        Category existingCategory = categoryRepository.findById(category.getId())
+                .orElseThrow(() -> new ShoesApiException(HttpStatus.NOT_FOUND, "Không tìm thấy loại sản phẩm với ID: " + category.getId())); // Thêm thông báo lỗi rõ ràng
+
+        // Kiểm tra mã loại
+        if (category.getCode() == null || category.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã loại sản phẩm");
+        }
+        // Chỉ kiểm tra trùng mã nếu mã mới khác mã cũ
+        if(!existingCategory.getCode().equals(category.getCode().trim())) {
+            if(categoryRepository.existsByCode(category.getCode().trim())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã loại sản phẩm '" + category.getCode() + "' đã tồn tại");
             }
         }
-        category.setDeleteFlag(false);
+
+        // THÊM KIỂM TRA TÊN KHI SỬA
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên loại sản phẩm");
+        }
+        // Chỉ kiểm tra trùng tên nếu tên mới khác tên cũ, và tên đó không phải của chính bản ghi đang sửa
+        if (!existingCategory.getName().equals(category.getName().trim())) {
+            if (categoryRepository.existsByNameAndIdNot(category.getName().trim(), category.getId())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên loại sản phẩm '" + category.getName() + "' đã tồn tại");
+            }
+        }
+
+        // Cập nhật các trường của existingCategory
+        existingCategory.setCode(category.getCode().trim());
+        existingCategory.setName(category.getName().trim());
+        existingCategory.setStatus(category.getStatus()); // Giữ nguyên trạng thái hoặc cập nhật nếu có từ request
+        existingCategory.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
+
         return categoryRepository.save(category);
     }
 

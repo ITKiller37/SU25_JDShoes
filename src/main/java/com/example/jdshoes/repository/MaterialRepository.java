@@ -8,4 +8,8 @@ import org.springframework.stereotype.Repository;
 public interface MaterialRepository extends JpaRepository<Material, Long> {
 
     boolean existsByCode(String code);
+
+    boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }

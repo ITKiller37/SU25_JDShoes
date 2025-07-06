@@ -5,6 +5,180 @@
 <head>
     <meta charset="UTF-8">
     <title>Chi tiết sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpNbgoKfT6c8Uq4F6tI/8yQ/H3W3v5rM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40N8hVCXW2lGIDtYfVkTsTCuJpMcl/7Jz2wGfLwY3R9sJjT+sF+z/pL7T/z/B0Z8z+gA/yE/Jg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" th:href="@{/admin/vendors/themify-icons/css/themify-icons.css}">
+    <link rel="stylesheet" th:href="@{/admin/vendors/flag-icon-css/css/flag-icon.min.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" th:href="@{/admin/assets/css/style.css}">
+
+    <style>
+        /* CSS cho overlay và QR code container (nếu chưa có) */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .qrcode-container {
+            display: none; /* Ban đầu ẩn */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .qrcode-container.active {
+            display: block; /* Hiển thị khi có class active */
+        }
+
+        .barcode-img {
+            max-width: 200px; /* Điều chỉnh kích thước QR */
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .close-qr {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* CSS cho ảnh trong modal */
+        .modal-image-preview-container {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            flex-direction: row !important;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .modal-image-preview {
+            flex: 0 0 auto;
+            width: 100px !important;
+            height: 100px !important;
+            display: flex !important; /* Cái này quan trọng */
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .modal-image-preview img {
+            width: 100px !important;
+            height: 100px !important;
+            object-fit: cover !important;
+            display: block;
+
+        }
+        .modal-image-preview .remove-image {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            z-index: 10; /* Đảm bảo nút xóa nằm trên ảnh */
+        }
+        .modal-image-upload-area {
+            border: 1px dashed #007bff;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            width: 100px; /* Kích thước vùng upload giống ảnh preview */
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #007bff;
+            flex-shrink: 0;
+        }
+        .modal-image-upload-area:hover {
+            background-color: #e9f5ff;
+        }
+
+
+
+        /* Thêm CSS để căn chỉnh các mục trong version-item */
+        .version-item .info-group {
+            display: flex; /* Sử dụng flexbox để căn chỉnh nhãn và giá trị */
+            align-items: baseline; /* Căn chỉnh theo baseline của text */
+            margin-bottom: 5px; /* Khoảng cách giữa các dòng thông tin */
+        }
+        .version-item .info-label {
+            min-width: 85px; /* Đặt chiều rộng tối thiểu cho label để căn thẳng hàng */
+            display: inline-block;
+            text-align: right; /* Căn lề phải cho nhãn */
+            padding-right: 5px; /* Quan trọng để min-width có tác dụng */
+        }
+        .version-item .info-value {
+            font-weight: bold;
+            flex-grow: 1; /* Cho phép giá trị mở rộng để lấp đầy không gian */
+        }
+        .version-item .col-md-2 {
+            display: flex;
+            flex-direction: column; /* Để các thông tin xếp chồng lên nhau trong cột */
+            justify-content: center;
+        }
+        .version-item .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* Khoảng cách giữa các nút */
+            justify-content: center; /* Căn giữa các nút trong cột */
+            height: 100%; /* Chiếm toàn bộ chiều cao của hàng để căn chỉnh */
+        }
+        .version-item .row.align-items-center > div {
+            padding-top: 5px; /* Thêm khoảng đệm trên/dưới cho các cột */
+            padding-bottom: 5px;
+        }
+
+
+        /* Căn chỉnh cho Barcode input */
+        .modal-body #modalBarcode {
+            background-color: #e9ecef; /* Màu nền xám cho readonly input */
+            cursor: not-allowed; /* Biểu tượng cấm chỉnh sửa */
+        }
+        .btn-close, .btn-secondary {
+            z-index: 1055; /* Cao hơn z-index mặc định của modal (1050) */
+            position: relative;
+        }
+        #imagePreviewContainer {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            flex-direction: row !important;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .modal-image-preview, .image-add-more-placeholder {
+            flex: none;
+            width: 100px;
+            height: 100px;
+        }
+
+    </style>
 </head>
 
 <body>
@@ -20,11 +194,6 @@
                 </svg>
                 <h6 class="breadcrum-text">Quay lại danh sách sản phẩm</h6>
             </a>
-        </div>
-        <div class="MuiBox-root jss1136">
-            <!-- <a class="btn btn-outline-danger" id="delete-btn" th:href="@{'/admin/product-delete/' + ${product.id}}"> -->
-            <!--     <span class="">Xoá</span> -->
-            <!-- </a> -->
         </div>
     </div>
     <div class="title-box">
@@ -65,7 +234,7 @@
                 <div class="col-md-6">
                     <div class="spec-item">
                         <span class="spec-icon"><i class="fa fa-list"></i></span>
-                        <span class="spec-title">Thể loại</span>
+                        <span class="spec-title">Loại sản phẩm</span>
                         <span class="spec-value" th:text="${product.category.name}"></span>
                     </div>
                 </div>
@@ -83,6 +252,13 @@
                         <span class="spec-value" th:text="${#temporals.format(product.updatedDate, 'dd-MM-yyyy HH:mm')}"></span>
                     </div>
                 </div>
+                <div class="col-md-12">
+                    <div class="spec-item">
+                        <span class="spec-icon"><i class="fa fa-file-text-o"></i></span>
+                        <span class="spec-title">Mô tả sản phẩm</span>
+                        <span class="spec-value" th:text="${product.description ?: 'Không có mô tả'}"></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -98,14 +274,45 @@
                         <i class="fa fa-info-circle text-dark" aria-hidden="true"></i>
                         <span class="text-dark font-italic">Phiên bản [[${iter.index + 1}]]</span>
                     </div>
-                    <div class="row align-items-center text">
-                        <p class="col-md-2">Có thể bán: <span class="font-weight-bold" th:text="${version.quantity}"></span></p>
-                        <p class="col-md-2">Giá: <span class="font-weight-bold" th:text="${#numbers.formatDecimal(version.price, 0, 'POINT', 0, 'COMMA')}"></span></p>
-                        <p class="col-md-2">Màu: <span class="font-weight-bold" th:text="${version.color.name}"></span></p>
-                        <p class="col-md-2">Kích cỡ: <span class="font-weight-bold" th:text="${version.size.name}"></span></p>
-                        <p class="col-md-2">Barcode: <span class="font-weight-bold" th:text="${version.barcode}"></span></p>
-                        <div class="display-qr-btn text-primary font-weight-bold cursor-pointer">Hiển thị mã QR</div>
+                    <div class="row align-items-center text mt-2">
+                        <div class="col-md-2">
+                            <div class="info-group">
+                                <span class="info-label font-weight-bold">Số lượng:</span>
+                                <span class="info-value" th:text="${version.quantity}"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="info-group">
+                                <span class="info-label font-weight-bold">Giá:</span>
+                                <span class="info-value" th:text="${#numbers.formatDecimal(version.price, 0, 'POINT', 0, 'COMMA')}"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="info-group">
+                                <span class="info-label font-weight-bold">Màu:</span>
+                                <span class="info-value" th:text="${version.color.name}"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="info-group">
+                                <span class="info-label font-weight-bold">Kích cỡ:</span>
+                                <span class="info-value" th:text="${version.size.name}"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="info-group">
+                                <span class="info-label font-weight-bold">Barcode:</span>
+                                <span class="info-value" th:text="${version.barcode}"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex justify-content-center align-items-center action-buttons">
+                            <button type="button" class="btn btn-primary btn-sm update-product-detail-modal-btn w-100"
+                                    th:data-product-detail-id="${version.id}">
+                                <i class="fa ti-pencil-alt"></i> Cập nhật
+                            </button>
+                        </div>
                     </div>
+                    <div class="display-qr-btn text-primary font-weight-bold cursor-pointer">Hiển thị mã QR</div>
                     <div class="image-list row no-gutters mt-2">
                         <div th:each="image: ${version.images}" class="col-md-2 image-container">
                             <img th:src="@{'/' + ${image.link}}" alt="Product Image" class="w-100">
@@ -123,17 +330,144 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" th:inline="javascript"></script>
+    <div class="modal fade" id="updateProductDetailModal" tabindex="-1" aria-labelledby="updateProductDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateProductDetailModalLabel">Cập nhật chi tiết sản phẩm</h5>
+                    <button type="button" class="btn-close" id="closeModalBtn" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateProductDetailForm" enctype="multipart/form-data">
+                        <input type="hidden" id="modalProductDetailId" name="id">
+
+                        <div class="row">
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="modalCategoryName" class="form-label">* Danh mục:</label>
+                                <input type="text" class="form-control" id="modalCategoryName" name="categoryName" readonly required>
+                            </div>
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="modalBrandName" class="form-label">* Thương hiệu:</label>
+                                <input type="text" class="form-control" id="modalBrandName" name="brandName" readonly required>
+                            </div>
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="modalMaterialName" class="form-label">* Chất liệu:</label>
+                                <input type="text" class="form-control" id="modalMaterialName" name="materialName" readonly required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="modalColorName" class="form-label">* Màu sắc:</label>
+                                <input type="text" class="form-control" id="modalColorName" name="colorName" readonly required>
+                            </div>
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="modalSizeName" class="form-label">* Kích cỡ:</label>
+                                <input type="text" class="form-control" id="modalSizeName" name="sizeName" readonly required>
+                            </div>
+                            <div class="col-12 col-md-4 mb-3">
+                                <label for="modalBarcode" class="form-label">Barcode:</label>
+                                <input type="text" class="form-control" id="modalBarcode" name="barcode" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="modalQuantity" class="form-label">* Số lượng:</label>
+                                <input type="number" class="form-control" id="modalQuantity" name="quantity" min="0" required>
+                            </div>
+                            <div class="col-12 col-md-6 mb-3">
+                                <label for="modalPrice" class="form-label">* Đơn giá:</label>
+                                <input type="text" class="form-control" id="modalPrice" name="price" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="modalProductDescription" class="form-label">Mô tả sản phẩm:</label>
+                            <textarea class="form-control" id="modalProductDescription" name="productDescription" rows="3" placeholder="Nhập mô tả sản phẩm"></textarea>
+                        </div>
+
+                        <hr>
+                        <h5 class="mb-3">Ảnh sản phẩm</h5>
+
+                        <div class="mb-3">
+                            <label for="imageUploadInput" class="form-label">Thêm ảnh mới:</label>
+                            <div class="modal-image-upload-area border rounded p-3 text-center" id="imageUploadArea" style="cursor: pointer; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <i class="fa fa-cloud-upload fa-3x mb-2 text-muted"></i>
+                                <p class="text-muted">Kéo & thả hoặc click để chọn ảnh</p>
+                                <input type="file" id="imageUploadInput" name="newImages" multiple accept="image/*" style="display: none;">
+                            </div>
+                        </div>
+
+                        <div class="modal-image-preview-container" id="imagePreviewContainer">
+                            <div class="image-add-more-placeholder border rounded p-1 d-flex flex-column align-items-center justify-content-center" style="width: 100px; height: 100px; cursor: pointer;">
+                                <i class="fas fa-plus fa-2x text-muted"></i>
+                                <small class="text-muted">Ảnh</small>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="closeModalBtn1" >Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveProductDetailBtn">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"  crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+
     <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        console.log(bootstrap.Modal);
+        // Base URL cho ảnh upload
+        const UPLOAD_BASE_URL = /*[[@{/uploads/}]]*/ '/uploads/';
+
+        // Mảng để theo dõi các ID ảnh cần xóa và các File ảnh mới
+        let imagesToDelete = [];
+        let newImageFiles = [];
+
+        // Hàm định dạng tiền tệ
+        function formatCurrency(value) {
+            if (value === null || isNaN(value)) {
+                return '';
+            }
+            return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(value);
+        }
+
+        // Tự động định dạng giá tiền khi nhập và khi load modal
+        function setupPriceInputFormatting() {
+            $('#modalPrice').off('input').on('input', function() {
+                let value = $(this).val().replace(/[^0-9]/g, ''); // Xóa ký tự không phải số
+                if (value) {
+                    $(this).val(new Intl.NumberFormat('vi-VN').format(value));
+                }
+            });
+        }
+
+        // Logic hiển thị/ẩn QR Code
         $('.display-qr-btn').on('click', function () {
             var versionItem = $(this).closest('.version-item');
             versionItem.find('.qrcode-container').addClass('active');
+            $('#overlay').show();
         });
 
         $('.close-qr').on('click', function () {
             $('.qrcode-container.active').removeClass('active');
+            $('#overlay').hide();
         });
 
+        // Chức năng in QR Code
         $('.print-qr').on('click', function () {
             var barcode = $(this).attr('data-barcode');
             var iframe = document.createElement('iframe');
@@ -150,19 +484,210 @@
             };
         });
 
-        function printImage() {
-            const imageElement = document.querySelector('.qrcode-container.active img');
-            const printWindow = window.open('', '', 'width=800,height=500');
-            printWindow.document.open();
-            printWindow.document.write('<html><head><title>Print Image</title></head><body>');
-            printWindow.document.write('<img src="' + imageElement.src + '" alt="Printed Image">');
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-            printWindow.onafterprint = function() {
-                printWindow.close();
-            };
+        // Xử lý click nút "Cập nhật" để mở modal và tải dữ liệu
+        let updateModalInstance = null;
+        $(document).on('click', '.update-product-detail-modal-btn', function () {
+            const modalEl = document.getElementById('updateProductDetailModal');
+
+            const productDetailId = $(this).data('product-detail-id');
+            $('#modalProductDetailId').val(productDetailId);
+
+            // Reset ảnh
+            imagesToDelete = [];
+            newImageFiles = [];
+            $('#imagePreviewContainer .modal-image-preview').remove();
+            $('#imageUploadInput').val('');
+
+            fetch(`/api/product-details/${productDetailId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || 'Lỗi khi tải dữ liệu chi tiết sản phẩm.'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    $('#modalCategoryName').val(data.categoryName || 'Không xác định');
+                    $('#modalBrandName').val(data.brandName || 'Không xác định');
+                    $('#modalMaterialName').val(data.materialName || 'Không xác định');
+                    $('#modalColorName').val(data.colorName || 'Không xác định');
+                    $('#modalSizeName').val(data.sizeName || 'Không xác định');
+
+                    $('#modalBarcode').val(data.barcode);
+                    $('#modalQuantity').val(data.quantity);
+                    $('#modalPrice').val(formatCurrency(data.price));
+                    $('#modalProductDescription').val(data.productDescription || ''); // Hiển thị description từ Product
+
+                    $('#imagePreviewContainer .modal-image-preview').remove();
+                    if (data.images) {
+                        data.images.forEach(image => {
+                            addImagePreview(image.link, image.id);
+                        });
+                    }
+
+                    setupPriceInputFormatting();
+
+                    if (!updateModalInstance) {
+                        updateModalInstance = new bootstrap.Modal(modalEl);
+                    }
+                    updateModalInstance.show();
+                })
+                .catch(error => {
+                    console.error("Error fetching product detail:", error);
+                    Swal.fire("Lỗi", error.message, "error");
+                });
+        });
+
+        // Xử lý sự kiện khi chọn ảnh mới
+        $('#imageUploadArea').on('click', function() {
+            $('#imageUploadInput').click();
+        });
+
+        $('#imageUploadInput').on('change', function(event) {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                newImageFiles.push(file);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    addImagePreview(e.target.result, null, file);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Hàm thêm ảnh vào khu vực preview trong modal
+        function addImagePreview(src, imageId = null, file = null) {
+            const container = $('#imagePreviewContainer');
+            const previewDiv = $('<div>').addClass('modal-image-preview');
+            const img = $('<img>').attr('src', src.startsWith('uploads/') ? '/' + src : src)
+                .css({ width: '200px', height: '200px', objectFit: 'cover' });
+            const removeBtn = $('<span>').addClass('remove-image').text('×');
+
+            if (imageId) {
+                previewDiv.data('image-id', imageId);
+            }
+            if (file) {
+                previewDiv.data('file-object', file);
+            }
+
+            removeBtn.on('click', function() {
+                const parentDiv = $(this).parent();
+                const removedImageId = parentDiv.data('image-id');
+                const removedFile = parentDiv.data('file-object');
+
+                if (removedImageId) {
+                    imagesToDelete.push(removedImageId);
+                    console.log("Image ID marked for deletion:", removedImageId);
+                }
+                if (removedFile) {
+                    newImageFiles = newImageFiles.filter(f => f !== removedFile);
+                    console.log("New file removed from upload list:", removedFile.name);
+                }
+                parentDiv.remove();
+            });
+
+            previewDiv.append(img).append(removeBtn);
+            if (container.find('.image-add-more-placeholder').length > 0) {
+                container.find('.image-add-more-placeholder').before(previewDiv);
+            } else {
+                container.append(previewDiv);
+            }
         }
+
+        // Xử lý nút "Lưu thay đổi" trong modal
+        $('#saveProductDetailBtn').on('click', async function () {
+            const productDetailId = $('#modalProductDetailId').val();
+            const quantity = parseInt($('#modalQuantity').val());
+            const price = parseFloat($('#modalPrice').val().replace(/\./g, '').replace(',', ''));
+            const description = $('#modalProductDescription').val(); // Lấy giá trị description từ textarea
+
+            if (isNaN(quantity) || quantity < 0) {
+                Swal.fire("Lỗi", "Số lượng biến thể không hợp lệ hoặc nhỏ hơn 0.", "error");
+                return;
+            }
+            if (isNaN(price) || price <= 0) {
+                Swal.fire("Lỗi", "Giá biến thể không hợp lệ hoặc nhỏ hơn hoặc bằng 0.", "error");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('id', productDetailId);
+            formData.append('quantity', quantity);
+            formData.append('price', price);
+            formData.append('description', description); // Thêm description vào formData
+
+            imagesToDelete.forEach(id => {
+                formData.append('imagesToDelete', id);
+            });
+
+            newImageFiles.forEach(file => {
+                formData.append('newImages', file);
+            });
+
+            try {
+                const response = await fetch(`/api/product-details/${productDetailId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Lỗi HTTP! status: ${response.status}`);
+                }
+
+                // Lấy dữ liệu mới từ API
+                const updatedData = await fetch(`/api/product-details/${productDetailId}`).then(res => res.json());
+
+                // Cập nhật giao diện cho phiên bản cụ thể
+                updateVersionItem(updatedData);
+
+                // Cập nhật phần "Thông tin sản phẩm" với description mới
+                $('.spec-value').filter(function() {
+                    return $(this).closest('.spec-item').find('.spec-title').text() === 'Mô tả sản phẩm';
+                }).text(updatedData.productDescription || 'Không có mô tả');
+
+                Swal.fire({
+                    title: "Thành công!",
+                    text: "Cập nhật chi tiết sản phẩm và mô tả thành công.",
+                    icon: "success"
+                }).then(() => {
+                    if (updateModalInstance) {
+                        updateModalInstance.hide();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error updating ProductDetail:", error);
+                Swal.fire("Lỗi", `Đã xảy ra lỗi khi cập nhật: ${error.message}`, "error");
+            }
+        });
+
+        // Hàm cập nhật giao diện cho phiên bản đã chỉnh sửa
+        function updateVersionItem(data) {
+            const versionItem = $(`.version-item .update-product-detail-modal-btn[data-product-detail-id="${data.id}"]`).closest('.version-item');
+            versionItem.find('.info-value').eq(0).text(data.quantity);
+            versionItem.find('.info-value').eq(1).text(formatCurrency(data.price));
+            versionItem.find('.image-list').empty();
+            if (data.images) {
+                data.images.forEach(image => {
+                    versionItem.find('.image-list').append(`<div class="col-md-2 image-container"><img src="/${image.link}" alt="Product Image" class="w-100"></div>`);
+                });
+            }
+        }
+
+        $(document).on('click', '#closeModalBtn', function () {
+            if (updateModalInstance) {
+                updateModalInstance.hide();
+            }
+        });
+
+        $(document).on('click', '#closeModalBtn1', function () {
+            if (updateModalInstance) {
+                updateModalInstance.hide();
+            }
+        });
+
+        /*]]>*/
     </script>
 </div>
 </body>
