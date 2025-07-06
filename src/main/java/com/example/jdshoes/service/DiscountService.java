@@ -1,5 +1,6 @@
 package com.example.jdshoes.service;
 
+import com.example.jdshoes.dto.Discount.DiscountDto;
 import com.example.jdshoes.dto.Discount.SearchDiscountCodeDto;
 import com.example.jdshoes.entity.Discount;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,10 @@ public interface DiscountService {
     Discount createDiscount(Discount discount);
     void updateDiscount( Discount discount);
     Discount findById(Integer id);
+
+    Page<DiscountDto> getAllDiscountCode(SearchDiscountCodeDto searchDiscountCodeDto, Pageable pageable);
+
+    Page<DiscountDto> getAllAvailableDiscountCode(Pageable pageable);
 
 //    Discount updateStatus(Integer discountCodeId, int status);
 

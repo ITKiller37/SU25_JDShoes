@@ -3,7 +3,9 @@ package com.example.jdshoes.repository;
 import com.example.jdshoes.entity.Discount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface DiscountRepository extends JpaRepository<Discount, Integer> {
+public interface DiscountRepository extends JpaRepository<Discount, Integer>, JpaSpecificationExecutor<Discount> {
     @Query("SELECT d FROM Discount d " +
             "WHERE (:keyword IS NULL OR " +
             "LOWER(d.code) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
@@ -30,7 +32,11 @@ public interface DiscountRepository extends JpaRepository<Discount, Integer> {
             Pageable pageable);
 
 
+
     @Query("SELECT d FROM Discount d WHERE d.deleteFlag = true ORDER BY d.id DESC")
     Page<Discount> findAllByOrderByIdDesc(Pageable pageable);
 
+
+    @Query(value = "SELECT * FROM Discount WHERE status = 1 AND startDate < GETDATE() AND endDate > GETDATE() AND deleteFlag = 'true' AND maximumUsage > 0", nativeQuery = true)
+    Page<Discount> findAllAvailableValid(Pageable pageable);
 }

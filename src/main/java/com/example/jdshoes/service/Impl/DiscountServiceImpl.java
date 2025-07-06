@@ -1,13 +1,16 @@
 package com.example.jdshoes.service.Impl;
 
+import com.example.jdshoes.dto.Discount.DiscountDto;
 import com.example.jdshoes.dto.Discount.SearchDiscountCodeDto;
 import com.example.jdshoes.entity.Discount;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.repository.DiscountRepository;
+import com.example.jdshoes.repository.Specification.DiscountCodeSpec;
 import com.example.jdshoes.service.DiscountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,6 +56,19 @@ public class DiscountServiceImpl implements DiscountService {
         return discountRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public Page<DiscountDto> getAllDiscountCode(SearchDiscountCodeDto searchDiscountCodeDto, Pageable pageable) {
+        Specification<Discount> spec = new DiscountCodeSpec(searchDiscountCodeDto);
+        Page<Discount> discountCodes = discountRepository.findAll(spec, pageable);
+        return discountCodes.map(this::convertToDto);
+    }
+
+    @Override
+    public Page<DiscountDto> getAllAvailableDiscountCode(Pageable pageable) {
+        Page<Discount> validCodes = discountRepository.findAllAvailableValid(pageable);
+        return validCodes.map(this::convertToDto);
+    }
+
 
     @Override
     public void updateDiscount(Discount discountInput) {
@@ -78,28 +94,31 @@ public class DiscountServiceImpl implements DiscountService {
             discountRepository.save(existingDiscount);
         }
     }
+
 //    @Override
 //    public Discount updateStatus(Integer discountCodeId, int status) {
 //        Discount discountCode = discountRepository.findById(discountCodeId).orElseThrow(() -> new NotFoundException("Không tìm thấy mã giảm giá"));
 //        discountCode.setStatus(status);
 //        return convertToDto(discountRepository.save(discountCode));
 //    }
-//    private Discount convertToDto(Discount discountCode) {
-//        Discount dto = new Discount();
-//        dto.setId(discountCode.getId());
-//        dto.setCode(discountCode.getCode().trim());
-//        dto.setName(discountCode.getName().trim());
-//        dto.setDiscountAmount(discountCode.getDiscountAmount());
-//        dto.setMaximumAmount(discountCode.getMaximumAmount());
-//        dto.setMinimumAmount(discountCode.getMinimumAmount());
-//        dto.setPercentage(discountCode.getPercentage());
-//        dto.setStartDate(discountCode.getStartDate());
-//        dto.setEndDate(discountCode.getEndDate());
-//        dto.setType(discountCode.getType());
-//        dto.setMaximumUsage(discountCode.getMaximumUsage());
-//        dto.setDeleteFlag(discountCode.isDeleteFlag());
-//        dto.setStatus(discountCode.getStatus());
-//        dto.setNote(discountCode.getNote());
-//        return dto;
-//    }
+    private DiscountDto convertToDto(Discount discountCode) {
+        DiscountDto dto = new DiscountDto();
+        dto.setId(discountCode.getId());
+        dto.setCode(discountCode.getCode().trim());
+        dto.setName(discountCode.getName().trim());
+        dto.setDiscountAmount(discountCode.getDiscountAmount());
+        dto.setMaximumAmount(discountCode.getMaximumAmount());
+        dto.setMinimumAmount(discountCode.getMinimumAmount());
+        dto.setPercentage(discountCode.getPercentage());
+        dto.setStartDate(discountCode.getStartDate());
+        dto.setEndDate(discountCode.getEndDate());
+        dto.setType(discountCode.getType());
+        dto.setMaximumUsage(discountCode.getMaximumUsage());
+        dto.setDeleteFlag(discountCode.isDeleteFlag());
+        dto.setStatus(discountCode.getStatus());
+        dto.setNote(discountCode.getNote());
+        return dto;
+    }
+
+  
 }

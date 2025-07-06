@@ -23,8 +23,7 @@ public class ProductDto {
     private LocalDateTime createDate;
     private LocalDateTime updatedDate;
     private BigDecimal priceMin;
-//    private String imageUrl;
+    private boolean isDiscounted;
 
     private List<ProductDetailDto> productDetailDtos;
-    private boolean isDiscounted;
 }

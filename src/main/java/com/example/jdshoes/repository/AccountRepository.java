@@ -1,10 +1,11 @@
 package com.example.jdshoes.repository;
 
-
 import com.example.jdshoes.entity.Account;
+import com.example.jdshoes.entity.enumClass.RoleName;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Date;
 import java.util.List;
 
 public interface AccountRepository extends JpaRepository<Account, Long>{
@@ -24,4 +25,10 @@ public interface AccountRepository extends JpaRepository<Account, Long>{
     Account findByCustomer_PhoneNumber(String phoneNumber);
 
     Account findTopByOrderByIdDesc();
+
+    @Query("select a from Account a where a.role.name = ?1")
+    List<Account> findByRole(RoleName role);
+
+    @Query("select a from Account a where a.customer.id = ?1")
+    Account findByCustomer(Long id);
 }

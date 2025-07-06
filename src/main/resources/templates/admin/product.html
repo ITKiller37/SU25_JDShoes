@@ -13,7 +13,7 @@
 <body>
 <div layout:fragment="content">
 
-  <h4>Quản lý sản phẩm</h4>
+  <h4>Danh sách sản phẩm</h4>
 
   <form th:action="@{/admin/product-all}" method="GET" >
     <div class="my-3">
@@ -85,19 +85,19 @@
       </th>
       <th scope="col">Loại sản phẩm
       </th>
+      <th scope="col">Số lượng</th>
       <th scope="col">Trạng thái</th>
       <th scope="col">Thao tác</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="item :${items}">
-      <td id="productId" th:attr="onclick='displayModalProduct(\'' + ${item.idSanPham} + '\')'"><a th:href="@{'/admin/chi-tiet-san-pham/'+ ${item.maSanPham}}" th:text="${item.maSanPham}"></a></td>
-      <td id="productName" th:attr="onclick='displayModalProduct(\'' + ${item.idSanPham} + '\')'">
-        <a th:href="@{'/admin/chi-tiet-san-pham/'+ ${item.maSanPham}}" th:text="${item.tenSanPham}"></a>
-      </td>
+      <td th:text="${item.maSanPham}"></td>
+      <td th:text="${item.tenSanPham}"></td>
       <td th:text="${item.nhanHang}"></td>
       <td th:text="${item.chatLieu}"></td>
       <td th:text="${item.theLoai}"></td>
+      <td th:text="${item.totalQuantity} ?: 0"></td>
       <td>
                 <span th:switch="${item.trangThai}">
                 <span th:case="0">Đang khởi tạo</span>
@@ -106,7 +106,9 @@
             </span>
       </td>
       <td>
-        <a th:href="@{'/admin/edit-product/' + ${item.idSanPham}}"><i class="fa ti-pencil-alt"></i></a>
+        <a th:href="@{'/admin/edit-product/' + ${item.idSanPham}}" class="mr-2 text-danger"><i class="fa ti-pencil-alt"></i></a>
+        <a th:href="@{'/admin/chi-tiet-san-pham/' + ${item.maSanPham}}" class="text-danger">
+          <i class="fa fa-eye"></i> </a>
       </td>
     </tr>
     </tbody>

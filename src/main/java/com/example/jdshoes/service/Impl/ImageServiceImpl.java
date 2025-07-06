@@ -27,4 +27,19 @@ public class ImageServiceImpl implements ImageService {
     public List<Image> getAllImagesByProductDetailId(Long productDetailId) {
         return imageRepository.findAllByProductDetailId(productDetailId);
     }
+
+    @Override
+    public Optional<Image> findById(Long id) {
+        return imageRepository.findById(id);
+    }
+
+    @Override
+    public Image save(Image image) {
+        return imageRepository.save(image);
+    }
+
+    @Override
+    public void delete(Long id) {
+        imageRepository.deleteById(id);
+    }
 }

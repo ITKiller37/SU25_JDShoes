@@ -19,4 +19,8 @@ public interface ColorRepository extends JpaRepository<Color, Long> {
     List<Color> findColorsByProductAndSize(Product product, Size size);
 
     boolean existsByCode(String code);
+
+    boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }

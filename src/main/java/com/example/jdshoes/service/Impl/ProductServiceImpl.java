@@ -1,5 +1,6 @@
 package com.example.jdshoes.service.Impl;
 
+import com.example.jdshoes.dto.Image.ImageDto;
 import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.ProductSearchDto;
@@ -122,8 +123,8 @@ public class ProductServiceImpl implements ProductService {
             ProductDetailDto productDetailDto = new ProductDetailDto();
             productDetailDto.setId(productDetail.getId());
             productDetailDto.setProductId(product.getId());
-            productDetailDto.setColor(productDetail.getColor());
-            productDetailDto.setSize(productDetail.getSize());
+            productDetailDto.setColorName(productDetail.getColor().getName());
+            productDetailDto.setSizeName(productDetail.getSize().getName());
             productDetailDto.setPrice(productDetail.getPrice());
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());
@@ -133,6 +134,20 @@ public class ProductServiceImpl implements ProductService {
                 productDetailDto.setImageUrl(productDetail.getImages().get(0).getLink());
             } else {
                 productDetailDto.setImageUrl("images/default.jpg"); // hoặc null nếu không muốn ảnh mặc định
+
+            // Ánh xạ danh sách ảnh
+            if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
+                List<ImageDto> imageDtos = productDetail.getImages().stream()
+                        .map(image -> {
+                            ImageDto imageDto = new ImageDto();
+                            imageDto.setLink(image.getLink()); // Giả sử Image có phương thức getUrl()
+                            return imageDto;
+                        })
+                        .collect(Collectors.toList());
+                productDetailDto.setImages(imageDtos);
+            } else {
+                productDetailDto.setImages(new ArrayList<>()); // Đặt danh sách rỗng nếu không có ảnh
+
             }
 
             productDetailDtoList.add(productDetailDto);
@@ -146,5 +161,17 @@ public class ProductServiceImpl implements ProductService {
         Specification<Product> spec = new ProductSpecification(searchRequest);
         List<Product> products = productRepository.findAll(spec);
         return products.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<Product> getAllProduct(Pageable able) {
+        return productRepository.findAll(able);
+    }
+
+    @Override
+    public Page<ProductDto> searchProduct(SearchProductDto searchRequest, Pageable page) {
+        Specification<Product> spec = new ProductSpecification(searchRequest);
+        Page<Product> products = productRepository.findAll(spec, page);
+        return products.map(this::convertToDto);
     }
 }
