@@ -2,7 +2,7 @@ package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.Brand.BrandDto;
 import com.example.jdshoes.entity.Brand;
-import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

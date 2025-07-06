@@ -108,7 +108,7 @@
                             <div class="form-group">
                                 <label class="control-label">Số tiền áp dụng cho đơn tối thiểu từ (đ)</label>
                                 <span class="red_require"> *</span>
-                                <input type="text" class="form-input" id="minimumAmount" th:field="*{minimumAmount}">
+                                <input type="text" class="form-input" id="minimumAmount" th:field="*{minimumAmount}" placeholder="VD: 20000">
                                 <span class="error"></span>
                             </div>
                         </div>
@@ -157,11 +157,11 @@
             $("#discountAmount").prop('disabled', true)
             if(type == 2) {
                 $("#discount-by-percent").hide()
-                $("#max-amount-by-percent").hide()
+                $("#max-amount-by-percent").show()
                 $("#discount-by-money").show()
                 $("#discountAmount").prop('disabled', false)
                 $('#percentage').prop('disabled', true)
-                $('#maximumAmount').prop('disabled', true)
+                $('#maximumAmount').prop('disabled', false)
             }
 
             $("#type1").on("click", function () {
@@ -176,10 +176,10 @@
             $("#type2").on("click", function () {
                 $("#discount-by-money").show()
                 $("#discount-by-percent").hide()
-                $("#max-amount-by-percent").hide()
+                $("#max-amount-by-percent").show()
                 $("#discountAmount").prop('disabled', false)
                 $('#percentage').prop('disabled', true)
-                $('#maximumAmount').prop('disabled', true)
+                $('#maximumAmount').prop('disabled', false)
 
             })
 
@@ -204,24 +204,11 @@
                     }, 'Ngày áp dụng phải nhỏ hơn ngày kết thúc')
                 ]
             });
-
-            // $('#discount-code-form').on('submit', function () {
-            //     if($('#startDate').val() >= $('#endDate').val()) {
-            //         Swal.fire({
-            //             text:'Ngày áp dụng phải nhỏ hơn ngày kết thúc',
-            //             icon: 'error'
-            //         })
-            //         return false;
-            //     }
-            //     return true
-            // })
-
-
             $("#percentage").on('input', function () {
-                if(parseInt($(this).val()) > 98) {
-                    $(this).val(98);
+                if(parseInt($(this).val()) > 100) {
+                    $(this).val(100);
                     Toastify({
-                        text: "Giảm giá tối đa 98%",
+                        text: "Giảm giá tối đa 100%",
                         className: "error",
                         style: {
                             color: "white",
