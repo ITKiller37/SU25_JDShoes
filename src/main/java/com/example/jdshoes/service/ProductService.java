@@ -33,4 +33,6 @@ public interface ProductService {
 
     Page<Product> getAllProduct(Pageable able);
 
+    ProductDto getProductDtoByCode(String code);
+
 }

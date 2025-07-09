@@ -13,7 +13,7 @@ public class MailSenderConfig {
     final static String password = "bdzb lwog vtfe qgrt";
 
     @Bean
-    public JavaMailSender getJavaMailSender() {
+    public JavaMailSenderImpl getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);

@@ -29,81 +29,53 @@ public class HomeController {
     private CategoryService categoryService;
 
     @GetMapping("/")
-    public String gethome(Model model, SearchProductDto searchProductDto, @PageableDefault(size = 20, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
+    public String gethome(Model model, SearchProductDto searchProductDto,
+                          @PageableDefault(size = 20, sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
         List<Category> categories = categoryService.getAll();
         Page<ProductDto> products = productService.searchProduct(searchProductDto, pageable);
 
+        // Tạo URL giữ lại các filter
+        StringBuilder url = new StringBuilder();
 
-        if(searchProductDto != null) {
-            int pageNumber = pageable.getPageNumber();
-            int pageSize = pageable.getPageSize();
-            Sort sort = pageable.getSort();
-//            String url = "&size=" + pageSize;
-            String url = "";
-
-
-            if(searchProductDto.getKeyword() != null) {
-                url += "&keyword=" + searchProductDto.getKeyword();
-            }
-
-
-            if(sort.isSorted()) {
-                List<Sort.Order> orders = sort.toList();
-
-                // Tạo một danh sách để lưu trữ chuỗi sắp xếp cho mỗi trường
-                List<String> sortStrings = new ArrayList<>();
-
-                for (Sort.Order order : orders) {
-                    // Lấy tên trường (field)
-                    String property = order.getProperty();
-
-                    // Kiểm tra xem có phải là sắp xếp giảm dần không
-                    boolean isDescending = order.isDescending();
-
-                    // Tạo chuỗi sắp xếp dạng "field,asc" hoặc "field,desc"
-                    String sortString = property + "," + (isDescending ? "desc" : "asc");
-
-                    // Thêm chuỗi sắp xếp vào danh sách
-                    sortStrings.add(sortString);
-                }
-                url += "&sort=" + String.join(",", sortStrings);
-                searchProductDto.setSort(String.join(",", sortStrings));
-            }
-
-            if(searchProductDto.getMinPrice() != null) {
-                url += "&minPrice=" + searchProductDto.getMinPrice();
-            }
-            if(searchProductDto.getMinPrice() != null) {
-                url += "&maxPrice=" + searchProductDto.getMaxPrice();
-            }
-            if(searchProductDto.getCategoryId() != null) {
-                url += "&category=" + searchProductDto.getCategoryId().stream()
-                        .map(Object::toString) // Chuyển đổi mỗi số thành chuỗi
-                        .collect(Collectors.joining(","));
-            }
-            if(searchProductDto.getGender() != null) {
-                url += "&gender=" + searchProductDto.getGender();
-            }
-            model.addAttribute("url", url);
+        if (searchProductDto.getKeyword() != null) {
+            url.append("&keyword=").append(searchProductDto.getKeyword());
         }
 
+        if (searchProductDto.getMinPrice() != null) {
+            url.append("&minPrice=").append(searchProductDto.getMinPrice());
+        }
+
+        if (searchProductDto.getMaxPrice() != null) {
+            url.append("&maxPrice=").append(searchProductDto.getMaxPrice());
+        }
+
+        if (searchProductDto.getCategoryId() != null && !searchProductDto.getCategoryId().isEmpty()) {
+            url.append("&categoryId=").append(searchProductDto.getCategoryId().stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(",")));
+        }
+
+        if (searchProductDto.getBrandName() != null) {
+            url.append("&brandName=").append(searchProductDto.getBrandName());
+        }
+
+        if (searchProductDto.getSort() != null) {
+            url.append("&sort=").append(searchProductDto.getSort());
+        } else {
+            Sort sort = pageable.getSort();
+            if (sort.isSorted()) {
+                String sortStr = sort.toList().stream()
+                        .map(order -> order.getProperty() + "," + (order.isDescending() ? "desc" : "asc"))
+                        .collect(Collectors.joining(","));
+                url.append("&sort=").append(sortStr);
+            }
+        }
+
+        model.addAttribute("url", url.toString());
         model.addAttribute("products", products);
         model.addAttribute("categories", categories);
         model.addAttribute("dataFilter", searchProductDto);
 
         return "user/home-03";
     }
-
-
-//    @GetMapping("getDetail/{code}")
-//    public String getDetail(Model model, @PathVariable("code") String code) {
-//        model.addAttribute("detail", productService.findById(code).get(0));
-//        List<Product> products = productService.findById(code);
-//        List<Size> images = new ArrayList<>();
-//        for (Product product : products){
-//            images.add(product.getProductDetails().get())
-//        }
-//        return "user/product-detail";
-//    }
-
 }

@@ -170,4 +170,55 @@ public class ProductServiceImpl implements ProductService {
             return productRepository.findAll(able);
         }
 
+    @Override
+    public ProductDto getProductDtoByCode(String code) {
+        Product product = productRepository.findByCode(code);
+        if (product == null) {
+            return null;
+        }
+
+        ProductDto dto = new ProductDto();
+        dto.setId(product.getId());
+        dto.setCode(product.getCode());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setCreateDate(product.getCreateDate());
+        dto.setUpdatedDate(product.getUpdatedDate());
+        dto.setCategoryName(product.getCategory().getName());
+        dto.setPriceMin(product.getPrice());
+
+        // Convert danh sách ProductDetail → ProductDetailDto
+        List<ProductDetailDto> detailDtos = product.getProductDetails().stream().map(detail -> {
+            ProductDetailDto detailDto = new ProductDetailDto();
+            detailDto.setId(detail.getId());
+            detailDto.setPrice(detail.getPrice());
+            detailDto.setQuantity(detail.getQuantity());
+            detailDto.setProductId(product.getId());
+            detailDto.setBarcode(detail.getBarcode());
+
+            detailDto.setColorName(detail.getColor().getName());
+            detailDto.setSizeName(detail.getSize().getName());
+
+            detailDto.setProductName(product.getName());
+            detailDto.setProductDescription(product.getDescription());
+            detailDto.setBrandName(product.getBrand().getName());
+            detailDto.setMaterialName(product.getMaterial().getName());
+            detailDto.setCategoryName(product.getCategory().getName());
+
+            // Convert ảnh
+            List<ImageDto> imageDtos = detail.getImages().stream().map(img -> {
+                ImageDto imageDto = new ImageDto();
+                imageDto.setId(img.getId());
+                imageDto.setLink(img.getLink());
+                return imageDto;
+            }).toList();
+
+            detailDto.setImages(imageDtos);
+            return detailDto;
+        }).toList();
+
+        dto.setProductDetailDtos(detailDtos);
+        return dto;
+    }
+
     }
