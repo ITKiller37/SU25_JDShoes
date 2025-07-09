@@ -11,16 +11,16 @@ import java.util.List;
 public class OrderStatusController {
 
 
-//    private final CartService cartService;
-//
-//    public OrderStatusController( CartService cartService) {
-//
-//        this.cartService = cartService;
-//    }
-//
-//    @ResponseBody
-//    @GetMapping("/api/getAllCart")
-//    public List<CartDto> getAllCart() {
-//        return cartService.getAllCartByAccountId();
-//    }
+    private final CartService cartService;
+
+    public OrderStatusController( CartService cartService) {
+
+        this.cartService = cartService;
+    }
+
+    @ResponseBody
+    @GetMapping("/api/getAllCart")
+    public List<CartDto> getAllCart() {
+        return cartService.getAllCartByAccountId();
+    }
 }

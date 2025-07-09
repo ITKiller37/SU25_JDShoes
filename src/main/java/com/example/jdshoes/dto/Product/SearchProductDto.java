@@ -1,5 +1,6 @@
 package com.example.jdshoes.dto.Product;
 
+import com.example.jdshoes.entity.Brand;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,8 +16,9 @@ public class SearchProductDto {
     private Double maxPrice;
     private String productName;
     private List<Long> categoryId;
+    private String brandName;
     private String keyword;
     private String barcode;
     private String sort;
-    private String gender;
+
 }

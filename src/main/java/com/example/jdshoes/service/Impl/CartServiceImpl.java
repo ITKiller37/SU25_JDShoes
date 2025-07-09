@@ -1,9 +1,13 @@
 package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Cart.CartItemDto;
+import com.example.jdshoes.dto.CartDto.CartDto;
+import com.example.jdshoes.dto.CartDto.ProductCart;
 import com.example.jdshoes.dto.CustomerDto.CustomerDto;
+import com.example.jdshoes.dto.Image.ImageDto;
 import com.example.jdshoes.dto.Order.OrderDetailDto;
 import com.example.jdshoes.dto.Order.OrderDto;
+import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.entity.*;
 import com.example.jdshoes.entity.enumClass.BillStatus;
 import com.example.jdshoes.entity.enumClass.InvoiceType;
@@ -411,6 +415,85 @@ public class CartServiceImpl implements CartService {
 
         return orderDto;
     }
+    @Override
+    public List<CartDto> getAllCartByAccountId() {
+        Account account = UserLoginUtil.getCurrentLogin();
+        if (account == null || account.getCustomer() == null) {
+            throw new ShoesApiException(HttpStatus.UNAUTHORIZED, "Chưa đăng nhập hoặc tài khoản không hợp lệ");
+        }
+        List<Cart> cartList = cartRepository.findAllByCustomer_Id(account.getCustomer().getId()); // hoặc account.getId() nếu là 1
+
+        List<CartDto> cartDtos = new ArrayList<>();
+
+        for (Cart cart : cartList) {
+            List<CartDetail> cartDetails = cartDetailRepository.findAllByCart_Id(cart.getId());
+
+            for (CartDetail cartDetail : cartDetails) {
+                ProductDetail productDetail = cartDetail.getProductDetail();
+                Product product = productDetail.getProduct();
+
+                // Set thông tin sản phẩm
+                ProductCart productCart = new ProductCart();
+                productCart.setProductId(product.getId());
+                productCart.setName(product.getName());
+                productCart.setCode(product.getCode());
+                productCart.setDescribe(product.getDescription());
+
+                // Lấy ảnh đầu tiên từ ProductDetail
+                List<Image> images = productDetail.getImages();
+                if (images != null && !images.isEmpty()) {
+                    productCart.setImageUrl(images.get(0).getLink());
+                } else {
+                    productCart.setImageUrl(null); // hoặc gán ảnh mặc định
+                }
+
+                // Set thông tin chi tiết sản phẩm
+                ProductDetailDto productDetailDto = new ProductDetailDto();
+                productDetailDto.setId(productDetail.getId());
+                productDetailDto.setProductId(product.getId());
+                productDetailDto.setPrice(productDetail.getPrice());
+                productDetailDto.setQuantity(productDetail.getQuantity());
+                productDetailDto.setSizeName(productDetail.getSize().getName()); // cần chắc chắn getName() tồn tại
+                productDetailDto.setColorName(productDetail.getColor().getName()); // cần chắc chắn getName() tồn tại
+                productDetailDto.setProductName(product.getName());
+                productDetailDto.setProductDescription(product.getDescription());
+                productDetailDto.setBrandName(product.getBrand().getName());
+                productDetailDto.setMaterialName(product.getMaterial().getName());
+                productDetailDto.setCategoryName(product.getCategory().getName());
+
+                // Thêm ảnh vào DTO
+                List<ImageDto> imageDtos = images.stream().map(img -> {
+                    ImageDto dto = new ImageDto();
+                    dto.setLink(img.getLink());
+                    dto.setId(img.getId());
+                    return dto;
+                }).toList();
+                productDetailDto.setImages(imageDtos);
+
+                // Nếu có khuyến mãi
+                ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
+                if (productDiscount != null) {
+                    productDetailDto.setDiscountedAmount(productDiscount.getDiscountedAmount());
+                }
+
+                // Tạo DTO giỏ hàng
+                CartDto cartDto = new CartDto();
+                cartDto.setId(cart.getId());
+                cartDto.setQuantity(cartDetail.getQuantity());
+                cartDto.setCreateDate(cartDetail.getCreateDate());
+                cartDto.setUpdatedDate(cartDetail.getUpdateDate());
+                cartDto.setCustomerId(cart.getCustomer().getId()); // hoặc account.getId()
+                cartDto.setProduct(productCart);
+                cartDto.setDetail(productDetailDto);
+
+                cartDtos.add(cartDto);
+            }
+        }
+
+        return cartDtos;
+    }
+
+
 }
 
 

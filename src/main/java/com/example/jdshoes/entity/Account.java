@@ -27,6 +27,9 @@ public class Account implements Serializable {
     @Column(unique = true)
     private String code;
 
+    @Nationalized
+    private String name;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthDay;
 
