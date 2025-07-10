@@ -30,7 +30,7 @@ public interface DiscountRepository extends JpaRepository<Discount, Integer>, Jp
             @Param("maximumUsage") Integer maximumUsage,
             Pageable pageable);
 
-    @Query(value = "SELECT * FROM Discount WHERE status = 1 AND startDate < GETDATE() AND endDate > GETDATE() AND deleteFlag = 'false' AND maximumUsage > 0", nativeQuery = true)
+    @Query(value = "SELECT * FROM Discount WHERE status = 1 AND startDate < GETDATE() AND endDate > GETDATE() AND deleteFlag = 'true' AND maximumUsage > 0", nativeQuery = true)
     Page<Discount> findAllAvailableValid(Pageable pageable);
 
     @Query("SELECT d FROM Discount d WHERE d.deleteFlag = true ORDER BY d.id DESC")

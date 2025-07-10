@@ -25,4 +25,6 @@ public interface SizeService {
     void delete(Long id);
 
     List<Size> getAll();
+
+    List<Size> getAllActive();
 }

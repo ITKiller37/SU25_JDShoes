@@ -28,7 +28,7 @@
                  placeholder="Tên sản phẩm" th:value="${tenSanPham}">
         </div>
         <div class="form-group col-md-2">
-          <label>Nhãn hàng</label>
+          <label>Thương hiệu</label>
           <select class="form-select" id="nhanHang" name="nhanHang" th:value="${nhanHang}">
             <option th:value="null">Tất cả</option>
             <option th:value="${brand.id}" th:each="brand: ${listBrand}"
@@ -77,7 +77,7 @@
         <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'tenSanPham' && sortDirection == 'asc' ? 'tenSanPham,desc' : 'tenSanPham,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
         <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'tenSanPham' && sortDirection == 'desc' ? 'tenSanPham,asc' : 'tenSanPham,desc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↓</a>
       </th>
-      <th scope="col">Nhãn hàng
+      <th scope="col">Thương hiệu
       </th>
       <th scope="col">Chất liệu
         <a th:href="@{/src/main/webapp/admin/product-all(page=0, sort=${sortField == 'chatLieu' && sortDirection == 'asc' ? 'chatLieu,desc' : 'chatLieu,asc'}, maSanPham=${maSanPham}, tenSanPham=${tenSanPham}, nhanHang=${nhanHang}, chatLieu=${chatLieu}, theLoai=${theLoai}, trangThai=${trangThai})}" class="sort-link">↑</a>
@@ -99,14 +99,22 @@
       <td th:text="${item.theLoai}"></td>
       <td th:text="${item.totalQuantity} ?: 0"></td>
       <td>
-                <span th:switch="${item.trangThai}">
-                <span th:case="0">Đang khởi tạo</span>
-                <span th:case="1">Còn bán</span>
-                <span th:case="2">Ngừng bán</span>
-            </span>
+          <span th:switch="${item.trangThai}">
+           <span th:case="0" class="badge bg-secondary">Đang khởi tạo</span>
+           <span th:case="1" class="badge bg-success">Còn bán</span>
+           <span th:case="2" class="badge bg-danger">Ngừng bán</span>
+          </span>
       </td>
       <td>
-        <a th:href="@{'/admin/edit-product/' + ${item.idSanPham}}" class="mr-2 text-danger"><i class="fa ti-pencil-alt"></i></a>
+        <th:block th:if="${item.trangThai == 0}">
+          <span class="text-muted"><i class="fa fa-power-off"></i></span>
+        </th:block>
+        <th:block th:unless="${item.trangThai == 0}">
+          <a href="#" class="mr-2 text-danger toggle-status"
+             th:attr="data-ma-san-pham=${item.maSanPham},data-product-name=${item.tenSanPham}">
+            <i class="fa fa-power-off"></i>
+          </a>
+        </th:block>
         <a th:href="@{'/admin/chi-tiet-san-pham/' + ${item.maSanPham}}" class="text-danger">
           <i class="fa fa-eye"></i> </a>
       </td>
@@ -138,24 +146,47 @@
     </ul>
 
   </div>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script th:inline="javascript">
-    $('#delete-btn').on('click', function () {
-      Swal.fire({
-        title: "Xác nhận?",
-        text: `Bạn chắc chắn muốn xóa sản phẩm này`,
-        icon: "warning",
-        showCancelButton: true,
-        cancelButtonText: 'Hủy',
-        confirmButtonText: 'Xác nhận',
-        reverseButtons: true
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const id = $(this).attr('data-product-id')
-          var url = `/admin/product-delete/${id}`
-          window.location.href = url
-        }
+    $(document).ready(function() {
+      $('.toggle-status').on('click', function(e) {
+        e.preventDefault();
+        const maSanPham = $(this).attr('data-ma-san-pham');
+        const productName = $(this).attr('data-product-name');
+
+        Swal.fire({
+          title: "Xác nhận?",
+          text: `Bạn có chắc chắn muốn thay đổi trạng thái của sản phẩm "${productName}"?`,
+          icon: "warning",
+          showCancelButton: true,
+          cancelButtonText: 'Hủy',
+          confirmButtonText: 'Xác nhận',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: '/admin/product-toggle-status',
+              type: 'POST',
+              data: {
+                maSanPham: maSanPham
+              },
+              success: function() {
+                window.location.href = '/admin/product-all';
+              },
+              error: function(xhr) {
+                Swal.fire({
+                  title: "Lỗi!",
+                  text: xhr.responseJSON ? xhr.responseJSON.detail : "Đã xảy ra lỗi khi cập nhật trạng thái.",
+                  icon: "error",
+                  confirmButtonText: 'OK'
+                });
+              }
+            });
+          }
+        });
       });
-    })
+    });
   </script>
 </div>
 </body>

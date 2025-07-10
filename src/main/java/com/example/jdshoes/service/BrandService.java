@@ -29,4 +29,6 @@ public interface BrandService {
     void delete(Long id);
 
     List<Brand> getAll();
+
+    List<Brand> getAllActive();
 }

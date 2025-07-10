@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -117,24 +119,19 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDetailDto> productDetailDtoList = new ArrayList<>();
         BigDecimal priceMin = new BigDecimal("100000000");
         for (ProductDetail productDetail : product.getProductDetails()) {
-            if (productDetail.getPrice().compareTo(priceMin) < 0) {
-                priceMin = productDetail.getPrice();
-            }
-            ProductDetailDto productDetailDto = new ProductDetailDto();
-            productDetailDto.setId(productDetail.getId());
-            productDetailDto.setProductId(product.getId());
-            productDetailDto.setColorName(productDetail.getColor().getName());
-            productDetailDto.setSizeName(productDetail.getSize().getName());
-            productDetailDto.setPrice(productDetail.getPrice());
-            productDetailDto.setQuantity(productDetail.getQuantity());
-            productDetailDto.setBarcode(productDetail.getBarcode());
+            if (productDetail.getQuantity() > 0) { // Chỉ thêm biến thể có quantity > 0
+                if (productDetail.getPrice().compareTo(priceMin) < 0) {
+                    priceMin = productDetail.getPrice();
+                }
+                ProductDetailDto productDetailDto = new ProductDetailDto();
+                productDetailDto.setId(productDetail.getId());
+                productDetailDto.setProductId(product.getId());
+                productDetailDto.setColorName(productDetail.getColor().getName());
+                productDetailDto.setSizeName(productDetail.getSize().getName());
+                productDetailDto.setPrice(productDetail.getPrice());
+                productDetailDto.setQuantity(productDetail.getQuantity());
+                productDetailDto.setBarcode(productDetail.getBarcode());
 
-//            // ✅ Gán imageUrl từ ảnh đầu tiên (nếu có)
-//            if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
-//                productDetailDto.setImageUrl(productDetail.getImages().get(0).getLink());
-//            } else {
-//                productDetailDto.setImageUrl("images/default.jpg"); // hoặc null nếu không muốn ảnh mặc định
-//            }
 
                 // Ánh xạ danh sách ảnh
                 if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
@@ -153,21 +150,52 @@ public class ProductServiceImpl implements ProductService {
 
                 productDetailDtoList.add(productDetailDto);
             }
-            productDto.setPriceMin(priceMin);
-            productDto.setProductDetailDtos(productDetailDtoList);
-            return productDto;
+        }
+        productDto.setPriceMin(priceMin);
+        productDto.setProductDetailDtos(productDetailDtoList);
+        return productDto;
 
     }
-        @Override
-        public List<ProductDto> getAllProductNoPaginationApi (SearchProductDto searchRequest){
-            Specification<Product> spec = new ProductSpecification(searchRequest);
-            List<Product> products = productRepository.findAll(spec);
-            return products.stream().map(this::convertToDto).collect(Collectors.toList());
-        }
 
-        @Override
-        public Page<Product> getAllProduct (Pageable able){
-            return productRepository.findAll(able);
-        }
-
+    @Override
+    public List<ProductDto> getAllProductNoPaginationApi(SearchProductDto searchRequest) {
+        Specification<Product> spec = new ProductSpecification(searchRequest);
+        List<Product> products = productRepository.findAll(spec);
+        return products.stream().map(this::convertToDto).collect(Collectors.toList());
     }
+
+    @Override
+    public Page<Product> getAllProduct(Pageable able) {
+        return productRepository.findAll(able);
+    }
+
+    @Override
+    public boolean existsByName(String name) {
+        return productRepository.existsByName(name);
+    }
+
+    @Override
+    public Product findByCode(String maSanPham) {
+        return productRepository.findByCode(maSanPham);
+    }
+
+    @Override
+    public void updateProductStatusBasedOnQuantity(Product product) {
+        int totalQuantity = product.getProductDetails().stream()
+                .mapToInt(pd -> Optional.ofNullable(pd.getQuantity()).orElse(0))
+                .sum();
+
+        int newStatus = totalQuantity == 0 ? 2 : 1;
+
+        if (!Objects.equals(product.getStatus(), newStatus)) {
+            product.setStatus(newStatus);
+            try {
+                save(product);
+            } catch (IOException e) {
+                e.printStackTrace(); // hoặc log ra nếu bạn có logger
+            }
+        }
+    }
+
+
+}

@@ -100,9 +100,14 @@ public class ColorController {
         }
     }
 
-    @GetMapping("/color-delete/{id}")
-    public String delete(@PathVariable("id") Long id){
-        colorService.delete(id);
+    @GetMapping("/color-toggle-status/{id}")
+    public String toggleStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            colorService.delete(id); // Gọi hàm delete để đổi trạng thái
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi trạng thái màu thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/admin/color-all";
     }
 }

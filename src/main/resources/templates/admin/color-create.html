@@ -3,12 +3,10 @@
       layout:decorate="~{admin/admin-layout.html}">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
-
+  <title>Thông tin màu sắc</title>
 </head>
 <body>
 <div layout:fragment="content">
-
   <h4>Thông tin màu sắc</h4>
   <form th:object="${Color}" id="color-form" method="post" th:action="${action}">
     <div class="my-3">
@@ -27,15 +25,17 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary m-1"><i class="fa ti-save"></i> Lưu lại
-      </button>
-
+      <button type="submit" class="btn btn-primary m-1" id="submitBtn"><i class="fa ti-save"></i> Lưu lại</button>
       <a href="/admin/color-all" class="btn btn-secondary m-1"><i class="fa fa-mail-reply (alias)"></i> <span>Hủy bỏ</span></a>
-
     </div>
   </form>
   <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
-  <script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+  <script th:inline="javascript">
     $(document).ready(function () {
       Validator({
         form: '#color-form',
@@ -46,9 +46,24 @@
           Validator.isRequired('#name', 'Vui lòng nhập tên màu'),
           Validator.maxLength('#name', 30),
           Validator.maxLength('#code', 20),
-        ]
+        ],
+        onSubmit: function (data) {
+          Swal.fire({
+            title: 'Xác nhận?',
+            text: 'Bạn có chắc chắn muốn lưu màu sắc này?',
+            icon: 'question',
+            showCancelButton: true,
+            cancelButtonText: 'Hủy',
+            confirmButtonText: 'Xác nhận',
+            reverseButtons: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              document.getElementById('color-form').submit();
+            }
+          });
+        }
       });
-    })
+    });
   </script>
 </div>
 </body>

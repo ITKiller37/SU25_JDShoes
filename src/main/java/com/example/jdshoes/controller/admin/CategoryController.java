@@ -101,9 +101,14 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/category-delete/{id}")
-    public String delete(@PathVariable("id") Long id){
-        categoryService.delete(id);
+    @GetMapping("/category-toggle-status/{id}")
+    public String toggleStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            categoryService.delete(id); // Gọi hàm delete để đổi trạng thái
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi trạng thái loại sản phẩm thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/admin/category-all";
     }
 }

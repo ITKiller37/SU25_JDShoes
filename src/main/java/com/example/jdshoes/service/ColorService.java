@@ -32,4 +32,6 @@ public interface ColorService {
     void delete(Long id);
 
     List<Color> findAll();
+
+    List<Color> getAllActive();
 }

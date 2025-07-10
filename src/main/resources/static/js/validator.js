@@ -146,7 +146,12 @@ Validator.isRequired = function (selector, message) {
     return {
         selector: selector,
         test: function (value) {
-            return value.trim() ? undefined :  message || 'Vui lòng nhập trường này'
+            // Nếu value là chuỗi, kiểm tra sau khi trim
+            if (typeof value === 'string') {
+                return value.trim() ? undefined : message || 'Vui lòng nhập trường này';
+            }
+            // Nếu value là boolean hoặc số, chỉ kiểm tra xem có giá trị hay không
+            return value !== undefined && value !== null ? undefined : message || 'Vui lòng nhập trường này';
         }
     };
 }
