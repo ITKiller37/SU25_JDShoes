@@ -10,4 +10,7 @@ public interface ProductDiscountService {
     ProductDiscountDto updateCloseProductDiscount(Integer discountId, boolean closed);
 
     List<ProductDiscountDto> createProductDiscountMultiple(ProductDiscountCreateDto productDiscountCreateDto);
+
+    void deleteById(Integer id);
+
 }

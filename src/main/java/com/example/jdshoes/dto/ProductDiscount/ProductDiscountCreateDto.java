@@ -7,5 +7,6 @@ import java.util.List;
 @Data
 @Valid
 public class ProductDiscountCreateDto {
+    private String name;
     List<ProductDiscountDto> productDiscounts;
 }

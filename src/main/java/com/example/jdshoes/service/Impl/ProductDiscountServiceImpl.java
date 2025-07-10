@@ -39,7 +39,9 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
                 productDiscountDto.setId(productDiscount.getId());
             }
             productDiscountDto.setClosed(false);
-            return convertToEntity(productDiscountDto);
+            ProductDiscount entity = convertToEntity(productDiscountDto);
+            entity.setName(productDiscountCreateDto.getName()); // ⚠️ Gán tên cho mỗi bản ghi
+            return entity;
         }).collect(Collectors.toList());
         productDiscountRepository.saveAll(productDiscountList);
         return productDiscountCreateDto.getProductDiscounts();
@@ -67,4 +69,12 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         productDiscountDto.setProductDetailId((productDiscount.getProductDetail().getId()));
         return productDiscountDto;
     }
+
+    @Override
+        public void deleteById(Integer id) {
+    ProductDiscount productDiscount = productDiscountRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Không tìm thấy đợt giảm giá có id = " + id));
+    productDiscountRepository.delete(productDiscount);
+}
+
 }

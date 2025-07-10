@@ -61,4 +61,13 @@ public class ProductDiscountController {
         model.addAttribute("categories", categories);
         return "/admin/product-discount-create";
     }
+
+    @DeleteMapping("/api/private/product-discount/{id}")
+    @ResponseBody
+    public String deleteProductDiscount(@PathVariable Integer id) {
+        System.out.println("Xóa ID: " + id);
+        productDiscountService.deleteById(id);
+        return "Xóa thành công";
+    }
+
 }
