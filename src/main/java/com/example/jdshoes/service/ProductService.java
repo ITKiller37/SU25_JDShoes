@@ -37,7 +37,6 @@ public interface ProductService {
 
     boolean existsByName(String name);
 
-
     Product findByCode(String maSanPham);
 
     void updateProductStatusBasedOnQuantity(Product product);
