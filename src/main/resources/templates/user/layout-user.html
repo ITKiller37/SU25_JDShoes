@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">
+<!--<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="en">-->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en">
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 >
 <head>
@@ -7,7 +11,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--===============================================================================================-->
-    <link rel="icon" type="image/png" th:href="@{/image1/icons/favicon.png}"/>
+    <link rel="icon" type="image/png" th:href="@{/image1/icons/J.png}"/>
     <!--===============================================================================================-->
     <link rel="stylesheet" type="text/css" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}">
     <!--===============================================================================================-->
@@ -42,24 +46,24 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
     <!--===============================================================================================-->
     <script th:src="@{/vendor/jquery/jquery-3.2.1.min.js}"></script>
-    <script>
-        $(document).ready(function () {
-            /*<![CDATA[*/
-            var isUserLoggedIn = [[${#authorization.expression('isAuthenticated()')}]]
-            /*]]>*/
-            if(isUserLoggedIn) {
-                $.ajax({
-                    type: 'GET',
-                    url:`http://localhost:8080/api/getAllCart`,
-                    dataType: 'json',
-                    success: function (data) {
-                        $(".js-show-cart").attr("data-notify", data.length)
-                        localStorage.setItem("cartQuantity", (data.length).toString())
-                    }
-                })
-            }
-        })
-    </script>
+<!--    <script>-->
+<!--        $(document).ready(function () {-->
+<!--            /*<![CDATA[*/-->
+<!--            var isUserLoggedIn = [[${#authorization.expression('isAuthenticated()')}]]-->
+<!--            /*]]>*/-->
+<!--            if(isUserLoggedIn) {-->
+<!--                $.ajax({-->
+<!--                    type: 'GET',-->
+<!--                    url:`http://localhost:8080/api/getAllCart`,-->
+<!--                    dataType: 'json',-->
+<!--                    success: function (data) {-->
+<!--                        $(".js-show-cart").attr("data-notify", data.length)-->
+<!--                        localStorage.setItem("cartQuantity", (data.length).toString())-->
+<!--                    }-->
+<!--                })-->
+<!--            }-->
+<!--        })-->
+<!--    </script>-->
 </head>
 <body>
 <!-- Header -->
@@ -84,12 +88,12 @@
                         </a>
                         <div class="dropdown-menu" id="accountDropdownMenu">
                             <!-- Dropdown content goes here -->
-<!--                            <a th:href="@{/user-login}" th:unless="${#authorization.expression('isAuthenticated()')}">Đăng nhập</a>-->
-<!--                            <a th:href="@{/register}" th:unless="${#authorization.expression('isAuthenticated()')}">Đăng ký</a>-->
-<!--                            <a th:href="@{/profile}" th:if="${#authorization.expression('isAuthenticated()')}">Thông tin</a>-->
-<!--                            <a th:href="@{/admin/}" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')">Trang quản lý</a>-->
-<!--                            <a th:href="@{/cart-status}" th:if="${#authorization.expression('isAuthenticated()')}">Đơn hàng</a>-->
-<!--                            <a th:href="@{/user_logout}" th:if="${#authorization.expression('isAuthenticated()')}">Đăng xuất</a>-->
+                            <a th:href="@{/user-login}" th:unless="${#authorization.expression('isAuthenticated()')}">Đăng nhập</a>
+                            <a th:href="@{/register}" th:unless="${#authorization.expression('isAuthenticated()')}">Đăng ký</a>
+                            <a th:href="@{/profile}" th:if="${#authorization.expression('isAuthenticated()')}">Thông tin</a>
+                            <a th:href="@{/admin/}" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')">Trang quản lý</a>
+                            <a th:href="@{/cart-status}" th:if="${#authorization.expression('isAuthenticated()')}">Đơn hàng</a>
+                            <a th:href="@{/user_logout}" th:if="${#authorization.expression('isAuthenticated()')}">Đăng xuất</a>
                         </div>
                     </div>
 
@@ -102,7 +106,7 @@
 
                 <!-- Logo desktop -->
                 <a href="/" class="logo">
-                    <img src="/image1/logo-1.png" alt="IMG-LOGO">
+                    <img src="/image1/icons/logo-view1.png" alt="IMG-LOGO">
                 </a>
 
                 <!-- Menu desktop -->
@@ -159,7 +163,7 @@
     <div class="wrap-header-mobile">
         <!-- Logo moblie -->
         <div class="logo-mobile">
-            <a href="/"><img src="/image1/logo-1.png" alt="IMG-LOGO"></a>
+            <a href="/"><img src="/image1/icons/logo-view1.png" alt="IMG-LOGO"></a>
         </div>
 
         <!-- Icon header -->
@@ -240,7 +244,7 @@
     <div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
         <div class="container-search-header">
             <button class="flex-c-m btn-hide-modal-search trans-04 js-hide-modal-search">
-                <img src="images/icons/icon-close2.png" alt="CLOSE">
+                <img src="/image1/icons/icon-close2.png" alt="CLOSE">
             </button>
 
             <form class="wrap-search-header flex-w p-l-15">
@@ -272,7 +276,7 @@
             <ul class="header-cart-wrapitem w-full">
                 <li class="header-cart-item flex-w flex-t m-b-12">
                     <div class="header-cart-item-img">
-                        <img src="images/item-cart-01.jpg" alt="IMG">
+                        <img src="/image1/item-cart-01.jpg" alt="IMG">
                     </div>
 
                     <div class="header-cart-item-txt p-t-8">
@@ -288,7 +292,7 @@
 
                 <li class="header-cart-item flex-w flex-t m-b-12">
                     <div class="header-cart-item-img">
-                        <img src="images/item-cart-02.jpg" alt="IMG">
+                        <img src="/image1/item-cart-02.jpg" alt="IMG">
                     </div>
 
                     <div class="header-cart-item-txt p-t-8">
@@ -305,7 +309,7 @@
 
                 <li class="header-cart-item flex-w flex-t m-b-12">
                     <div class="header-cart-item-img">
-                        <img src="images/item-cart-03.jpg" alt="IMG">
+                        <img src="/image1/item-cart-03.jpg" alt="IMG">
                     </div>
 
                     <div class="header-cart-item-txt p-t-8">
@@ -358,21 +362,21 @@
                 <ul>
                     <li class="p-b-10">
                         <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Nữ
+                            Nike
                         </a>
                     </li>
 
                     <li class="p-b-10">
                         <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Nam
+                            Adidas
                         </a>
                     </li>
 
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Unisex
-                        </a>
-                    </li>
+<!--                    <li class="p-b-10">-->
+<!--                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">-->
+<!--                            Unisex-->
+<!--                        </a>-->
+<!--                    </li>-->
 
                     <li class="p-b-10">
                         <a href="#" class="stext-107 cl7 hov-cl1 trans-04">

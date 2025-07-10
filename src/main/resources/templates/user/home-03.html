@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!--<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
-<!--      layout:decorate="~{user/layout-user.html}">-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{user/layout-user.html}">
 
 <head xmlns:layout="http://www.w3.org/1999/xhtml">
     <title>Home</title>
@@ -373,430 +373,498 @@
 
 
 <!-- Slider -->
-<div layout:fragment="content">
-    <section class="section-slide">
-        <div class="wrap-slick1 rs2-slick1">
-            <div class="slick1">
-                <div class="item-slick1 bg-overlay1" style="background-image: url(image1/thumb-01.png);"
-                     data-thumb="image1/thumb-01.png" data-caption="Nike">
-                    <div class="container h-full">
-                        <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
-                            <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
-								<span class="ltext-202 txt-center cl0 respon2">
-									Bộ sưu tập Nike
-								</span>
-                            </div>
+    <div layout:fragment="content">
+        <section class="section-slide">
+            <div class="wrap-slick1 rs2-slick1">
+                <div class="slick1">
+                    <div class="item-slick1 bg-overlay1" style="background-image: url(image1/thumb-01.png);"
+                         data-thumb="image1/thumb-01.png" data-caption="Nike">
+                        <div class="container h-full">
+                            <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
+                                <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
+                                    <span class="ltext-202 txt-center cl0 respon2">
+                                        Bộ sưu tập Nike
+                                    </span>
+                                </div>
 
-                            <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
-                                <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
-                                    Điểm đến mới
-                                </h2>
-                            </div>
+                                <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
+                                    <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
+                                        Điểm đến mới
+                                    </h2>
+                                </div>
 
-                            <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
-                                <a href="product.html"
-                                   class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
-                                    Mua sắm ngay
-                                </a>
+                                <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
+                                    <a href="product.html"
+                                       class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
+                                        Mua sắm ngay
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="item-slick1 bg-overlay1" style="background-image: url(image1/thumb-02.png);"
+                         data-thumb="image1/thumb-02.png" data-caption="Men's shoes">
+                        <div class="container h-full">
+                            <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
+                                <div class="layer-slick1 animated visible-false" data-appear="rollIn" data-delay="0">
+                                    <span class="ltext-202 txt-center cl0 respon2">
+                                        Giày nam mới
+                                    </span>
+                                </div>
+
+                                <div class="layer-slick1 animated visible-false" data-appear="lightSpeedIn"
+                                     data-delay="800">
+                                    <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
+                                        Giày da
+                                    </h2>
+                                </div>
+
+                                <div class="layer-slick1 animated visible-false" data-appear="slideInUp" data-delay="1600">
+                                    <a href="product.html"
+                                       class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
+                                        Mua sắm ngay
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="item-slick1 bg-overlay1" style="background-image: url(image1/thumb-03.png);"
+                         data-thumb="image1/thumb-03.png" data-caption="Men’s Shoes">
+                        <div class="container h-full">
+                            <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
+                                <div class="layer-slick1 animated visible-false" data-appear="rotateInDownLeft"
+                                     data-delay="0">
+                                    <span class="ltext-202 txt-center cl0 respon2">
+                                        Bộ sưu tập Adidas
+                                    </span>
+                                </div>
+
+                                <div class="layer-slick1 animated visible-false" data-appear="rotateInUpRight"
+                                     data-delay="800">
+                                    <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
+                                        NEW SEASON
+                                    </h2>
+                                </div>
+
+                                <div class="layer-slick1 animated visible-false" data-appear="rotateIn" data-delay="1600">
+                                    <a href="/getproduct"
+                                       class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
+                                        Mua sắm ngay
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="item-slick1 bg-overlay1" style="background-image: url(image1/thumb-02.png);"
-                     data-thumb="image1/thumb-02.png" data-caption="Men's shoes">
-                    <div class="container h-full">
-                        <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
-                            <div class="layer-slick1 animated visible-false" data-appear="rollIn" data-delay="0">
-								<span class="ltext-202 txt-center cl0 respon2">
-									Giày nam mới
-								</span>
-                            </div>
+                <div class="wrap-slick1-dots p-lr-10"></div>
+            </div>
+        </section>
 
-                            <div class="layer-slick1 animated visible-false" data-appear="lightSpeedIn"
-                                 data-delay="800">
-                                <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
-                                    Giày da
-                                </h2>
-                            </div>
 
-                            <div class="layer-slick1 animated visible-false" data-appear="slideInUp" data-delay="1600">
-                                <a href="product.html"
-                                   class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
-                                    Mua sắm ngay
-                                </a>
-                            </div>
+        <!-- Banner -->
+        <div class="sec-banner bg0 p-t-95 p-b-55">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 p-b-30 m-lr-auto">
+                        <!-- Block1 -->
+                        <div class="block1 wrap-pic-w">
+                            <img th:src="@{'/image1/Banner-01-view.png'}" alt="IMG-BANNER">
+
+                            <a href="/getproduct?page=0&brand=2"
+                               class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+                                <div class="block1-txt-child1 flex-col-l">
+                                    <span class="block1-name ltext-102 trans-04 p-b-8">
+                                        Nike
+                                    </span>
+
+                                    <span class="block1-info stext-102 trans-04">
+                                        New Trend
+                                    </span>
+                                </div>
+
+                                <div class="block1-txt-child2 p-b-4 trans-05">
+                                    <div class="block1-link stext-101 cl0 trans-09">
+                                        Mua sắm ngay
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
-                </div>
 
-                <div class="item-slick1 bg-overlay1" style="background-image: url(image1/thumb-03.png);"
-                     data-thumb="image1/thumb-03.png" data-caption="Men’s Shoes">
-                    <div class="container h-full">
-                        <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
-                            <div class="layer-slick1 animated visible-false" data-appear="rotateInDownLeft"
-                                 data-delay="0">
-								<span class="ltext-202 txt-center cl0 respon2">
-									Bộ sưu tập Adidas
-								</span>
-                            </div>
+                    <div class="col-md-6 p-b-30 m-lr-auto">
+                        <!-- Block1 -->
+                        <div class="block1 wrap-pic-w">
+                            <img th:src="@{'/image1/Banner-02-view.png'}" alt="IMG-BANNER">
 
-                            <div class="layer-slick1 animated visible-false" data-appear="rotateInUpRight"
-                                 data-delay="800">
-                                <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
-                                    NEW SEASON
-                                </h2>
-                            </div>
+                            <a href="getproduct?page=0&brand=1"
+                               class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+                                <div class="block1-txt-child1 flex-col-l">
+                                    <span class="block1-name ltext-102 trans-04 p-b-8">
+                                        Adidas
+                                    </span>
 
-                            <div class="layer-slick1 animated visible-false" data-appear="rotateIn" data-delay="1600">
-                                <a href="/getproduct"
-                                   class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
-                                    Mua sắm ngay
-                                </a>
-                            </div>
+                                    <span class="block1-info stext-102 trans-04">
+                                        New Trend
+                                    </span>
+                                </div>
+
+                                <div class="block1-txt-child2 p-b-4 trans-05">
+                                    <div class="block1-link stext-101 cl0 trans-09">
+                                        Mua sắm ngay
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4 p-b-30 m-lr-auto">
+                        <!-- Block1 -->
+                        <div class="block1 wrap-pic-w">
+                            <img th:src="@{'/image1/Banner-03-view.png'}" alt="IMG-BANNER" style="height: 300px">
+
+                            <a href="/getproduct"
+                               class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+                                <div class="block1-txt-child1 flex-col-l">
+                                    <span class="block1-name ltext-102 trans-04 p-b-8">
+                                        Trẻ trung
+                                    </span>
+
+                                    <span class="block1-info stext-102 trans-04">
+                                        Năng động
+                                    </span>
+                                </div>
+
+                                <div class="block1-txt-child2 p-b-4 trans-05">
+                                    <div class="block1-link stext-101 cl0 trans-09">
+                                        Mua sắm
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4 p-b-30 m-lr-auto">
+                        <!-- Block1 -->
+                        <div class="block1 wrap-pic-w">
+                            <img th:src="@{'image1/Banner-04-view.png'}" alt="IMG-BANNER" style="height: 300px">
+
+                            <a href="/getproduct"
+                               class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+                                <div class="block1-txt-child1 flex-col-l">
+                                    <span class="block1-name ltext-102 trans-04 p-b-8">
+                                        Phong cách
+                                    </span>
+
+                                    <span class="block1-info stext-102 trans-04">
+                                        Mùa xuân 2025
+                                    </span>
+                                </div>
+
+                                <div class="block1-txt-child2 p-b-4 trans-05">
+                                    <div class="block1-link stext-101 cl0 trans-09">
+                                        Mua sắm
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-4 p-b-30 m-lr-auto">
+                        <!-- Block1 -->
+                        <div class="block1 wrap-pic-w">
+                            <img th:src="@{/image1/Banner-05-view.png}" alt="IMG-BANNER" style="height: 300px">
+
+                            <a href="/getproduct"
+                               class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+                                <div class="block1-txt-child1 flex-col-l">
+                                    <span class="block1-name ltext-102 trans-04 p-b-8">
+                                        Lịch lãm
+                                    </span>
+
+                                    <span class="block1-info stext-102 trans-04">
+                                        Mùa xuân 2025
+                                    </span>
+                                </div>
+
+                                <div class="block1-txt-child2 p-b-4 trans-05">
+                                    <div class="block1-link stext-101 cl0 trans-09">
+                                        Mua sắm
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="wrap-slick1-dots p-lr-10"></div>
         </div>
-    </section>
 
 
-    <!-- Banner -->
-    <div class="sec-banner bg0 p-t-95 p-b-55">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 p-b-30 m-lr-auto">
-                    <!-- Block1 -->
-                    <div class="block1 wrap-pic-w">
-                        <img th:src="@{'/image1/Banner-01-view.png'}" alt="IMG-BANNER">
-
-                        <a href="/getproduct?page=0&gender=2"
-                           class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-                            <div class="block1-txt-child1 flex-col-l">
-								<span class="block1-name ltext-102 trans-04 p-b-8">
-									Nike
-								</span>
-
-                                <span class="block1-info stext-102 trans-04">
-									New Trend
-								</span>
-                            </div>
-
-                            <div class="block1-txt-child2 p-b-4 trans-05">
-                                <div class="block1-link stext-101 cl0 trans-09">
-                                    Mua sắm ngay
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+        <!-- Product -->
+        <section class="bg0 p-t-23 p-b-130">
+            <div class="container">
+                <div class="p-b-10">
+                    <h3 class="ltext-103 cl5">
+                        Một số sản phẩm
+                    </h3>
                 </div>
 
-                <div class="col-md-6 p-b-30 m-lr-auto">
-                    <!-- Block1 -->
-                    <div class="block1 wrap-pic-w">
-                        <img th:src="@{'/image1/Banner-02-view.png'}" alt="IMG-BANNER" style="height: 528px;">
-
-                        <a href="getproduct?page=0&gender=1"
-                           class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-                            <div class="block1-txt-child1 flex-col-l">
-								<span class="block1-name ltext-102 trans-04 p-b-8">
-									Adidas
-								</span>
-
-                                <span class="block1-info stext-102 trans-04">
-									New Trend
-								</span>
-                            </div>
-
-                            <div class="block1-txt-child2 p-b-4 trans-05">
-                                <div class="block1-link stext-101 cl0 trans-09">
-                                    Mua sắm ngay
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4 p-b-30 m-lr-auto">
-                    <!-- Block1 -->
-                    <div class="block1 wrap-pic-w">
-                        <img th:src="@{'/image1/Banner-03-view.png'}" alt="IMG-BANNER" style="height: 300px">
-
-                        <a href="/getproduct"
-                           class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-                            <div class="block1-txt-child1 flex-col-l">
-								<span class="block1-name ltext-102 trans-04 p-b-8">
-									Trẻ trung
-								</span>
-
-                                <span class="block1-info stext-102 trans-04">
-									Năng động
-								</span>
-                            </div>
-
-                            <div class="block1-txt-child2 p-b-4 trans-05">
-                                <div class="block1-link stext-101 cl0 trans-09">
-                                    Mua sắm
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4 p-b-30 m-lr-auto">
-                    <!-- Block1 -->
-                    <div class="block1 wrap-pic-w">
-                        <img th:src="@{'image1/Banner-04-view.png'}" alt="IMG-BANNER" style="height: 300px">
-
-                        <a href="/getproduct"
-                           class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-                            <div class="block1-txt-child1 flex-col-l">
-								<span class="block1-name ltext-102 trans-04 p-b-8">
-									Phong cách
-								</span>
-
-                                <span class="block1-info stext-102 trans-04">
-									Mùa xuân 2025
-								</span>
-                            </div>
-
-                            <div class="block1-txt-child2 p-b-4 trans-05">
-                                <div class="block1-link stext-101 cl0 trans-09">
-                                    Mua sắm
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-4 p-b-30 m-lr-auto">
-                    <!-- Block1 -->
-                    <div class="block1 wrap-pic-w">
-                        <img th:src="@{/image1/Banner-05-view.png}" alt="IMG-BANNER" style="height: 300px">
-
-                        <a href="/getproduct"
-                           class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-                            <div class="block1-txt-child1 flex-col-l">
-								<span class="block1-name ltext-102 trans-04 p-b-8">
-									Lịch lãm
-								</span>
-
-                                <span class="block1-info stext-102 trans-04">
-									Mùa xuân 2025
-								</span>
-                            </div>
-
-                            <div class="block1-txt-child2 p-b-4 trans-05">
-                                <div class="block1-link stext-101 cl0 trans-09">
-                                    Mua sắm
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Product -->
-    <section class="bg0 p-t-23 p-b-130">
-        <div class="container">
-            <div class="p-b-10">
-                <h3 class="ltext-103 cl5">
-                    Một số sản phẩm
-                </h3>
-            </div>
-
-            <div class="flex-w flex-sb-m p-b-52">
-                <div class="flex-w flex-l-m filter-tope-group m-tb-10 filter-gender">
-                    <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" th:classappend="${dataFilter.gender == null} ? 'how-active1'" data-filter="">
-                        Tất cả
-                    </button>
-
-                    <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" th:classappend="${dataFilter.gender == '1'} ? 'how-active1'" data-filter="1">
-                        Nike
-                    </button>
-
-                    <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" th:classappend="${dataFilter.gender == '2'} ? 'how-active1'" data-filter="2">
-                        Adidas
-                    </button>
-<!--                    <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" th:classappend="${dataFilter.gender == '3'} ? 'how-active1'" data-filter="3">-->
-<!--                        Unisex-->
-<!--                    </button>-->
-
-                </div>
-
-                <div class="flex-w flex-c-m m-tb-10">
-                    <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
-                        <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
-                        <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-                        Lọc
-                    </div>
-
-                    <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
-                        <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
-                        <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-                        Tìm kiếm
-                    </div>
-                </div>
-
-                <!-- Search product -->
-                <div class="dis-none panel-search w-full p-t-10 p-b-15">
-                    <div class="bor8 dis-flex p-l-15">
-                        <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
-                            <i class="zmdi zmdi-search"></i>
+                <div class="flex-w flex-sb-m p-b-52">
+                    <div class="flex-w flex-l-m filter-tope-group m-tb-10 filter-brand">
+                        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" th:classappend="${dataFilter.brandName == null} ? 'how-active1'" data-filter="">
+                            Tất cả
                         </button>
-
-                        <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product"
-                               placeholder="Tìm kiếm">
+                        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" th:classappend="${dataFilter.brandName == 'Nike'} ? 'how-active1'" data-filter="Nike">
+                            Nike
+                        </button>
+                        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" th:classappend="${dataFilter.brandName == 'Adidas'} ? 'how-active1'" data-filter="Adidas">
+                            Adidas
+                        </button>
                     </div>
-                </div>
 
-                <!-- Filter -->
-                <div class="dis-none panel-filter w-full p-t-10">
-                    <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
-                        <div class="filter-col1 p-r-15 p-b-27">
-                            <div class="mtext-102 cl2 p-b-15">
-                                Sắp xếp theo
-                            </div>
-
-                            <ul class="filter-order-buy">
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == null}? 'filter-link-active'">
-                                        Mặc định
-                                    </a>
-                                </li>
-
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == 'createDate,desc'}? 'filter-link-active'" data-sort="createDate,desc">
-                                        Mới nhất
-                                    </a>
-                                </li>
-
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == 'price,asc'}? 'filter-link-active'" data-sort="price,asc">
-                                        Giá từ thấp đến cao
-                                    </a>
-                                </li>
-
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == 'price,desc'}? 'filter-link-active'" data-sort="price,desc">
-                                        Giá từ cao đến thấp
-                                    </a>
-                                </li>
-                            </ul>
+                    <div class="flex-w flex-c-m m-tb-10">
+                        <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
+                            <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
+                            <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                            Lọc
                         </div>
 
-                        <div class="filter-col2 p-r-15 p-b-27">
-                            <div class="mtext-102 cl2 p-b-15">
-                                Giá
-                            </div>
-
-                            <ul class="filter-price">
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.minPrice == null && dataFilter.maxPrice == null} ? 'filter-link-active'">
-                                        Tất cả
-                                    </a>
-                                </li>
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" data-min-price="10000" data-max-price="100000" th:classappend="${dataFilter.minPrice == 10000 && dataFilter.maxPrice == 100000} ? 'filter-link-active'">
-                                        Từ 10.000 đến 100.000
-                                    </a>
-                                </li>
-
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" data-min-price="100000" data-max-price="300000" th:classappend="${dataFilter.minPrice == 100000 && dataFilter.maxPrice == 300000} ? 'filter-link-active'">
-                                        Từ 100.000 đến 300.000
-                                    </a>
-                                </li>
-
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" data-min-price="300000" data-max-price="500000" th:classappend="${dataFilter.minPrice == 300000 && dataFilter.maxPrice == 500000} ? 'filter-link-active'">
-                                        Từ 300.000 đến 500.000
-                                    </a>
-                                </li>
-
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" data-min-price="500000" data-max-price="1000000" th:classappend="${dataFilter.maxPrice == 1000000} ? 'filter-link-active'">
-                                        Tù 500.000 đến 1.000.000
-                                    </a>
-                                </li>
-
-                                <li class="p-b-6">
-                                    <a class="filter-link stext-106 trans-04" data-min-price="1000000">
-                                        Từ 1.000.000 trở lên
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="filter-col4 p-b-27">
-                            <div class="mtext-102 cl2 p-b-15">
-                                Loại
-                            </div>
-
-                            <div class="flex-w p-t-4 m-r--5 category-filter">
-                                <th:block th:each="category: ${categories}">
-                                    <a
-                                            class="category-item-filter flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5" th:data-category="${category.id}">
-                                        [[${category.name}]]
-                                    </a>
-                                </th:block>
-
-
-                            </div>
-
-                        </div>
-                        <div class="filter-col4 p-b-27">
-                            <div id="filter-btn" class="flex-c-m stext-106 text-white cl6 size-104 bg3 pointer hov-btn3 trans-04 m-r-8 m-tb-4 ">LỌC</div>
+                        <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
+                            <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+                            <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                            Tìm kiếm
                         </div>
                     </div>
-                </div>
-            </div>
 
-                    <div class="row isotope-grid">
-                        <div th:each="product : ${products}" class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
-                            <!-- Block2 -->
-                            <div class="block2" style="position: relative">
-                                <div class="ribbon" th:if="${product.discounted}">
-                                    <span class="ribbon1"><span>Sale</span></span>
+                    <!-- Search product -->
+                    <div class="dis-none panel-search w-full p-t-10 p-b-15">
+                        <div class="bor8 dis-flex p-l-15">
+                            <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" id="search-product-input"
+                                   placeholder="Tìm kiếm">
+                            <button id="search-btn" class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
+                                <i class="zmdi zmdi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter -->
+                    <div class="dis-none panel-filter w-full p-t-10">
+                        <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+                            <div class="filter-col1 p-r-15 p-b-27">
+                                <div class="mtext-102 cl2 p-b-15">
+                                    Sắp xếp theo
                                 </div>
-                                <div class="block2-pic hov-img0 label-new" data-label="New" style="height: 340px">
-<!--                                    <img th:src="@{'/' + ${product.productDetailDtos[0].images[0].getLink()}}" alt="IMG-PRODUCT" style="height: 100%; width: 100%">-->
-                                    <a th:href="@{product-detail/{id} (id = ${product.code})}"
-                                                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 ">
-                                        Chi Tiết
-                                    </a>
-                                </div>
-                                <div class="block2-txt flex-w flex-t p-t-14">
-                                    <div class="block2-txt-child1 flex-col-l ">
-                                        <a th:href="@{product-detail/{code} (code = ${product.code})}"
-                                           class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" th:text="${product.name}">
+
+                                <ul class="filter-order-buy">
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == null}? 'filter-link-active'">
+                                            Mặc định
                                         </a>
-                                        <span class="stext-105 cl3" th:text="${#numbers.formatDecimal(product.priceMin, 0, 'POINT', 0, 'COMMA') + ' VND'}">
-            								</span>
+                                    </li>
+
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == 'createDate,desc'}? 'filter-link-active'" data-sort="createDate,desc">
+                                            Mới nhất
+                                        </a>
+                                    </li>
+
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == 'price,asc'}? 'filter-link-active'" data-sort="price,asc">
+                                            Giá từ thấp đến cao
+                                        </a>
+                                    </li>
+
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.sort == 'price,desc'}? 'filter-link-active'" data-sort="price,desc">
+                                            Giá từ cao đến thấp
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="filter-col2 p-r-15 p-b-27">
+                                <div class="mtext-102 cl2 p-b-15">
+                                    Giá
+                                </div>
+
+                                <ul class="filter-price">
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" th:classappend="${dataFilter.minPrice == null && dataFilter.maxPrice == null} ? 'filter-link-active'">
+                                            Tất cả
+                                        </a>
+                                    </li>
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" data-min-price="10000" data-max-price="100000" th:classappend="${dataFilter.minPrice == 10000 && dataFilter.maxPrice == 100000} ? 'filter-link-active'">
+                                            Từ 10.000 đến 100.000
+                                        </a>
+                                    </li>
+
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" data-min-price="100000" data-max-price="300000" th:classappend="${dataFilter.minPrice == 100000 && dataFilter.maxPrice == 300000} ? 'filter-link-active'">
+                                            Từ 100.000 đến 300.000
+                                        </a>
+                                    </li>
+
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" data-min-price="300000" data-max-price="500000" th:classappend="${dataFilter.minPrice == 300000 && dataFilter.maxPrice == 500000} ? 'filter-link-active'">
+                                            Từ 300.000 đến 500.000
+                                        </a>
+                                    </li>
+
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" data-min-price="500000" data-max-price="1000000" th:classappend="${dataFilter.maxPrice == 1000000} ? 'filter-link-active'">
+                                            Tù 500.000 đến 1.000.000
+                                        </a>
+                                    </li>
+
+                                    <li class="p-b-6">
+                                        <a class="filter-link stext-106 trans-04" data-min-price="1000000">
+                                            Từ 1.000.000 trở lên
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="filter-col4 p-b-27">
+                                <div class="mtext-102 cl2 p-b-15">
+                                    Loại
+                                </div>
+
+                                <div class="flex-w p-t-4 m-r--5 category-filter">
+                                    <th:block th:each="category: ${categories}">
+                                        <a
+                                                class="category-item-filter flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5" th:data-category="${category.id}">
+                                            [[${category.name}]]
+                                        </a>
+                                    </th:block>
+
+
+                                </div>
+
+                            </div>
+                            <div class="filter-col4 p-b-27">
+                                <div id="filter-btn" class="flex-c-m stext-106 text-white cl6 size-104 bg3 pointer hov-btn3 trans-04 m-r-8 m-tb-4 ">LỌC</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                        <div class="row isotope-grid">
+                            <div th:each="product : ${products}" class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+                                <!-- Block2 -->
+                                <div class="block2" style="position: relative">
+                                    <div class="ribbon" th:if="${product.discounted}">
+                                        <span class="ribbon1"><span>Sale</span></span>
+                                    </div>
+                                    <div class="block2-pic hov-img0 label-new" data-label="New" style="height: 340px">
+                                        <img th:src="@{'/' + ${product.productDetailDtos[0].images[0].getLink()}}" alt="IMG-PRODUCT" style="height: 100%; width: 100%">
+                                        <a th:href="@{product-detail/{id} (id = ${product.code})}"
+                                                                       class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 ">
+                                            Chi Tiết
+                                        </a>
+                                    </div>
+                                    <div class="block2-txt flex-w flex-t p-t-14">
+                                        <div class="block2-txt-child1 flex-col-l ">
+                                            <a th:href="@{product-detail/{code} (code = ${product.code})}"
+                                               class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6" th:text="${product.name}">
+                                            </a>
+                                            <span class="stext-105 cl3" th:text="${#numbers.formatDecimal(product.priceMin, 0, 'POINT', 0, 'COMMA') + ' VND'}">
+                                                </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-            <!-- Pagination -->
-<!--            <div class="flex-c-m flex-w w-full p-t-38">-->
-<!--                <a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7 active-pagination1">-->
-<!--                    1-->
-<!--                </a>-->
+                <!-- Pagination -->
+    <!--            <div class="flex-c-m flex-w w-full p-t-38">-->
+    <!--                <a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7 active-pagination1">-->
+    <!--                    1-->
+    <!--                </a>-->
 
-<!--                <a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7">-->
-<!--                    2-->
-<!--                </a>-->
-<!--            </div>-->
-        </div>
-    </section>
-</div>
+    <!--                <a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7">-->
+    <!--                    2-->
+    <!--                </a>-->
+    <!--            </div>-->
+            </div>
+        </section>
+        <script>
+            var urlCurr = /*[[${url}]]*/ 'abc';
+            $('.category-item-filter').on('click', function () {
+                if($(this).hasClass('category-item-filter-active')) {
+                    $(this).removeClass('category-item-filter-active')
+                }else {
+                    $(this).addClass('category-item-filter-active')
+
+                }
+            })
+
+            $('.filter-order-buy').find('.filter-link').on('click', function (e) {
+                $('.filter-order-buy').find('.filter-link').removeClass('filter-link-active')
+                $(this).addClass('filter-link-active')
+            })
+
+            $('.filter-price').find('.filter-link').on('click', function (e) {
+                $('.filter-price').find('.filter-link').removeClass('filter-link-active')
+                $(this).addClass('filter-link-active')
+            })
+
+
+
+            var url = '?page=0'
+            $('#filter-btn').on('click', function () {
+                var orderBy = $(".filter-order-buy").find('.filter-link-active').attr('data-sort')
+                var dataMinPrice = $(".filter-price").find('.filter-link-active').attr('data-min-price')
+                var dataMaxPrice = $(".filter-price").find('.filter-link-active').attr('data-max-price')
+
+                var dataCategoryEl = $('.category-item-filter-active')
+                var categoryIds = []
+                if(dataCategoryEl.length > 0) {
+                    dataCategoryEl.each(function() {
+                        var dataCate = $(this); // Sử dụng $(this) thay vì $(item)
+                        var id = dataCate.attr('data-category');
+                        categoryIds.push(id);
+                    });
+                }
+                if(orderBy) {
+                    url += '&sort=' + orderBy
+                }
+                if(dataMinPrice) {
+                    url += '&minPrice=' + dataMinPrice
+                }
+                if(dataMaxPrice) {
+                    url += '&maxPrice=' + dataMaxPrice
+                }
+
+                if(categoryIds.length > 1) {
+                    url += '&categoryId=' + categoryIds.join(',')
+                }
+
+                if(categoryIds.length == 1) {
+                    url += '&categoryId=' + categoryIds[0]
+                }
+
+                window.location.href = url
+            })
+            $('#search-btn').on('click', function () {
+                if($("#search-product-input").val()) {
+                    url += '&keyword=' + $("#search-product-input").val()
+                    window.location.href = url
+                }
+            })
+
+            $('.filter-brand').on('click', function () {
+                let newURL = urlCurr.replace(/&brandName=[^&]/, '');
+
+                var dataGenderEl = $(".filter-brand").find('button.how-active1').attr('data-filter')
+                if(dataGenderEl) {
+                    newURL += '&brandName=' + dataGenderEl
+                }
+                window.location.href = '?page=0' + newURL
+            })
+        </script>
+    </div>
 
 
 <!-- Footer -->
@@ -1121,7 +1189,6 @@
     </div>
 
 </div>
-
 <!--===============================================================================================-->
 <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
 <!--===============================================================================================-->
@@ -1220,84 +1287,8 @@
         })
     });
 </script>
-<script>
-    var urlCurr = /*[[${url}]]*/ 'abc';
-    $('.category-item-filter').on('click', function () {
-        if($(this).hasClass('category-item-filter-active')) {
-            $(this).removeClass('category-item-filter-active')
-        }else {
-            $(this).addClass('category-item-filter-active')
-
-        }
-    })
-
-    $('.filter-order-buy').find('.filter-link').on('click', function (e) {
-        $('.filter-order-buy').find('.filter-link').removeClass('filter-link-active')
-        $(this).addClass('filter-link-active')
-    })
-
-    $('.filter-price').find('.filter-link').on('click', function (e) {
-        $('.filter-price').find('.filter-link').removeClass('filter-link-active')
-        $(this).addClass('filter-link-active')
-    })
-
-
-
-    var url = '?page=0'
-    $('#filter-btn').on('click', function () {
-        var orderBy = $(".filter-order-buy").find('.filter-link-active').attr('data-sort')
-        var dataMinPrice = $(".filter-price").find('.filter-link-active').attr('data-min-price')
-        var dataMaxPrice = $(".filter-price").find('.filter-link-active').attr('data-max-price')
-
-        var dataCategoryEl = $('.category-item-filter-active')
-        var categoryIds = []
-        if(dataCategoryEl.length > 0) {
-            dataCategoryEl.each(function() {
-                var dataCate = $(this); // Sử dụng $(this) thay vì $(item)
-                var id = dataCate.attr('data-category');
-                categoryIds.push(id);
-            });
-        }
-        if(orderBy) {
-            url += '&sort=' + orderBy
-        }
-        if(dataMinPrice) {
-            url += '&minPrice=' + dataMinPrice
-        }
-        if(dataMaxPrice) {
-            url += '&maxPrice=' + dataMaxPrice
-        }
-
-        if(categoryIds.length > 1) {
-            url += '&categoryId=' + categoryIds.join(',')
-        }
-
-        if(categoryIds.length == 1) {
-            url += '&categoryId=' + categoryIds[0]
-        }
-
-        window.location.href = url
-    })
-    $('#search-btn').on('click', function () {
-        if($("#search-product-input").val()) {
-            url += '&keyword=' + $("#search-product-input").val()
-            window.location.href = url
-        }
-    })
-
-    $('.filter-gender').on('click', function () {
-        let newURL = urlCurr.replace(/&gender=[^&]/, '');
-
-        var dataGenderEl = $(".filter-gender").find('button.how-active1').attr('data-filter')
-        if(dataGenderEl) {
-            newURL += '&gender=' + dataGenderEl
-        }
-        window.location.href = '?page=0' + newURL
-    })
-</script>
 <!--===============================================================================================-->
 <script src="js/main.js"></script>
-
 
 </body>
 </html>

@@ -1,6 +1,7 @@
 package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.Cart.CartItemDto;
+import com.example.jdshoes.dto.CartDto.CartDto;
 import com.example.jdshoes.dto.Order.OrderDto;
 import com.example.jdshoes.exception.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,4 +17,5 @@ public interface CartService {
     void clearCart(Long customerId) throws NotFoundException;
     void orderUser(OrderDto orderDto);
     OrderDto orderAtCounter(OrderDto orderDto);
+    List<CartDto> getAllCartByAccountId();
 }

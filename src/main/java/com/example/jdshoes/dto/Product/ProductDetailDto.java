@@ -31,5 +31,7 @@ public class ProductDetailDto {
     private String materialName;
     private String categoryName;
 
+    private BigDecimal discountedAmount;
+
     private List<ImageDto> images;
 }
