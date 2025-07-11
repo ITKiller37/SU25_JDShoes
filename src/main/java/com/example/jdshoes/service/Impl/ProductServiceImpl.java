@@ -221,4 +221,48 @@ public class ProductServiceImpl implements ProductService {
         return dto;
     }
 
+    @Override
+    public ProductDto findById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+
+        ProductDto dto = new ProductDto();
+        dto.setId(product.getId());
+        dto.setCode(product.getCode());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setCategoryName(product.getCategory().getName());
+        dto.setCreateDate(product.getCreateDate());
+        dto.setUpdatedDate(product.getUpdatedDate());
+
+        // Gán list ProductDetailDto
+        List<ProductDetailDto> detailDtos = product.getProductDetails().stream().map(detail -> {
+            ProductDetailDto detailDto = new ProductDetailDto();
+            detailDto.setId(detail.getId());
+            detailDto.setQuantity(detail.getQuantity());
+            detailDto.setPrice(detail.getPrice());
+            detailDto.setBarcode(detail.getBarcode());
+            detailDto.setProductId(product.getId());
+
+            // Gán thêm Color ID để dùng lọc
+            detailDto.setColorId(detail.getColor().getId());
+            detailDto.setColorName(detail.getColor().getName());
+
+            // Gán hình ảnh
+            List<ImageDto> imageDtos = detail.getImages().stream().map(image -> {
+                ImageDto imageDto = new ImageDto();
+                imageDto.setId(image.getId());
+                imageDto.setLink(image.getLink());
+                return imageDto;
+            }).collect(Collectors.toList());
+            detailDto.setImages(imageDtos);
+
+            return detailDto;
+        }).collect(Collectors.toList());
+
+        dto.setProductDetailDtos(detailDtos);
+
+        return dto;
     }
+
+}

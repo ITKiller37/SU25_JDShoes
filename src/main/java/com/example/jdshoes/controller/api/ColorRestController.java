@@ -23,6 +23,10 @@ public class ColorRestController {
     public List<Color> getColorByProductIdAndSizeId(@PathVariable Long productId, @PathVariable Long sizeId) throws NotFoundException {
         return colorService.getColorByProductIdAndSizeId(productId, sizeId);
     }
+    @GetMapping("/colors/{productId}/product")
+    public List<Color> getColorsByProductId(@PathVariable Long productId) throws NotFoundException {
+        return colorService.getColorByProductId(productId);
+    }
 
     @PostMapping("/api/color")
     public ColorDto createColorApi(@RequestBody ColorDto colorDto) {

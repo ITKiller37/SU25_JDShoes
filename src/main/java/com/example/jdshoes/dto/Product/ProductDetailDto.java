@@ -32,6 +32,6 @@ public class ProductDetailDto {
     private String categoryName;
 
     private BigDecimal discountedAmount;
-
+    private Long colorId;
     private List<ImageDto> images;
 }
