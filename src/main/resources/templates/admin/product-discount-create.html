@@ -33,9 +33,7 @@
 <div class="main-discount-create bg-gray-100 min-h-screen">
   <div class="px-4 py-4">
     <div class="main-section pt-8">
-      <h5 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white">Tạo giảm
-        giá</h5>
-
+      <h5 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white">Tạo giảm giá</h5>
       <nav class="flex" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
           <li class="inline-flex items-center">
@@ -74,166 +72,136 @@
       </nav>
 
       <div class="container mt-4">
-        <div class="row">
-          <div class="col-md-5">
+        <div class="row align-items-stretch">
+          <!-- CỘT TRÁI -->
+          <div class="col-md-5 d-flex">
+            <!-- Thêm khuyến mãi (cao bằng cột phải) -->
+            <div class="bg-white rounded-lg shadow p-4 w-100">
+              <form id="discountForm" class="d-flex flex-column h-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Thông tin đợt giảm giá</h2>
 
-            <!--Thêm khuyến maiiiii-->
-            <div class="container mt-4">
-              <div class="p-4 shadow rounded bg-white" style="max-width: 600px;">
-                <form id="discountForm">
-                  <div class="mb-3 form-group">
-                    <label class="form-label">Tên đợt khuyến mãi</label>
-                    <input type="text" class="form-control" name="name" placeholder="Nhập tên đợt khuyến mãi" required>
-                  </div>
-                  <div class="mb-3 form-group">
-                    <label class="form-label">Giá trị</label>
-                    <div class="input-group">
-                      <input type="number" class="form-control" name="value" min="1" placeholder="Nhập giá trị" required>
-                      <div class="input-group-text">
-                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="type" value="%" checked>
-                          <label class="form-check-label">%</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="type" value="VND">
-                          <label class="form-check-label">VNĐ</label>
-                        </div>
+
+                <!-- Tên khuyến mãi -->
+                <div class="mb-3 form-group">
+                  <label class="form-label">Tên đợt khuyến mãi</label>
+                  <input type="text" class="form-control" name="name" placeholder="Nhập tên đợt khuyến mãi" required>
+                </div>
+
+                <!-- Giá trị -->
+                <div class="mb-3 form-group">
+                  <label class="form-label">Giá trị</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" name="value" min="1" placeholder="Nhập giá trị" required>
+                    <div class="input-group-text">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="type" value="%" checked>
+                        <label class="form-check-label">%</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="type" value="VND">
+                        <label class="form-check-label">VNĐ</label>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div class="mb-3 form-group">
-                    <label class="form-label" >Ngày bắt đầu</label>
-                    <input type="datetime-local" class="form-control" name="startDate" required>
-                  </div>
+                <!-- Ngày bắt đầu -->
+                <div class="mb-3 form-group">
+                  <label class="form-label">Ngày bắt đầu</label>
+                  <input type="datetime-local" class="form-control" name="startDate" required>
+                </div>
 
-                  <div class="mb-3 form-group">
-                    <label class="form-label">Ngày kết thúc</label>
-                    <input type="datetime-local" class="form-control" name="endDate" required>
-                  </div>
+                <!-- Ngày kết thúc -->
+                <div class="mb-3 form-group">
+                  <label class="form-label">Ngày kết thúc</label>
+                  <input type="datetime-local" class="form-control" name="endDate" required>
+                </div>
 
-                  <div class="flex justify-end items-center mt-6 space-x-2 pb-6 rtl:space-x-reverse">
-                    <button id="cancel-discount-btn" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">Trở lại</button>
-                    <button id="save-discount-btn" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Lưu</button>
-                  </div>
-                </form>
-              </div>
+                <!-- Mô tả -->
+                <div class="mb-3 form-group">
+                  <label class="form-label">Mô tả</label>
+                  <textarea class="form-control" name="description" rows="3" placeholder="Ghi chú thêm về đợt giảm giá..."></textarea>
+                </div>
+
+                <!-- Nút -->
+                <div class="mt-3 d-flex justify-content-end gap-2">
+                  <button id="cancel-discount-btn" type="button" class="btn btn-outline-secondary">Trở lại</button>
+                  <button id="save-discount-btn" type="button" class="btn btn-primary">Lưu</button>
+                </div>
+              </form>
             </div>
           </div>
-          <!--end-->
+
+
+          <!-- CỘT PHẢI -->
           <div class="col-md-7">
-<!--        danh sách-->
-            <form class="mt-4">
-              <div class="flex">
-                <label for="search-dropdown"
-                       class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Your Email</label>
-                <button id="dropdown-button" data-dropdown-toggle="dropdown" class="flex-shrink-0 z- inline-flex items-center py-2.5 px-4 text-sm
-                            font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
-                        type="button">
-                  <span>Tất cả các loại</span>
-                  <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                       fill="none" viewBox="0 0 10 6">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                          stroke-width="2" d="m1 1 4 4 4-4"/>
-                  </svg>
-                </button>
-                <div id="dropdown"
-                     class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-                  <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button">
-                    <li>
-                      <button type="button" data-category-id=""
-                              class="category-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                        Tất cả các loại
-                      </button>
-                    </li>
-                    <li th:each="category: ${categories}">
-                      <button type="button" th:data-category-id="${category.id}"
-                              class="category-item inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                              th:text="${category.name}"></button>
-                    </li>
+            <div class="bg-white rounded-lg shadow-md p-4 h-100 d-flex flex-column">
+              <h2 class="text-lg font-semibold text-gray-800 mb-4">Danh sách sản phẩm</h2>
 
-                  </ul>
-                </div>
-                <div class="relative w-full">
-                  <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                    </svg>
-                  </div>
-                  <input type="search" id="search-dropdown" class="block p-2.5 ps-8 w-80 z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700
-                                dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
-                         placeholder="Tìm kiếm sản phẩm" required>
-                </div>
-              </div>
-            </form>
-            <div id="all-product" class="border border-gray-200">
-              <div class="bg-zinc-50 border border-gray-200">
-                <div class="flex justify-between">
-                  <span class="font-bold py-2 px-2">Danh sách sản phẩm</span>
-                  <span id="select-all" class="text-blue-500 py-2 px-2 cursor-pointer hover:text-blue-700">Chọn toàn bộ</span>
-                </div>
-              </div>
-              <div class="bg-white list-product">
-                <div class="product-item">
-                  <div class="product-item-inner flex justify-between items-center mb-2 mx-4 py-2 border-b border-blue-200">
-                    <div class="product-info flex items-center">
-                      <div>
-                        <div>
-                          <span class="font-bold">Giày</span>
-                        </div>
-                        <div>
-                                                <span class="text-gray-400">
-                                                    <span>Barcode: </span>
-                                                    <span class="mr-2">12332432535</span>
-
-                                                </span>
-                        </div>
-                        <div>
-                          <span class="text-gray-400">Giá bán: </span>
-                          <span class="font-bold">1.000.000đ</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="cursor-pointer hover:text-blue-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                           viewBox="0 0 32 32">
-                        <path fill="currentColor"
-                              d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3zm0 2c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5zm-1 5v5h-5v2h5v5h2v-5h5v-2h-5v-5h-2z"/>
+              <!-- Tìm kiếm -->
+              <form class="mb-3">
+                <div class="d-flex gap-2">
+                  <div class="position-relative w-50 min-w-[250px]">
+                    <input type="search" id="search-dropdown"
+                           class="form-control ps-5" placeholder="Tìm kiếm sản phẩm">
+                    <div class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
+                      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                              stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                       </svg>
                     </div>
                   </div>
                 </div>
+              </form>
+
+              <!-- Danh sách sản phẩm -->
+              <div class="border border-gray-200 rounded bg-white flex-grow d-flex flex-column">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center bg-light px-3 py-2 border-bottom">
+                  <span class="fw-bold text-muted">Sản phẩm</span>
+                  <button id="select-all" class="btn btn-sm text-primary">Chọn tất cả</button>
+                </div>
+
+                <!-- Danh sách -->
+                <div class="list-product flex-grow overflow-auto px-3 py-2">
+                  <!-- JS render tại đây -->
+                </div>
+
+                <!-- Phân trang -->
+                <div id="pagination-container" class="d-flex justify-content-end p-3 border-top"></div>
               </div>
-              <div id="pagination-container" class="flex justify-end"></div>
             </div>
           </div>
         </div>
       </div>
 
 
+      <!-- FORM CHI TIẾT SẢN PHẨM -->
+      <div class="bg-white rounded-lg shadow-md p-6 mt-4">
+        <!-- Tiêu đề -->
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Chi tiết sản phẩm đã chọn</h2>
 
-      <div class="main-area bg-white py-2 px-2 mt-4 h-screen">
-
-        <div class="grid grid-cols-3 gap-2 mt-6">
-          <div id="selected-product" class="border border-gray-200 col-span-2">
-            <div class="bg-zinc-50 border border-gray-200">
-              <div class="flex justify-between">
-                <span class="font-bold py-2 px-2">Chi tiết sản phẩm</span>
-              </div>
-            </div>
-            <div class="bg-white list-select-product">
-
-            <div id="pagination-select-container" class="flex justify-end"></div>
-          </div>
+        <div class="grid grid-cols-5 gap-3 text-xs font-semibold text-gray-700 px-4 py-2 bg-gray-50 border border-gray-200 rounded">
+          <div class="text-center">HÌNH ẢNH</div>
+          <div class="">SẢN PHẨM CHI TIẾT</div>
+          <div class="text-center">SỐ LƯỢNG</div>
+          <div class="text-right">GIÁ</div>
+          <div class="text-center">CHỌN</div>
         </div>
 
+        <!-- Danh sách sản phẩm (JS append vào đây) -->
+        <div class="list-select-product divide-y divide-gray-100">
+          <!-- Các item sản phẩm được JS tạo -->
+        </div>
 
+        <!-- Phân trang -->
+        <div class="flex justify-end pt-4">
+          <div id="pagination-select-container"></div>
+        </div>
       </div>
+
+
     </div>
-
-  </div>
 </div>
 
 
@@ -500,127 +468,105 @@
     }
 
     function loadHtmlProduct(productList) {
-      var html = ''
-      productList.forEach(product => {
-        product.productDetailDtos.forEach(detail => {
-          // Check if detail.choosed is true
-          const isChoosedClass = detail.choosed ? 'is-choosed' : '';
-          var htmlPrice = ``
-          if(detail.discountedPrice == null) {
-            htmlPrice = `<span class="font-bold text-sm">${detail.price}</span>`
-          }
-          else {
-            htmlPrice = `
-                        <span class="text-sm line-through italic mr-1">${detail.price}</span>
-                        <span class="font-bold text-sm">${detail.discountedPrice}</span>
-                        `
-          }
-          html += `<div class="product-item group ${isChoosedClass} [&.is-choosed]:bg-gray-400/25" data-detail-id="${detail.id}">
-                                   <div class="product-item-inner flex justify-between items-center mb-4 mx-4 py-2 border-b border-blue-200">
-                                       <div class="product-info flex items-center">
-                                           <div class="w-12 h-16 mr-4">
-                                               <img src="/${product.imageUrl}" alt="">
-                                           </div>
-                                           <div>
-                                               <div>
-                                                   <span class="font-bold text-sm">${product.name}</span>
-                                               </div>
-                                               <div>
-                                                <span class="product-detail text-gray-400">
-                                                    <span class="text-sm">Barcode: </span>
-                                                    <span class="mr-2 text-sm">${detail.barcode}</span>
-                                                    <span class="text-sm">Size: </span>
-                                                    <span class="mr-2 text-sm">${detail.size.name}</span>
-                                                    <span>Màu: </span>
-                                                    <span class="text-sm">${detail.color.name}</span>
-                                                </span>
-                                               </div>
-                                               <div>
-                                                   <span class="text-gray-400 text-sm">Giá bán: </span>
-                                                   ${htmlPrice}
-                                                   <span class="ml-4 hidden group-[.is-choosed]:inline text-sm font-bold">Đã chọn</span>
-                                               </div>
-                                           </div>
-                                       </div>
-                                       <button class="choose-product-btn cursor-pointer hover:text-blue-500 group-[.is-choosed]:text-gray-400" >
-                                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3zm0 2c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5zm-1 5v5h-5v2h5v5h2v-5h5v-2h-5v-5h-2z"/></svg>
-                                       </button>
-                                   </div>
-                                </div>`
-        })
-      })
-      $('.list-product').html(html)
-      chooseProduct()
+      let html = '';
 
+      productList.forEach(product => {
+        html += `
+      <div class="product-item border-b border-gray-200 p-3 hover:bg-gray-50 transition" data-product-id="${product.id}">
+        <div class="product-item-inner flex justify-between items-center mx-4 py-2">
+          <div class="product-info space-y-1">
+            <div class="flex items-center">
+              <span class="text-gray-500 text-sm w-28">Mã sản phẩm:</span>
+              <span class="font-bold text-base">${product.code}</span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-gray-500 text-sm w-28">Tên sản phẩm:</span>
+              <span class="font-bold text-base">${product.name}</span>
+            </div>
+          </div>
+          <div>
+            <button class="choose-product-btn hover:text-blue-500" title="Chọn sản phẩm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                <path fill="currentColor"
+                      d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3zm0 2
+                        c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5zm-1 5v5h-5v2h5v5h2
+                        v-5h5v-2h-5v-5h-2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+      });
+
+      $('.list-product').html(html);
+      chooseProduct(); // Gắn lại sự kiện
     }
 
-    function chooseProduct() {
-      $('.choose-product-btn').on('click', function () {
-        const productItemEl = $(this).closest('.product-item')
-        $(this).prop('disabled', true)
-        const productDetailId = productItemEl.attr('data-detail-id')
-        productSelectedListDetailId.push(productDetailId)
-        productItemEl.addClass('is-choosed')
 
-        let isFound = false;
-        productListInit.forEach(product => {
-          product.productDetailDtos.forEach(detail => {
-            if(detail.id == productDetailId) {
-              detail.choosed = true
-              productSelectedList.push({
-                name: product.name,
-                imageUrl: product.imageUrl,
-                detail: detail
-              })
-              appendSelectProduct({
-                name: product.name,
-                imageUrl: product.imageUrl,
-                detail: detail
-              })
-              paginateSelectedProductList()
-              isFound = true;
-              return
-            }
-          })
-          if(isFound) {
-            return
-          }
-        })
-      })
+
+
+    function chooseProduct() {
+      $('.choose-product-btn').off('click').on('click', function () {
+        const productItemEl = $(this).closest('.product-item');
+        const productId = productItemEl.attr('data-product-id');
+
+        const product = productListInit.find(p => p.id == productId);
+        if (!product) return;
+
+        product.productDetailDtos.forEach(detail => {
+          if (productSelectedListDetailId.includes(detail.id)) return;
+
+          productSelectedListDetailId.push(detail.id);
+
+          const selectedProduct = {
+            name: product.name,
+            imageUrl: product.imageUrl,
+            detail: detail
+          };
+
+          productSelectedList.push(selectedProduct);
+          appendSelectProduct(selectedProduct);
+        });
+
+        paginateSelectedProductList();
+      });
     }
 
     function appendSelectProduct(product) {
-      var html = `<div class="product-select-item" data-select-detail-id="${product.detail.id}">
-                                <div class="product-select-item-inner flex justify-between items-center mx-4 py-4 border-b border-blue-200">
-                                    <div class="product-select-info flex items-center">
-                                        <div class="w-12 h-16 mr-4">
-                                            <img src="/${product.imageUrl}"
-                                                 alt="">
-                                        </div>
-                                        <div>
-                                            <div>
-                                                <span class="font-bold text-sm">${product.name}</span>
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-400 text-sm">
-                                                    <span>Barcode: </span>
-                                                     <span class="mr-2">${product.detail.barcode}</span>
-                                                    <span>Size: </span>
-                                                    <span class="mr-2">${product.detail.size.name}</span>
+      const detail = product.detail;
 
-                                                    </span>
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-400 text-sm">Giá bán: </span>
-                                                <span class="product-select-price font-bold text-sm">${product.detail.price}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`
+      const html = `
+    <div class="product-select-item" data-select-detail-id="${detail.id}">
+      <div class="grid grid-cols-5 gap-3 items-center px-4 py-3 hover:bg-gray-50 transition text-sm text-gray-800">
 
-      $('.list-select-product').append(html)
-      handleRemoveSelect()
+        <!-- HÌNH ẢNH -->
+        <div class="flex justify-center">
+          <img src="/${product.imageUrl}" alt="ảnh sản phẩm" class="w-14 h-16 object-cover rounded shadow">
+        </div>
+
+        <!-- SẢN PHẨM CHI TIẾT -->
+        <div class="text-sm text-gray-700">
+          <div class="font-semibold truncate">${product.name}</div>
+          <div class="text-xs text-gray-500">[ ${detail.sizeName || ''} | ${detail.colorName || ''} ]</div>
+        </div>
+
+        <!-- SỐ LƯỢNG -->
+        <div class="text-center font-medium">${detail.quantity}</div>
+
+        <!-- GIÁ -->
+        <div class="text-right font-semibold text-blue-700">${detail.price.toLocaleString()}đ</div>
+
+        <!-- CHỌN -->
+        <div class="flex justify-center">
+          <input type="checkbox" class="select-discount-checkbox w-5 h-5 accent-blue-600" value="${detail.id}" checked>
+        </div>
+      </div>
+    </div>
+  `;
+
+      $('.list-select-product').append(html);
+      paginateSelectedProductList();
     }
 
     function getCurrentDate() {
@@ -640,99 +586,141 @@
       return lastDayFormatted;
     }
 
-    function handleRemoveSelect() {
-      $('.remove-select-btn').on('click', function () {
-        const $productSelectItem = $(this).closest('.product-select-item')
-        const detailId = $productSelectItem.attr('data-select-detail-id')
-        productSelectedListDetailId = productSelectedListDetailId.filter(item => item != detailId)
-        $(`.product-item[data-detail-id='${detailId}']`).removeClass('is-choosed')
-        $(`.product-item[data-detail-id='${detailId}']`).find('button').prop('disabled', false)
-        $productSelectItem.remove()
-        paginateSelectedProductList()
-      })
+    function handleInputPrice() {
+      // Khi người dùng thay đổi % giảm
+      $(".percentage").on('input change', function () {
+        const $percentInput = $(this);
+        const percentValue = parseFloat($percentInput.val());
+        const $item = $percentInput.closest('.product-select-item');
+        const initPrice = parseFloat(removeAnyNonDigit($item.find('.product-select-price').text()));
+
+        if (percentValue > 98) {
+          $percentInput.val(98);
+          Toastify({
+            text: "Không thể nhập quá 98%",
+            className: "error",
+            style: { background: "red" }
+          }).showToast();
+        }
+
+        if (!isNaN(initPrice) && !isNaN(percentValue)) {
+          const discountedPrice = Math.round(initPrice * (1 - percentValue / 100));
+          $item.find('.amount').val(discountedPrice);
+        }
+      });
+
+      // Khi người dùng thay đổi số tiền giảm cụ thể (amount)
+      $(".amount").on('input change', function () {
+        const $amountInput = $(this);
+        const $item = $amountInput.closest('.product-select-item');
+        const initPrice = parseFloat(removeAnyNonDigit($item.find('.product-select-price').text()));
+        const amountValue = parseFloat($amountInput.val());
+
+        if (amountValue > initPrice) {
+          $amountInput.val(initPrice);
+          Toastify({
+            text: "Không thể nhập quá giá gốc",
+            className: "error",
+            style: { background: "red" }
+          }).showToast();
+        }
+
+        if (!isNaN(initPrice) && !isNaN(amountValue)) {
+          const percent = ((initPrice - amountValue) / initPrice) * 100;
+          $item.find('.percentage').val(percent.toFixed(2));
+        } else {
+          $item.find('.percentage').val('');
+        }
+      });
+
+      // Chặn nhập sai định dạng cho phần trăm (float)
+      $(".percentage").on('keypress', function (e) {
+        const charCode = e.which || e.keyCode;
+        const charTyped = String.fromCharCode(charCode);
+        const inputValue = $(this).val();
+
+        if (!/[\d.]/.test(charTyped) || (charTyped === '.' && inputValue.includes('.'))) {
+          e.preventDefault();
+        }
+      });
+
+      // Chỉ cho phép nhập số nguyên ở amount
+      $(".amount").on('keypress', function (e) {
+        onlyAllowNumberInput(e); // 👈 Hàm này bạn đã định nghĩa ở nơi khác rồi
+      });
     }
 
+
+    function generateRandomCode() {
+      const now = new Date();
+      const yyyyMMdd = now.toISOString().slice(0,10).replace(/-/g, ''); // 20250711
+      const random = Math.floor(100 + Math.random() * 900); // 3 số ngẫu nhiên
+      return `KM${yyyyMMdd}${random}`; // KM20250711783
+    }
 
     //     ============================================ HANDLE SUBMIT ==========================
     function handleSubmit() {
       $('#save-discount-btn').on('click', async function () {
+        // Lấy dữ liệu từ form
         const discountName = $('input[name="name"]').val().trim();
-        if (!discountName) {
-          Swal.fire('Lỗi', 'Vui lòng nhập tên đợt khuyến mãi', 'error');
+        const discountCode = generateRandomCode();
+        const description = $('textarea[name="description"]').val().trim();
+        const valueRaw = $('input[name="value"]').val();
+        const value = parseFloat(valueRaw);
+        const type = $('input[name="type"]:checked').val();
+        const startDateRaw = $('input[name="startDate"]').val();
+        const endDateRaw = $('input[name="endDate"]').val();
+        const startDate = startDateRaw ? startDateRaw + ':00' : null;
+        const endDate = endDateRaw ? endDateRaw + ':00' : null;
+
+        // Validate các trường bắt buộc
+        if (!discountCode || !discountName || !valueRaw || !startDateRaw || !endDateRaw) {
+          Swal.fire('Lỗi', 'Vui lòng nhập đầy đủ thông tin đợt giảm giá', 'error');
           return;
         }
-        var productDiscounts = []
-        var canSubmit = true
-        // Lấy giá trị từ form chính (áp dụng cho tất cả sản phẩm)
-        const value = $('input[name="value"]').val()
-        const type = $('input[name="type"]:checked').val()
-        const startDateRaw = $('input[name="startDate"]').val()
-        const endDateRaw = $('input[name="endDate"]').val()
 
-        const startDate = startDateRaw + ':00'  // ➕ thêm phần giây
-        const endDate = endDateRaw + ':00'
-
-// Validate chung
-        if (!value || value.trim() === '') {
-          Swal.fire({
-            title: 'Lỗi',
-            text: 'Vui lòng điền đầy đủ giá trị giảm',
-            icon: 'error',
-          })
-          return
+        if (isNaN(value) || value <= 0) {
+          Swal.fire('Lỗi', 'Giá trị giảm phải là số hợp lệ lớn hơn 0', 'error');
+          return;
         }
 
-        if (!startDate || startDate.trim() === '') {
-          Swal.fire({
-            title: 'Lỗi',
-            text: 'Vui lòng điền đầy đủ ngày bắt đầu',
-            icon: 'error',
-          })
-          return
-        }
-
-        if (!endDate || endDate.trim() === '') {
-          Swal.fire({
-            title: 'Lỗi',
-            text: 'Vui lòng điền đầy đủ ngày kết thúc',
-            icon: 'error',
-          })
-          return
-        }
-
-// Validate logic ngày
         if (startDate >= endDate) {
-          Swal.fire({
-            title: 'Lỗi',
-            text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc',
-            icon: 'error',
-          })
-          return
-        }
-
-// Build danh sách productDiscounts
-        await $('.product-select-item').each((index, item) => {
-          const productItem = $(item)
-
-          productDiscounts.push({
-            discountedAmount: value,
-            discountType: type,
-            startDate: startDate ,
-            endDate: endDate,
-            productDetailId: productItem.attr('data-select-detail-id')
-          })
-        })
-
-
-        if(!canSubmit) {
+          Swal.fire('Lỗi', 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc', 'error');
           return;
         }
 
-        const dataSend = {name: discountName,productDiscounts: productDiscounts}
+        // Lấy danh sách sản phẩm được chọn
+        const productDetailIds = [];
+        $('.product-select-item').each((index, item) => {
+          const $checkbox = $(item).find('.select-discount-checkbox');
+          if ($checkbox.is(':checked')) {
+            productDetailIds.push(parseInt($checkbox.val()));
+          }
+        });
+
+        if (productDetailIds.length === 0) {
+          Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
+          return;
+        }
+
+        // Chuẩn bị dữ liệu gửi đi
+        const dataSend = {
+          code: discountCode,
+          name: discountName,
+          value: value,
+          type: type,
+          discountedAmount: value,
+          startDate: startDate,
+          endDate: endDate,
+          description: description,
+          productDetailIds: productDetailIds
+        };
+
+        // Gửi dữ liệu qua AJAX
         await $.ajax({
           type: "POST",
           url: `/api/private/product-discount/multiple`,
-          dataType: 'json',
+          // dataType: 'json',
           contentType: "application/json; charset=utf-8",
           data: JSON.stringify(dataSend),
           success: function () {
@@ -745,23 +733,19 @@
               cancelButtonText: 'Quay lại'
             }).then((result) => {
               if (result.isConfirmed) {
-                // Chuyển trang khi người dùng nhấn "OK"
-                window.location.reload()
+                window.location.reload();
               } else {
-                window.location.href = '/admin-only/product-discount'
+                window.location.href = '/admin-only/product-discount';
               }
             });
           },
           error: function (xhr, status, error) {
-            console.error(xhr.responseText);
-            Swal.fire("Error", "Có lỗi xảy ra", "error");
+            console.error("Lỗi khi gửi dữ liệu:", xhr.responseText);
+            Swal.fire("Lỗi", "Có lỗi xảy ra khi tạo giảm giá", "error");
           }
-        })
-
-      })
+        });
+      });
     }
-
-
 
 
 
@@ -805,5 +789,8 @@
     })
   })
 </script>
+</div>
+</div>
+</div>
 </body>
 </html>

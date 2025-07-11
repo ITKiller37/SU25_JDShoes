@@ -5,8 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.stereotype.Service;
 
 import jakarta.persistence.*;
+
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,12 +22,14 @@ public class AddressShipping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    private int provinceId;
-//    private int districtId;
-//    private int wardId;
-//
-//
-//    private String street;
+    private String street;
+
+    private String ward;
+
+    private String district;
+
+    private String province;
+
 
 
     @Nationalized

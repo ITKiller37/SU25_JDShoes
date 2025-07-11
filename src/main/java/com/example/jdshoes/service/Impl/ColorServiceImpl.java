@@ -50,6 +50,22 @@ public class ColorServiceImpl implements ColorService {
     @Override
     public ColorDto createColorApi(ColorDto colorDto) {
 
+        // Kiểm tra tên và mã khi tạo Color qua API
+        if (colorDto.getName() == null || colorDto.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên màu");
+        }
+        if (colorRepository.existsByName(colorDto.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên màu '" + colorDto.getName() + "' đã tồn tại");
+        }
+
+        if (colorDto.getCode() == null || colorDto.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã màu");
+        }
+        if (colorRepository.existsByCode(colorDto.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu '" + colorDto.getCode() + "' đã tồn tại");
+        }
+
+
         Color color = convertToEntity(colorDto);
         color.setDeleteFlag(false);
         Color savedColor = colorRepository.save(color);
@@ -63,9 +79,22 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color createColor(Color color) {
-        if(colorRepository.existsByCode(color.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
+        // Kiểm tra mã
+        if (color.getCode() == null || color.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã màu");
         }
+        if(colorRepository.existsByCode(color.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu '" + color.getCode() + "' đã tồn tại");
+        }
+
+        // THÊM KIỂM TRA TÊN KHI THÊM
+        if (color.getName() == null || color.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên màu");
+        }
+        if (colorRepository.existsByName(color.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên màu '" + color.getName() + "' đã tồn tại");
+        }
+
         color.setDeleteFlag(false);
         return colorRepository.save(color);
     }
@@ -77,13 +106,37 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color updateColor(Color color) {
-        Color existingColor = colorRepository.findById(color.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có mã " + color.getCode()) );
-        if(!existingColor.getCode().equals(color.getCode())) {
-            if(colorRepository.existsByCode(color.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu " + color.getCode() + " đã tồn tại");
+        // Lấy color hiện có từ DB
+        Color existingColor = colorRepository.findById(color.getId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy màu với ID: " + color.getId()));
+
+        // Kiểm tra mã màu
+        if (color.getCode() == null || color.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã màu");
+        }
+        // Chỉ kiểm tra trùng mã nếu mã mới khác mã cũ
+        if(!existingColor.getCode().equals(color.getCode().trim())) {
+            if(colorRepository.existsByCode(color.getCode().trim())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã màu '" + color.getCode() + "' đã tồn tại");
             }
         }
-        color.setDeleteFlag(false);
+
+        // THÊM KIỂM TRA TÊN KHI SỬA
+        if (color.getName() == null || color.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên màu");
+        }
+        // Chỉ kiểm tra trùng tên nếu tên mới khác tên cũ, và tên đó không phải của chính bản ghi đang sửa
+        if (!existingColor.getName().equals(color.getName().trim())) {
+            if (colorRepository.existsByNameAndIdNot(color.getName().trim(), color.getId())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên màu '" + color.getName() + "' đã tồn tại");
+            }
+        }
+
+        // Cập nhật các trường của existingColor
+        existingColor.setCode(color.getCode().trim());
+        existingColor.setName(color.getName().trim());
+        existingColor.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
+
         return colorRepository.save(color);
     }
 

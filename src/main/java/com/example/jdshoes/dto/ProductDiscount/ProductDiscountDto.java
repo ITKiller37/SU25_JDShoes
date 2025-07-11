@@ -3,12 +3,18 @@ package com.example.jdshoes.dto.ProductDiscount;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Valid
+@Getter
+@Setter
 public class ProductDiscountDto {
 
     private Long id;
@@ -20,6 +26,8 @@ public class ProductDiscountDto {
     private String type;
 
     private BigDecimal value;
+    
+    private String status;
 
     private boolean closed;
 
@@ -29,7 +37,7 @@ public class ProductDiscountDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
 
-    private Long productDetailId;
-
     private BigDecimal discountedAmount;
+
+    private List<Long> productDetailIds;
 }

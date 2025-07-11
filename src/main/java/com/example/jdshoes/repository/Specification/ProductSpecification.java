@@ -3,11 +3,14 @@ package com.example.jdshoes.repository.Specification;
 import com.example.jdshoes.dto.Product.SearchProductDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
+
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class ProductSpecification implements Specification<Product> {
 
@@ -67,8 +70,12 @@ public class ProductSpecification implements Specification<Product> {
             predicates.add(predicate);
         }
 
-        if(searchProductDto.getGender() != null) {
-            Predicate predicate = criteriaBuilder.equal(root.get("gender"), searchProductDto.getGender());
+//        if(searchProductDto.getGender() != null) {
+//            Predicate predicate = criteriaBuilder.equal(root.get("gender"), searchProductDto.getGender());
+//            predicates.add(predicate);
+//        }
+        if (searchProductDto.getBrandName() != null && !searchProductDto.getBrandName().isEmpty()) {
+            Predicate predicate = criteriaBuilder.equal(root.get("brand").get("name"), searchProductDto.getBrandName());
             predicates.add(predicate);
         }
 

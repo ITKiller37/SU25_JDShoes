@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
-import jakarta.persistence.*;
 
+
+import jakarta.persistence.*;
+import java.sql.Date;
 import java.util.List;
 
 @Getter
@@ -25,13 +27,25 @@ public class Customer {
     private String name;
     private String phoneNumber;
     private String email;
+    private String gender;
+    private Date birthDay;
+    private Boolean deleted = false;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AddressShipping> addressShippings;
 
-    @OneToOne(cascade = CascadeType.ALL,
-            mappedBy = "customer",
-            fetch = FetchType.LAZY,
-            optional = true)
+    @OneToOne(mappedBy = "customer",fetch = FetchType.LAZY)
     private Account account;
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", deleted=" + deleted +
+                '}';
+    }
 }

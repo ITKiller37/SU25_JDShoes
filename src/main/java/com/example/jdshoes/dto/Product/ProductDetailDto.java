@@ -1,5 +1,6 @@
 package com.example.jdshoes.dto.Product;
 
+import com.example.jdshoes.dto.Image.ImageDto;
 import com.example.jdshoes.entity.Color;
 import com.example.jdshoes.entity.Size;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,9 +21,17 @@ public class ProductDetailDto {
     private int quantity;
     private String barcode;
     private BigDecimal price;
-    private int status;
     private Long productId;
-    private Size size;
-    private Color color;
-    private String imageUrl;
+    private String colorName;
+    private String sizeName;
+
+    private String productName;
+    private String productDescription;
+    private String brandName;
+    private String materialName;
+    private String categoryName;
+
+    private BigDecimal discountedAmount;
+
+    private List<ImageDto> images;
 }

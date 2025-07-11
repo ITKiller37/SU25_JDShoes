@@ -1,11 +1,12 @@
 package com.example.jdshoes.entity;
 
+import com.example.jdshoes.entity.Customer;
+import com.example.jdshoes.entity.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.Nationalized;
 import org.springframework.format.annotation.DateTimeFormat;
+
 
 
 import java.io.Serializable;
@@ -26,8 +27,13 @@ public class Account implements Serializable {
     @Column(unique = true)
     private String code;
 
+    @Nationalized
+    private String name;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthDay;
+
+    private String gender;
 
     private String email;
     private String password;
@@ -35,12 +41,13 @@ public class Account implements Serializable {
     private LocalDateTime updateDate;
     private boolean isNonLocked;
 
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = true)
     private Customer customer;
 
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "roleId")
     private Role role;
 }

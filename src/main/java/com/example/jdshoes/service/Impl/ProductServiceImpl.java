@@ -1,5 +1,6 @@
 package com.example.jdshoes.service.Impl;
 
+import com.example.jdshoes.dto.Image.ImageDto;
 import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.ProductSearchDto;
@@ -42,13 +43,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto getByProductDetailId(Long detailId) {
-        return convertToDto(productRepository.findByProductDetail_Id(detailId));
+        return convertToDto(productRepository.findByProductDetailId(detailId));
     }
 
     @Override
     public Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable) {
-        Page<ProductSearchDto> productSearchDtos = productRepository.listSearchProduct(maSanPham,tenSanPham,nhanHang,chatLieu,theLoai,trangThai,pageable);
+        Page<ProductSearchDto> productSearchDtos = productRepository.listSearchProduct(maSanPham, tenSanPham, nhanHang, chatLieu, theLoai, trangThai, pageable);
         return productSearchDtos;
+    }
+
+    @Override
+    public Page<ProductDto> searchProduct(SearchProductDto searchDto, Pageable pageable) {
+        Specification<Product> spec = new ProductSpecification(searchDto);
+        Page<Product> products = productRepository.findAll(spec, pageable);
+        return products.map(this::convertToDto);
     }
 
     @Override
@@ -64,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product save(Product product) throws IOException {
 
-        if(product.getCode().trim() == "" || product.getCode() == null) {
+        if (product.getCode().trim() == "" || product.getCode() == null) {
             Product productCurrent = productRepository.findTopByOrderByIdDesc();
             Long nextCode = (productCurrent == null) ? 1 : productCurrent.getId() + 1;
             String productCode = "SP" + String.format("%04d", nextCode);
@@ -89,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getProductByCode(String code) {
         Product product = productRepository.findByCode(code);
-        if(product != null) {
+        if (product != null) {
 
             return product;
         }
@@ -115,21 +123,102 @@ public class ProductServiceImpl implements ProductService {
             ProductDetailDto productDetailDto = new ProductDetailDto();
             productDetailDto.setId(productDetail.getId());
             productDetailDto.setProductId(product.getId());
-            productDetailDto.setColor(productDetail.getColor());
-            productDetailDto.setSize(productDetail.getSize());
+            productDetailDto.setColorName(productDetail.getColor().getName());
+            productDetailDto.setSizeName(productDetail.getSize().getName());
             productDetailDto.setPrice(productDetail.getPrice());
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());
-            productDetailDtoList.add(productDetailDto);
+
+//            // ✅ Gán imageUrl từ ảnh đầu tiên (nếu có)
+//            if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
+//                productDetailDto.setImageUrl(productDetail.getImages().get(0).getLink());
+//            } else {
+//                productDetailDto.setImageUrl("images/default.jpg"); // hoặc null nếu không muốn ảnh mặc định
+//            }
+
+                // Ánh xạ danh sách ảnh
+                if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
+                    List<ImageDto> imageDtos = productDetail.getImages().stream()
+                            .map(image -> {
+                                ImageDto imageDto = new ImageDto();
+                                imageDto.setLink(image.getLink()); // Giả sử Image có phương thức getUrl()
+                                return imageDto;
+                            })
+                            .collect(Collectors.toList());
+                    productDetailDto.setImages(imageDtos);
+                } else {
+                    productDetailDto.setImages(new ArrayList<>()); // Đặt danh sách rỗng nếu không có ảnh
+
+                }
+
+                productDetailDtoList.add(productDetailDto);
+            }
+            productDto.setPriceMin(priceMin);
+            productDto.setProductDetailDtos(productDetailDtoList);
+            return productDto;
+
+    }
+        @Override
+        public List<ProductDto> getAllProductNoPaginationApi (SearchProductDto searchRequest){
+            Specification<Product> spec = new ProductSpecification(searchRequest);
+            List<Product> products = productRepository.findAll(spec);
+            return products.stream().map(this::convertToDto).collect(Collectors.toList());
         }
-        productDto.setPriceMin(priceMin);
-        productDto.setProductDetailDtos(productDetailDtoList);
-        return productDto;
-    }
+
+        @Override
+        public Page<Product> getAllProduct (Pageable able){
+            return productRepository.findAll(able);
+        }
+
     @Override
-    public List<ProductDto> getAllProductNoPaginationApi(SearchProductDto searchRequest) {
-        Specification<Product> spec = new ProductSpecification(searchRequest);
-        List<Product> products = productRepository.findAll(spec);
-        return products.stream().map(this::convertToDto).collect(Collectors.toList());
+    public ProductDto getProductDtoByCode(String code) {
+        Product product = productRepository.findByCode(code);
+        if (product == null) {
+            return null;
+        }
+
+        ProductDto dto = new ProductDto();
+        dto.setId(product.getId());
+        dto.setCode(product.getCode());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setCreateDate(product.getCreateDate());
+        dto.setUpdatedDate(product.getUpdatedDate());
+        dto.setCategoryName(product.getCategory().getName());
+        dto.setPriceMin(product.getPrice());
+
+        // Convert danh sách ProductDetail → ProductDetailDto
+        List<ProductDetailDto> detailDtos = product.getProductDetails().stream().map(detail -> {
+            ProductDetailDto detailDto = new ProductDetailDto();
+            detailDto.setId(detail.getId());
+            detailDto.setPrice(detail.getPrice());
+            detailDto.setQuantity(detail.getQuantity());
+            detailDto.setProductId(product.getId());
+            detailDto.setBarcode(detail.getBarcode());
+
+            detailDto.setColorName(detail.getColor().getName());
+            detailDto.setSizeName(detail.getSize().getName());
+
+            detailDto.setProductName(product.getName());
+            detailDto.setProductDescription(product.getDescription());
+            detailDto.setBrandName(product.getBrand().getName());
+            detailDto.setMaterialName(product.getMaterial().getName());
+            detailDto.setCategoryName(product.getCategory().getName());
+
+            // Convert ảnh
+            List<ImageDto> imageDtos = detail.getImages().stream().map(img -> {
+                ImageDto imageDto = new ImageDto();
+                imageDto.setId(img.getId());
+                imageDto.setLink(img.getLink());
+                return imageDto;
+            }).toList();
+
+            detailDto.setImages(imageDtos);
+            return detailDto;
+        }).toList();
+
+        dto.setProductDetailDtos(detailDtos);
+        return dto;
     }
-}
+
+    }

@@ -36,6 +36,22 @@ public class SizeServiceImpl implements SizeService {
     @Override
     public SizeDto createSizeApi(SizeDto sizeDto) {
 
+        // Kiểm tra tên và mã khi tạo Size qua API
+        if (sizeDto.getName() == null || sizeDto.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên cỡ");
+        }
+        if (sizeRepository.existsByName(sizeDto.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên cỡ '" + sizeDto.getName() + "' đã tồn tại");
+        }
+
+        if (sizeDto.getCode() == null || sizeDto.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã cỡ");
+        }
+        if (sizeRepository.existsByCode(sizeDto.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã cỡ '" + sizeDto.getCode() + "' đã tồn tại");
+        }
+
+
         Size size = convertToEntity(sizeDto);
         size.setDeleteFlag(false);
         Size savedSize = sizeRepository.save(size);
@@ -63,8 +79,20 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public Size createSize(Size size) {
-        if(sizeRepository.existsByCode(size.getCode())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã cỡ " + size.getCode() + " đã tồn tại");
+        // Kiểm tra mã
+        if (size.getCode() == null || size.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã cỡ");
+        }
+        if(sizeRepository.existsByCode(size.getCode().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã cỡ '" + size.getCode() + "' đã tồn tại");
+        }
+
+        // THÊM KIỂM TRA TÊN KHI THÊM
+        if (size.getName() == null || size.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên cỡ");
+        }
+        if (sizeRepository.existsByName(size.getName().trim())) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên cỡ '" + size.getName() + "' đã tồn tại");
         }
 
         size.setDeleteFlag(false);
@@ -73,13 +101,37 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public Size updateSize(Size size) {
-        Size existingSize = sizeRepository.findById(size.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy cỡ có mã " + size.getCode()) );
-        if(!existingSize.getCode().equals(size.getCode())) {
-            if(sizeRepository.existsByCode(size.getCode())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã cỡ " + size.getCode() + " đã tồn tại");
+        // Lấy size hiện có từ DB
+        Size existingSize = sizeRepository.findById(size.getId())
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy cỡ với ID: " + size.getId())); // Thêm thông báo lỗi rõ ràng
+
+        // Kiểm tra mã cỡ
+        if (size.getCode() == null || size.getCode().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã cỡ");
+        }
+        // Chỉ kiểm tra trùng mã nếu mã mới khác mã cũ
+        if(!existingSize.getCode().equals(size.getCode().trim())) {
+            if(sizeRepository.existsByCode(size.getCode().trim())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã cỡ '" + size.getCode() + "' đã tồn tại");
             }
         }
-        size.setDeleteFlag(false);
+
+        // THÊM KIỂM TRA TÊN KHI SỬA
+        if (size.getName() == null || size.getName().trim().isEmpty()) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên cỡ");
+        }
+        // Chỉ kiểm tra trùng tên nếu tên mới khác tên cũ, và tên đó không phải của chính bản ghi đang sửa
+        if (!existingSize.getName().equals(size.getName().trim())) {
+            if (sizeRepository.existsByNameAndIdNot(size.getName().trim(), size.getId())) {
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên cỡ '" + size.getName() + "' đã tồn tại");
+            }
+        }
+
+        // Cập nhật các trường của existingSize
+        existingSize.setCode(size.getCode().trim());
+        existingSize.setName(size.getName().trim());
+        existingSize.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
+
         return sizeRepository.save(size);
     }
 

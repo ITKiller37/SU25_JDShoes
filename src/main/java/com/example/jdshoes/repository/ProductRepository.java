@@ -15,15 +15,44 @@ public interface ProductRepository extends JpaRepository<Product, Long> , JpaSpe
     Page<Product> findAllByDeleteFlagFalse(Pageable pageable);
 
     @Query("select p from Product p join ProductDetail pd on p.id = pd.product.id where pd.id = :productDetailId")
-    Product findByProductDetail_Id(Long productDetailId);
+    Product findByProductDetailId(Long productDetailId);
 
-    @Query(value = "SELECT p.id as idSanPham,p.code as maSanPham,p.name as tenSanPham,p.brand.name as nhanHang,p.material.name as chatLieu,p.category.name as theLoai,p.status as trangThai FROM Product p where (:maSanPham is null or p.code like CONCAT('%', :maSanPham, '%')) and " +
-            "(:tenSanPham is null or p.name like CONCAT('%', :tenSanPham, '%')) and (:nhanHang is null or p.brand.id=:nhanHang) and " +
-            "(:chatLieu is null or p.material.id=:chatLieu) and (:theLoai is null or p.category.id=:theLoai) and (:trangThai is null or p.status=:trangThai) and(p.deleteFlag = false)")
+    @Query(value = """
+    SELECT p.id as idSanPham,
+           p.code as maSanPham,
+           p.name as tenSanPham,
+           p.brand.name as nhanHang,
+           p.material.name as chatLieu,
+           p.category.name as theLoai,
+           p.status as trangThai,
+           SUM(pd.quantity) as totalQuantity
+    FROM Product p
+    LEFT JOIN ProductDetail pd ON p.id = pd.product.id
+    WHERE (:maSanPham is null or p.code like CONCAT('%', :maSanPham, '%'))
+      AND (:tenSanPham is null or p.name like CONCAT('%', :tenSanPham, '%'))
+      AND (:nhanHang is null or p.brand.id = :nhanHang)
+      AND (:chatLieu is null or p.material.id = :chatLieu)
+      AND (:theLoai is null or p.category.id = :theLoai)
+      AND (:trangThai is null or p.status = :trangThai)
+      AND p.deleteFlag = false
+    GROUP BY p.id, p.code, p.name, p.brand.name, p.material.name, p.category.name, p.status, p.createDate
+    """)
     Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable);
 
-
-    @Query(value = "SELECT p.id as idSanPham,p.code as maSanPham,p.name as tenSanPham,p.brand.name as nhanHang,p.material.name as chatLieu,p.category.name as theLoai,p.status as trangThai FROM Product p where p.deleteFlag = false")
+    @Query(value = """
+    SELECT p.id as idSanPham,
+           p.code as maSanPham,
+           p.name as tenSanPham,
+           p.brand.name as nhanHang,
+           p.material.name as chatLieu,
+           p.category.name as theLoai,
+           p.status as trangThai,
+           SUM(pd.quantity) as totalQuantity
+    FROM Product p
+    LEFT JOIN ProductDetail pd ON p.id = pd.product.id
+    WHERE p.deleteFlag = false
+    GROUP BY p.id, p.code, p.name, p.brand.name, p.material.name, p.category.name, p.status, p.createDate
+    """)
     Page<ProductSearchDto> getAll(Pageable pageable);
 
     boolean existsByCode(String code);
@@ -31,4 +60,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> , JpaSpe
     Product findTopByOrderByIdDesc();
 
     Product findByCode(String code);
+
 }

@@ -5,6 +5,7 @@ import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.entity.*;
 import com.example.jdshoes.service.*;
 import com.example.jdshoes.utils.FileUploadUtil;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +15,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 @Controller
 @RequestMapping("/admin")
@@ -67,32 +68,30 @@ public class ProductController {
 
         int pageSize = 8;
         Sort sort;
-        String sortFieldName = "createDate"; // Khai báo và khởi tạo mặc định
+        String sortFieldName = "createDate";
 
         try {
             String[] sortParams = sortField.split(",");
-            sortFieldName = sortParams[0]; // Gán giá trị mới
+            sortFieldName = sortParams[0];
             Sort.Direction sortDirection = Sort.Direction.ASC;
 
             if (sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")) {
                 sortDirection = Sort.Direction.DESC;
             }
 
-            // Kiểm tra sortFieldName hợp lệ
-            List<String> validFields = Arrays.asList("createDate", "name", "price"); // Thêm các trường hợp lệ
+            List<String> validFields = Arrays.asList("createDate", "name", "price");
             if (!validFields.contains(sortFieldName)) {
-                sortFieldName = "createDate"; // Mặc định nếu không hợp lệ
+                sortFieldName = "createDate";
             }
 
             sort = Sort.by(sortDirection, sortFieldName);
         } catch (Exception e) {
-            sort = Sort.by(Sort.Direction.DESC, "createDate"); // Mặc định nếu lỗi
+            sort = Sort.by(Sort.Direction.DESC, "createDate");
         }
 
         Pageable pageable = PageRequest.of(page, pageSize, sort);
         Page<ProductSearchDto> listProducts;
 
-        // Kiểm tra tham số tìm kiếm
         boolean hasSearchParams = Stream.of(
                 maSanPham != null && !maSanPham.trim().isEmpty() ? maSanPham : null,
                 tenSanPham != null && !tenSanPham.trim().isEmpty() ? tenSanPham : null,
@@ -101,7 +100,6 @@ public class ProductController {
 
         try {
             if (hasSearchParams) {
-                // Gửi null cho chuỗi rỗng
                 maSanPham = maSanPham != null && maSanPham.trim().isEmpty() ? null : maSanPham;
                 tenSanPham = tenSanPham != null && tenSanPham.trim().isEmpty() ? null : tenSanPham;
                 listProducts = productService.listSearchProduct(maSanPham, tenSanPham, nhanHang, chatLieu, theLoai, trangThai, pageable);
@@ -132,8 +130,6 @@ public class ProductController {
     @GetMapping("/product-create")
     public String viewAddProduct(Model model, HttpSession session) {
         Product product = new Product();
-
-
         model.addAttribute("action", "/admin/product-create/save-part1");
         model.addAttribute("product", product);
         return "admin/product-create";
@@ -148,22 +144,19 @@ public class ProductController {
         String randomString = UUID.randomUUID().toString();
         session.setAttribute("randomCreateKey", randomString);
         session.setAttribute("createProductPart1" + randomString, product);
-        return "redirect:/admin/product-create/part2?key=" + randomString; // Thêm tham số key
+        return "redirect:/admin/product-create/part2?key=" + randomString;
     }
 
     @GetMapping("/product-create/part2")
     public String viewAddProductPart2(Model model, HttpSession session) {
         String randomCreateKey = (String) session.getAttribute("randomCreateKey");
-
         Product part1Data = (Product) session.getAttribute("createProductPart1" + randomCreateKey);
         if (part1Data == null) {
-            // Nếu dữ liệu phần 1 không tồn tại, điều hướng người dùng trở lại phần 1
             return "redirect:/admin/product-create";
         }
 
         CreateProductDetailsForm createProductDetailsForm = new CreateProductDetailsForm();
         List<ProductDetail> productDetails = new ArrayList<>();
-        productDetails.add(new ProductDetail());
         createProductDetailsForm.setProductDetailList(productDetails);
         model.addAttribute("form", createProductDetailsForm);
         return "/admin/product-create-detail";
@@ -173,17 +166,8 @@ public class ProductController {
     @Transactional(rollbackOn = Exception.class)
     public String handlePart2(@ModelAttribute("form") CreateProductDetailsForm form,
                               HttpSession session,
-                              // THAY ĐỔI LỚN TẠI ĐÂY:
-                              // Sử dụng @RequestParam với tên cụ thể để chỉ lấy các file.
-                              // Spring sẽ tự động ánh xạ multiple files (e.g., files[0][], files[0][])
-                              // thành một List<MultipartFile> nếu chúng có cùng tên param.
-                              @RequestParam(name = "files[0][]", required = false) List<MultipartFile> files0,
-                              @RequestParam(name = "files[1][]", required = false) List<MultipartFile> files1,
-                              @RequestParam(name = "files[2][]", required = false) List<MultipartFile> files2,
-                              // ... tiếp tục thêm cho số lượng biến thể tối đa bạn dự kiến
-                              // Hoặc một cách linh hoạt hơn (xem bên dưới)
+                              @RequestParam MultiValueMap<String, MultipartFile> allRequestParams, // Thay đổi ở đây!
                               RedirectAttributes redirectAttributes) throws IOException {
-        // Kiểm tra dữ liệu từ phần 1 trong session
         String randomCreateKey = (String) session.getAttribute("randomCreateKey");
         Product part1Data = (Product) session.getAttribute("createProductPart1" + randomCreateKey);
         if (part1Data == null) {
@@ -191,66 +175,105 @@ public class ProductController {
             return "redirect:/admin/product-create";
         }
 
-        // Nhóm file theo index
-        Map<Integer, List<MultipartFile>> detailFilesMap = new HashMap<>();
+        // Nhóm file theo colorId từ allRequestParams
+        Map<Long, List<MultipartFile>> colorFilesMap = new HashMap<>();
+        // Lặp qua các entry của MultiValueMap
+        for (Map.Entry<String, List<MultipartFile>> entry : allRequestParams.entrySet()) { // entry.getValue() bây giờ là List<MultipartFile>
+            String paramName = entry.getKey();
+            List<MultipartFile> filesForParam = entry.getValue(); // Danh sách các file cho cùng một paramName
 
-        // Thêm các file vào map thủ công
-        if (files0 != null && !files0.isEmpty()) {
-            detailFilesMap.put(0, files0);
+            // Kiểm tra và trích xuất colorId
+            if (paramName.startsWith("colorFiles[") && paramName.endsWith("[]")) {
+                String colorIdStr = paramName.replaceAll("colorFiles\\[(\\d+)\\]\\[\\]", "$1");
+                try {
+                    Long colorId = Long.parseLong(colorIdStr);
+                    // Thêm tất cả các file từ filesForParam vào colorFilesMap
+                    for (MultipartFile file : filesForParam) {
+                        if (!file.isEmpty()) {
+                            colorFilesMap.computeIfAbsent(colorId, k -> new ArrayList<>()).add(file);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid colorId in file param: " + paramName);
+                }
+            }
         }
-        if (files1 != null && !files1.isEmpty()) {
-            detailFilesMap.put(1, files1);
-        }
-        if (files2 != null && !files2.isEmpty()) {
-            detailFilesMap.put(2, files2);
-        }
-        // ... tiếp tục cho các index khác
 
         // Debug: In thông tin file nhận được
-        detailFilesMap.forEach((index, fileList) -> {
-            System.out.println("Files for variant " + index + ": " + fileList.size());
-            fileList.forEach(file -> System.out.println("File name: " + file.getOriginalFilename()));
-        });
+        if (colorFilesMap.isEmpty()) {
+            System.out.println("No color files received in colorFilesMap.");
+        } else {
+            colorFilesMap.forEach((colorId, fileList) -> {
+                System.out.println("Files for color " + colorId + ": " + fileList.size());
+                fileList.forEach(file -> System.out.println("File name: " + file.getOriginalFilename() + ", Field name: " + file.getName()));
+            });
+        }
+
+        // ... (Phần còn lại của logic xử lý vẫn giữ nguyên) ...
 
         List<ProductDetail> productDetails = form.getProductDetailList();
-        for (int i = 0; i < productDetails.size(); i++) {
-            ProductDetail productDetail = productDetails.get(i);
-            productDetail.setProduct(part1Data);
+        Map<Long, List<Image>> colorImagesMap = new HashMap<>();
 
-            // Xử lý ảnh cho từng biến thể
+        // Ánh xạ colorId và sizeId thành Color và Size (Giữ nguyên logic này)
+        for (ProductDetail productDetail : productDetails) {
+            if (productDetail.getColorId() != null) {
+                Color color = colorService.findById(productDetail.getColorId()).orElse(null);
+                productDetail.setColor(color);
+            }
+            if (productDetail.getSizeId() != null) {
+                Size size = sizeService.findById(productDetail.getSizeId()).orElse(null);
+                productDetail.setSize(size);
+            }
+        }
+
+        // Xử lý ảnh cho từng màu
+        for (Long colorId : colorFilesMap.keySet()) {
+            List<MultipartFile> files = colorFilesMap.getOrDefault(colorId, new ArrayList<>());
             List<Image> images = new ArrayList<>();
-            List<MultipartFile> detailFiles = detailFilesMap.getOrDefault(i, new ArrayList<>());
-
-            System.out.println("Processing variant " + i + " with " + detailFiles.size() + " files");
-
-            for (MultipartFile file : detailFiles) {
+            for (MultipartFile file : files) {
                 if (!file.isEmpty()) {
                     String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
                     String fileNameAfter = FileUploadUtil.saveFile(uploadDirectory, fileName, file);
                     Image image = new Image(null, fileNameAfter, LocalDateTime.now(), LocalDateTime.now(),
-                            "uploads/" + fileNameAfter, file.getContentType(), productDetail);
+                            "uploads/" + fileNameAfter, file.getContentType(), null);
                     images.add(image);
-                    System.out.println("Added image: " + fileNameAfter + " for variant " + i);
+                    System.out.println("Added image: " + fileNameAfter + " for color " + colorId);
                 }
             }
-
-            if (images.isEmpty()) {
-                System.out.println("No images added for variant " + i);
-            } else {
-                System.out.println("Total images for variant " + i + ": " + images.size());
+            if (!images.isEmpty()) {
+                colorImagesMap.put(colorId, images);
             }
+        }
 
-            productDetail.setImages(images);
-
-            System.out.println("Images set for ProductDetail " + i + ": " +
-                    (productDetail.getImages() != null ? productDetail.getImages().size() : 0));
+        // Gán ảnh cho các biến thể theo màu
+        for (int i = 0; i < productDetails.size(); i++) {
+            ProductDetail productDetail = productDetails.get(i);
+            productDetail.setProduct(part1Data);
+            Long colorId = productDetail.getColor() != null ? productDetail.getColor().getId() : null;
+            if (colorId == null) {
+                System.out.println("Warning: Color is null for productDetail at index " + i);
+                continue;
+            }
+            List<Image> images = colorImagesMap.getOrDefault(colorId, new ArrayList<>());
+            List<Image> productDetailImages = new ArrayList<>();
+            for (Image image : images) {
+                Image imageCopy = new Image();
+                imageCopy.setName(image.getName());
+                imageCopy.setCreateDate(image.getCreateDate());
+                imageCopy.setUpdateDate(image.getUpdateDate());
+                imageCopy.setLink(image.getLink());
+                imageCopy.setFileType(image.getFileType());
+                imageCopy.setProductDetail(productDetail);
+                productDetailImages.add(imageCopy);
+            }
+            productDetail.setImages(productDetailImages);
+            System.out.println("Assigned " + productDetail.getImages().size() + " images to variant " + i + " (color: " + colorId + ")");
         }
 
         part1Data.setProductDetails(productDetails);
         System.out.println("Saving product with " + productDetails.size() + " variants");
         productService.save(part1Data);
 
-        // Xóa dữ liệu session
         session.removeAttribute("randomCreateKey");
         session.removeAttribute("createProductPart1" + randomCreateKey);
 

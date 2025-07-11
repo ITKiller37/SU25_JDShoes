@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bán hàng tại quầy</title>
+
+    <link th:href="@{/admin/vendors/themify-icons/css/themify-icons.css}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.3.1/dist/jsQR.js"></script>
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2;
+            display: none;
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 4px solid #fff;
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .pos-product:hover {
+            cursor: pointer;
+            background-color: rgba(9, 100, 207, 0.1);
+            box-shadow: 2px 2px 4px #D9D9D9;
+            border-color: rgba(9, 100, 207, 0.1);
+        }
+
+        .tab-container {
+            display: flex;
+            align-items: center;
+            width: 100%; /* Đảm bảo container chiếm toàn bộ chiều rộng */
+            overflow-x: auto; /* Cho phép cuộn ngang nếu cần */
+            white-space: nowrap;
+        }
+
+        /* Styling for individual tabs */
+        .tab {
+            padding: 10px 20px;
+            background-color: #11398a;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            margin-left: 0px;
+            position: relative;
+            color: #fff;
+            white-space: nowrap; /* Đảm bảo nội dung tab không bị ngắt dòng */
+            min-width: fit-content; /* Đảm bảo tab không bị co lại quá nhỏ */
+        }
+
+        .tab.active {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .tab-list {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Styling for the close button on each tab */
+        .close-tab-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+        }
+
+        /* Styling for the plus button to add new tabs */
+        .add-tab-btn {
+            background: none;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .form-group.invalid .form-control {
+            sliced-color: #f33a58;
+        }
+    </style>
+</head>
+
+<body>
+<div id="overlay"></div>
+<div id="loading-overlay">
+    <div class="loading-spinner"></div>
+</div>
+<div class="scan-container z-10 bg-white p-12 rounded-lg shadow-md absolute left-1/4 top-1/4 hidden">
+    <video id="qr-video" width="300" height="200" autoplay class="mb-4"></video>
+    <canvas id="qr-canvas" width="300" height="200" style="display: none"></canvas>
+    <button type="button"
+            class="close-modal-scan absolute top-1 right-1 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            data-modal-hide="crypto-modal">
+        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+        </svg>
+        <span class="sr-only">Close modal</span>
+    </button>
+</div>
+
+<div class="qr-payment-container z-10 bg-white p-x-20 pt-20 pb-10 rounded-lg shadow-md absolute left-1/4 top-1/4 -translate-y-1/4 hidden">
+    <img src="" id="qr-payment" width="400" height="300" class="mb-4">
+    <button type="button"
+            class="close-modal-payment absolute top-1 right-1 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            data-modal-hide="crypto-modal">
+        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+             fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+        </svg>
+        <span class="sr-only">Close modal</span>
+    </button>
+    <div class="flex justify-center">
+        <button type="button"
+                class="close-modal-payment outline outline-1 outline-blue-700 hover:outline-blue-800 font-medium rounded-lg text-sm px-5 py-2 me-2 mb-2 dark:outline-blue-600 dark:hover:outline-blue-700">
+            Hủy
+        </button>
+        <button id="confirm-pay" type="button"
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+            XÁC NHẬN ĐÃ THANH TOÁN
+        </button>
+    </div>
+</div>
+
+<div id="interactive" class="viewport"></div>
+<nav class="" style="background-color: #0964CF; padding: 0 14px">
+    <div class="flex items-center">
+        <div class="search-container w- mr-2">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                    </svg>
+                </div>
+                <input
+                        class="pl-10 bg-gray-50 border border-gray-300 text-gray-900 text-sm outline-none rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        type="search" placeholder="Thêm sản phẩm vào đơn" aria-label="Search" id="search-product"
+                        style="width: 500px">
+                <div
+                        class="list-search-product hidden bg-white mt-2 rounded-md absolute top-9 px-2 py-2 left-0 z-50 shadow-lg right-0 max-h-80 overflow-y-scroll">
+                </div>
+                <div class="no-search-found absolute px-2 py-2 hidden bg-white mt-2 rounded-md absolute top-9 px-2 py-2 left-0 z-50 shadow-lg right-0">
+                    <span class="text-gray-400 text italic">Không thấy sản phẩm nào</span>
+                </div>
+            </div>
+        </div>
+        <div mr-2>
+            <a class="text-white cursor-pointer hover:bg-black/[.54] rounded-lg" th:href="@{/admin}">
+                <svg class="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 8v10a1 1 0 0 0 1 1h4v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5h4a1 1 0 0 0 1-1V8M1 10l9-9 9 9"/>
+                </svg>
+            </a>
+        </div>
+        <div class="ml-4 mr-2 cursor-pointer hover:bg-black/[.54] rounded-lg" id="enable-camera-button">
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 256 256">
+                        <path fill="white"
+                              d="M232 48v40a8 8 0 0 1-16 0V56h-32a8 8 0 0 1 0-16h40a8 8 0 0 1 8 8ZM72 200H40v-32a8 8 0 0 0-16 0v40a8 8 0 0 0 8 8h40a8 8 0 0 0 0-16Zm152-40a8 8 0 0 0-8 8v32h-32a8 8 0 0 0 0 16h40a8 8 0 0 0 8-8v-40a8 8 0 0 0-8-8ZM32 96a8 8 0 0 0 8-8V56h32a8 8 0 0 0 0-16H32a8 8 0 0 0-8 8v40a8 8 0 0 0 8 8Zm48-16a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm104 88V88a8 8 0 0 0-16 0v80a8 8 0 0 0 16 0Zm-40-88a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Zm-32 0a8 8 0 0 0-8 8v80a8 8 0 0 0 16 0V88a8 8 0 0 0-8-8Z"/>
+                    </svg>
+                </span>
+        </div>
+        <div class="tab-container" data-tab-number="1">
+            <div class="tab-list">
+                <div data-tab-number="1" class="tab active font-bold relative cursor-pointer">
+                    Đơn <span>1</span>
+                </div>
+            </div>
+            <span class="add-tab-btn h-6 w-6 block hover:bg-gray-700 rounded-full flex justify-center items-center">
+                    <div>
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                            <path fill="white"
+                                  d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3zm0 2c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5zm-1 5v5h-5v2h5v5h2v-5h5v-2h-5v-5h-2z"/>
+                        </svg>
+                    </div>
+                </span>
+        </div>
+    </div>
+</nav>
+<div class="grid grid-cols-6 gaps-2 gap-2 bg-slate-50">
+    <div class="container mx-auto col-span-4">
+        <div class="h-full product-select-list" style="overflow-y: auto;">
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-2 py-3">
+                            STT
+                        </th>
+                        <th scope="col" class="px-3 py-3">
+                            Ảnh
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Tên sản phẩm
+                        </th>
+                        <th scope="col" class="px-3 py-3">
+                            Màu
+                        </th>
+                        <th scope="col" class="px-3 py-3">
+                            Cỡ
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Số lượng
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Đơn giá
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Thành tiền
+                        </th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody data-tab-number="1" class="product-select-body active">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="border-solid col-span-2 border-1 border-teal-400 shadow shadow-lg px-4 py-4 min-h-screen">
+        <div>
+            <div id="currentDateTime" class="flex justify-end">
+                <span id="currentDate" class="text-gray-400 mr-3"></span>
+                <span id="currentTime" class="text-gray-400"></span>
+            </div>
+            <div class="search-customer-container w- my-3">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <button id="add-customer-btn" data-modal-target="crypto-modal" data-modal-toggle="crypto-modal"
+                            class="absolute inset-y-0 right-0 top-1 flex items-center justify-center inline-block h-8 w-8 mr-2 cursor-pointer rounded-full hover:bg-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/>
+                        </svg>
+                    </button>
+                    <input
+                            class="pl-10 w-full bg-gray-100 border border-gray-300 text-gray-900 text-md outline-none rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-1.5 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            type="text" placeholder="Thêm khách hàng (tùy chọn)" aria-label="Search"
+                            id="search-customer">
+                    <div id="crypto-modal" tabindex="-1" aria-hidden="true"
+                         class="fixed hidden top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                        <div class="relative w-full max-w-md max-h-full left-1/4 top-1/4">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                <button type="button"
+                                        class="close-modal-customer absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        data-modal-hide="crypto-modal">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                         fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                              stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                                <!-- Modal header -->
+                                <div class="px-6 py-4 border-b rounded-t dark:border-gray-600">
+                                    <h3 class="text-base font-semibold text-gray-900 lg:text-xl dark:text-white">
+                                        Thêm khách hàng mới
+                                    </h3>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="px-6 pt-6">
+                                    <form id="add-customer-form">
+                                        <div class="mb-4 form-group">
+                                            <label for="customerCode"
+                                                   class="block mb-1 text-md font-bold text-gray-900 dark:text-white">Mã
+                                                khách hàng
+                                            </label>
+                                            <input type="text" name="customerCode" id="customerCode"
+                                                   class="bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                   placeholder="--Tự động nếu bỏ trống--">
+                                        </div>
+                                        <div class="mb-4 form-group">
+                                            <label for="fullName"
+                                                   class="block mb-1 text-md font-bold text-gray-900 dark:text-white">Họ
+                                                và
+                                                tên <span class="text-red-500"> *</span></label>
+                                            <input type="text" name="fullName" id="fullName"
+                                                   class="form-control bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                   placeholder="Nguyen Van A">
+                                            <span class="error text-sm text-red-500"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="phoneNumber"
+                                                   class="block mb-1 text-md font-bold text-gray-900 dark:text-white">Số
+                                                điện thoại<span class="text-red-500"> *</span></label>
+                                            <input type="text" name="phoneNumber" id="phoneNumber"
+                                                   placeholder="012345678"
+                                                   class="form-control bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                            <span class="error text-sm text-red-500"></span>
+                                        </div>
+                                        <div class="mt-4 flex items-center justify-end">
+                                            <button type="button"
+                                                    class="close-modal-customer text-blue-700 bg-white border border-1 border-blue-700 hover:text-blue-800 hover:border-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2">
+                                                Hủy
+                                            </button>
+                                            <button id="save-customer-btn"
+                                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2">
+                                                Lưu
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-search-customer hidden absolute bg-white mt-2 rounded-md top-9 px-2 py-2 left-0 z-50 shadow-lg right-0 max-h-80 overflow-y-scroll">
+                    </div>
+                    <div class="no-search-customer-found px-2 py-2 hidden absolute bg-white mt-2 rounded-md absolute top-9 px-2 py-2 left-0 z-50 shadow-lg right-0">
+                        <span class="text-gray-400 text italic">Không thấy khách hàng nào</span>
+                    </div>
+                </div>
+                <div class="selected-customer active mt-2 border border-blue-400 rounded-md">
+                    <span class="font-bold italic text-gray-500">Khách lẻ</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="font-bold">Giao hàng</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="is-shipping" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+            <div id="shipping-container"></div>
+            <div class="mb-3">
+                <div class="col">
+                    <h5 class="">Tổng tiền: </h5>
+                </div>
+                <div class="col">
+                    <h5 class="all-price font-bold text-2xl">0</h5>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="col">
+                    <h5>Voucher: </h5>
+                </div>
+                <div class="col">
+                    <h6 class="text-red-500 cursor-pointer voucher-choose-btn">Click vào để chọn</h6>
+                    <div class="selected-voucher active"></div>
+                </div>
+            </div>
+
+            <div id="voucher-modal" tabindex="-1" aria-hidden="true"
+                 class="fixed hidden top-0 left-0 right-0 z-50  w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                <div class="relative w-full max-w-md max-h-full left-1/4 top-1/4">
+                    <!-- Modal content -->
+                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                        <button type="button"
+                                class="close-modal-voucher absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                data-modal-hide="voucher-modal">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                 fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                        <!-- Modal header -->
+                        <div class="px-6 py-4 border-b rounded-t dark:border-gray-600">
+                            <h3 class="text-base font-semibold text-gray-900 lg:text-xl dark:text-white">
+                                Chọn mã giảm giá
+                            </h3>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="px-6 py-6 vourcher-list max-h-80 overflow-y-auto">
+                            <div class="flex items-center shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 rounded cursor-pointer mb-2">
+                                <div class="flex items-center justify-center rounded w-14 bg-blue-100 h-20 mr-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                              d="M12.79 21L3 11.21v2c0 .53.21 1.04.59 1.41l7.79 7.79c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.79 21z"/>
+                                        <path fill="currentColor"
+                                              d="M11.38 17.41c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.63.58A2.04 2.04 0 0 0 11.21 0H5C3.9 0 3 .9 3 2v6.21c0 .53.21 1.04.59 1.41l7.79 7.79zM7.25 3a1.25 1.25 0 1 1 0 2.5a1.25 1.25 0 0 1 0-2.5z"/>
+                                    </svg>
+                                </div>
+                                <!--                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M20.04 8.71V4h-4.7L12 .69L8.71 4H4v4.71L.69 12L4 15.34v4.7h4.71L12 23.35l3.34-3.31h4.7v-4.7L23.35 12l-3.31-3.29M8.83 7.05c.98 0 1.77.79 1.77 1.78a1.77 1.77 0 0 1-1.77 1.77c-.99 0-1.78-.79-1.78-1.77c0-.99.79-1.78 1.78-1.78M15.22 17c-.98 0-1.77-.8-1.77-1.78a1.77 1.77 0 0 1 1.77-1.77c.98 0 1.78.79 1.78 1.77A1.78 1.78 0 0 1 15.22 17m-6.72.03L7 15.53L15.53 7l1.5 1.5l-8.53 8.53Z"/></svg>-->
+
+                                <div class="w-full">
+                                    <p class="font-bold">Giảm <span>10K</span></p>
+                                    <p class="text-black text-sm">Cho đơn từ </p>
+                                    <span class="mr-2 text-sm text-gray-600">HSD: </span> <span
+                                        class="text-sm text-gray-600">Đã dùng: </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3 hidden">
+                <div class="col">
+                    <h6>Giảm giá sản phẩm: </h6>
+                </div>
+                <div class="col">
+                    <h6 id="product-discount">0</h6>
+                </div>
+            </div>
+            <div class="">
+                <div class="col">
+                    <h6>Giảm giá voucher: </h6>
+                </div>
+                <div class="col">
+                    <h6 id="voucher-discount">0</h6>
+                </div>
+            </div>
+            <hr>
+            <div class="mb-3 mt-2">
+                <div class="col">
+                    <h5 class="font-bold">Khách phải trả: </h5>
+                </div>
+                <div class="col">
+                    <h5 class="font-bold text-blue-500 text-2xl" id="last-price">0</h5>
+                </div>
+            </div>
+            <div class="">
+                <div class="col">
+                    <h6 class="font-bold">Tiền khách đưa: </h6>
+                </div>
+                <div class="col">
+                    <input class="border-none outline-none bg-transparent text-xl" type="text" name=""
+                           id="customerPayInput">
+                </div>
+            </div>
+            <hr>
+            <div class="mt-2">
+                <div class="col">
+                    <h6 class="text-blue-500">Tiền thừa trả khách: </h6>
+                </div>
+                <div class="col">
+                    <h6 class="text-xl" id="money-change">0</h6>
+                </div>
+            </div>
+            <div class="payment-method-group mt-4">
+                <input type="radio" value="1" name="paymentMethod" id="payment-offline" checked> <label
+                    class="mr-2">Tiền mặt</label>
+                <input type="radio" value="3" name="paymentMethod" id="payment-online"> <label class="mr-2">Chuyển
+                khoản</label>
+            </div>
+            <button
+                    class="text-white w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-2xl px-5 py-4 mt-3 text-center"
+                    id="submitBtn" type="button">THANH TOÁN
+            </button>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+                th:inline="javascript"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <script th:src="@{/admin/assets/js/validator.js}"></script>
+        <script th:inline="javascript">
+            $(document).ready(() => {
+                updateTime();
+
+                function updateTime() {
+                    var currentDate = new Date();
+                    var formattedDate = formatDate(currentDate);
+                    var hours = currentDate.getHours();
+                    var minutes = currentDate.getMinutes();
+                    var seconds = currentDate.getSeconds();
+                    hours = hours < 10 ? "0" + hours : hours;
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    var currentTime = hours + ":" + minutes;
+                    $('#currentDate').text(formattedDate);
+                    $("#currentTime").text(currentTime);
+                }
+
+                setInterval(updateTime, 60000);
+
+                function formatDate(date) {
+                    var options = {day: '2-digit', month: '2-digit', year: 'numeric'};
+                    return date.toLocaleDateString('en-GB', options);
+                }
+            });
+        </script>
+        <script th:inline="javascript">
+            $(document).ready(() => {
+                let voucherChoosed;
+                var maxQuantiyAllow = 99999999; // Đặt giá trị mặc định, không giới hạn
+
+                $('.tab').click(function () {
+                    $('.tab-container .tab').removeClass('active');
+                    $(this).addClass('active');
+                    $('.product-select-body').addClass('hidden');
+                    $('.product-select-body').removeClass('active');
+                    $('.selected-customer').addClass('hidden');
+                    $('.selected-customer').removeClass('active');
+                    document.querySelector('.product-select-body').classList.remove('hidden');
+                    document.querySelector('.product-select-body').classList.add('active');
+                    document.querySelector('.selected-customer').classList.remove('hidden');
+                    document.querySelector('.selected-customer').classList.add('active');
+                    calculateAllPrice();
+                    voucherChoosed = null;
+                    $('#customerPayInput').val('');
+                    pay.customerPay = 0;
+                    $('#money-change').text(0);
+                    calculateVoucherPrice();
+                    calculateLastPrice();
+                });
+
+                $('.add-tab-btn').click(function () {
+                    if ($('.tab').length > 6) {
+                        Toastify({
+                            text: "Bạn chỉ được mở tối đa 7 đơn",
+                            className: "error",
+                            style: {
+                                background: "red",
+                            }
+                        }).showToast();
+                        return;
+                    }
+                    var lastTabNumber = parseInt($('.tab-container .tab:last-child').attr('data-tab-number'));
+                    var newTab = $(`<div data-tab-number="${lastTabNumber + 1}" class="tab font-bold relative cursor-pointer">
+                            Đơn <span>${lastTabNumber + 1}</span>
+                            <div class="remove-tab-btn absolute top-0.5 right-0 cursor-pointer">
+                                <svg class="" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                    viewBox="0 0 32 32">
+                                    <path fill="currentColor"
+                                        d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14s14-6.2 14-14S23.8 2 16 2zm5.4 21L16 17.6L10.6 23L9 21.4l5.4-5.4L9 10.6L10.6 9l5.4 5.4L21.4 9l1.6 1.6l-5.4 5.4l5.4 5.4l-1.6 1.6z" />
+                                </svg>
+                            </div>
+                          </div>`);
+                    $('.tab-list').append(newTab);
+                    var body = $(`<tbody data-tab-number="${lastTabNumber + 1}" class="product-select-body hidden"></tbody>`);
+                    $('table').append(body);
+                    var selectedCustomer = $(`<div class="selected-customer mt-2 border border-blue-400 rounded-md hidden">
+                                    <span class="font-bold italic text-gray-500">--Khách lẻ--</span>
+                                  </div>`);
+                    $('.search-customer-container').append(selectedCustomer);
+                    newTab.on('click', function () {
+                        $('.tab-container .tab').removeClass('active');
+                        $('.product-select-body').addClass('hidden');
+                        $('.product-select-body').removeClass('active');
+                        $('.selected-customer').addClass('hidden');
+                        $('.selected-customer').removeClass('active');
+                        body.addClass('active');
+                        body.removeClass('hidden');
+                        newTab.addClass('active');
+                        selectedCustomer.addClass('active');
+                        selectedCustomer.removeClass('hidden');
+                        calculateAllPrice();
+                        voucherChoosed = null;
+                        $('#customerPayInput').val('');
+                        pay.customerPay = 0;
+                        $('#money-change').text(0);
+                        calculateVoucherPrice();
+                        calculateLastPrice();
+                    });
+                    $('.remove-tab-btn').on('click', function (e) {
+                        e.stopPropagation();
+                        var tabNumber = parseInt($(this).closest('.tab').attr('data-tab-number'));
+                        $(this).parent().remove();
+                        var element = $(`.product-select-body[data-tab-number='${tabNumber}']`);
+                        if (element.hasClass('active')) {
+                            $(`.tab[data-tab-number='${tabNumber - 1}']`).addClass('active');
+                            $(`.product-select-body[data-tab-number='${tabNumber - 1}']`).addClass('active');
+                            $(`.product-select-body[data-tab-number='${tabNumber - 1}']`).removeClass('hidden');
+                            calculateAllPrice();
+                            calculateLastPrice();
+                        }
+                        element.remove();
+                    });
+                });
+
+                var lastSearchKey = ''; // Biến lưu từ khóa tìm kiếm trước đó
+                var debounceTimer;
+                $("#search-product").on('input', function () {
+                    if (debounceTimer) {
+                        clearTimeout(debounceTimer);
+                    }
+                    var searchKey = $(this).val().trim();
+
+                    // Nếu xóa từ khóa, xóa danh sách tìm kiếm
+                    if (searchKey === "") {
+                        $(".list-search-product").html('');
+                        $('.no-search-found').addClass('hidden');
+                        return;
+                    }
+
+                    // Nếu từ khóa giống lần trước và productList đã có dữ liệu, không gọi API
+                    if (searchKey === lastSearchKey && productList.length > 0) {
+                        loadProductSearch({content: productList});
+                        return;
+                    }
+
+                    debounceTimer = setTimeout(async function () {
+                        lastSearchKey = searchKey; // Cập nhật từ khóa
+                        await $.ajax({
+                            method: 'GET',
+                            dataType: 'json',
+                            url: `/api/products/filter?keyword=${searchKey}`,
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                loadProductSearch(data);
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire({
+                                    title: "Lỗi",
+                                    text: xhr.responseJSON.message,
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }, 500);
+                });
+
+                $("#search-product").on('focus', function () {
+                    if ($(this).val().trim() != "") {
+                        $('.no-search-found').addClass('hidden');
+                        $('.list-search-product').removeClass('hidden');
+                    }
+                });
+
+                $(document).on('click', function (e) {
+                    if (!$(".search-container").is(e.target) && $(".search-container").has(e.target).length === 0) {
+                        $('.list-search-product').addClass('hidden');
+                        $('.no-search-found').addClass('hidden');
+                    }
+                    if (!$(".search-customer-container").is(e.target) && $(".search-customer-container").has(e.target).length === 0) {
+                        $('.list-search-customer').addClass('hidden');
+                        $('.no-search-customer-found').addClass('hidden');
+                    }
+                });
+
+                var productList = [];
+
+                function handleAddToOrder(productDetailSe, productDetailId, canAdd, product) {
+                    if (productDetailSe.quantity < 0) {
+                        Toastify({
+                            text: "Sản phẩm này đã hết",
+                            className: "error",
+                            style: {background: "red"}
+                        }).showToast();
+                        return 1;
+                    }
+
+                    $(".product-select-body.active .product-select-item").each((index, element) => {
+                        const item = $(element);
+                        const itemProductDetailId = item.attr('data-product-detail-id');
+                        if (itemProductDetailId == productDetailId) {
+                            const input = item.find('input');
+                            var currentVal = parseInt(input.val());
+                            var nextVal = currentVal + 1;
+                            input.val(nextVal);
+                            const maxQuan = parseInt(item.attr('data-max-quan'));
+                            if (nextVal > maxQuan) {
+                                Swal.fire({
+                                    title: "Lỗi",
+                                    text: "Số lượng tối đa của sản phẩm này là " + maxQuan,
+                                    icon: "error"
+                                });
+                                input.val(maxQuan);
+                            }
+                            const productPrice = removeAnyNonDigit(item.find('.product-select-price').text());
+                            const totalPrice = nextVal * parseFloat(productPrice);
+                            const totalPriceProductEl = item.find('.total-price-product');
+                            totalPriceProductEl.text(formatNumber(totalPrice));
+                            calculateAllPrice();
+                            calculateLastPrice();
+                            canAdd = false;
+                        }
+                    });
+
+                    if (!canAdd) {
+                        return;
+                    }
+
+                    const productPrice = formatNumber(productDetailSe.price);
+                    const discountedPrice = productDetailSe.discountedPrice;
+                    var discountedPriceFormatted;
+                    var htmlPrice = '';
+                    if (discountedPrice) {
+                        discountedPriceFormatted = formatNumber(discountedPrice);
+                        htmlPrice = `<td class="px-6 py-4 text-lg">
+            <span class="flex flex-col">
+                <span class="text-sm line-through">${productPrice}</span>
+                <span class="text-lg product-select-price">${discountedPriceFormatted}</span>
+            </span>
+         </td>
+         <td class="total-price-product px-6 py-4 text-blue-400 font-bold text-lg">
+            ${discountedPriceFormatted}
+         </td>`;
+                    } else {
+                        htmlPrice = `<td class="product-select-price px-6 py-4 text-lg">
+            ${productPrice}
+         </td>
+         <td class="total-price-product px-6 py-4 text-blue-400 font-bold text-lg">
+            ${productPrice}
+         </td>`;
+                    }
+
+                    const imgSrc = productDetailSe.images && productDetailSe.images.length > 0
+                        ? '/' + productDetailSe.images[0].link
+                        : '/default-image.jpg';
+                    const altText = product.name || 'Product Image';
+                    const colorName = productDetailSe.colorName || 'N/A';
+                    const sizeName = productDetailSe.sizeName || 'N/A';
+                    var htmlProductItem = $(`<tr data-product-id="${product.id}" data-product-detail-id="${productDetailSe.id}" data-max-quan="${productDetailSe.quantity + 1}" class="bg-white border-b text-gray-700 product-select-item">
+                <th scope="row" class="order-number px-2 py-3 font-bold text-gray-900 whitespace-nowrap dark:text-white text-xl">
+                </th>
+                <td class="px-3 py-4 text-lg">
+                <img src="${imgSrc}" alt="${altText}" width="50px">
+                </td>
+                <td class="px-6 py-4 text-base">
+                    ${product.name}
+                </td>
+                <td class="px-3 py-4 text-base">
+                    ${colorName}
+                </td>
+                <td class="px-3 py-4 text-base">
+                    ${sizeName}
+                </td>
+                <td class="px-6 py-4 text-lg">
+                    <div class="custom-number-input h-10 w-32">
+                        <div class="flex flex-row h-10 w-full rounded-lg relative bg-transparent mt-1">
+                            <input type="number"
+                                class="product-select-quantity outline-none focus:outline-none text-center w-full bg-gray-200 font-semibold text-md hover:text-black focus:text-black md:text-base cursor-default flex items-center text-gray-700 outline-none"
+                                name="custom-input-number${productDetailSe.id}" value="1" min="1"></input>
+                        </div>
+                    </div>
+                </td>
+                ${htmlPrice}
+            </tr>`);
+                    var deleteButton = $(`<td class="px-6 py-4">
+                <span class="remove-select-item cursor-pointer hover:bg-gray-200 block w-8 h-8 rounded-full font-medium text-danger-600 dark:text-danger-500 hover:underline flex items-center">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white flex-1" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                        <path stroke="red" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M1 5h16M7 8v8m4-8v8M7 1h4a1 1 0 0 1 1 1v3H6V2a1 1 0 0 1 1-1ZM3 5h12v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z" />
+                    </svg>
+                </span>
+            </td>`);
+                    htmlProductItem.append(deleteButton);
+                    $('.product-select-body.active').append(htmlProductItem);
+                    loadOrdreNumber();
+                    calculateAllPrice();
+                    calculateLastPrice();
+
+                    // Xử lý xóa và cập nhật số lượng
+                    deleteButton.on('click', () => {
+                        const productItem = deleteButton.closest('tr'); // Lấy dòng tr
+                        const itemProductDetailId = productItem.attr('data-product-detail-id');
+                        const quantityToAddBack = parseInt(productItem.find('.product-select-quantity').val() || 1);
+
+                        // Tìm và cập nhật lại số lượng trong productList
+                        productList.forEach(product => {
+                            const productDetail = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
+                            if (productDetail) {
+                                productDetail.quantity += quantityToAddBack; // Cộng lại số lượng
+                            }
+                        });
+
+                        productItem.remove();
+                        loadOrdreNumber();
+                        calculateAllPrice();
+                        calculateLastPrice();
+                        // Cập nhật lại danh sách tìm kiếm với productList hiện tại
+                        $(".list-search-product").html(''); // Xóa nội dung cũ trước khi load lại
+                        loadProductSearch({content: productList}); // Load lại với productList hiện tại
+                    });
+
+                    handleChangeQuantity();
+                }
+
+                function handleChangeQuantity() {
+                    $('.product-select-quantity').on('keydown', function (e) {
+                        onlyAllowNumberInput(e);
+                    });
+
+                    $('.product-select-quantity').on('focusout', function () {
+                        if ($(this).val() == 0 || $(this).val() == "") {
+                            $(this).val(1);
+                            $(this).trigger("change");
+                        }
+                    });
+
+                    $('.product-select-quantity').on('input change', function (e) {
+                        var val = $(this).val() === "" ? 1 : parseInt($(this).val());
+                        const productItem = $(this).parent().parent().parent().parent();
+                        const maxQuan = parseInt(productItem.attr('data-max-quan'));
+                        const itemProductDetailId = productItem.attr('data-product-detail-id');
+                        let productDetailToUpdate = null;
+
+                        // Tìm productDetail tương ứng trong productList
+                        productList.forEach(product => {
+                            productDetailToUpdate = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
+                        });
+
+                        if (val > maxQuan) {
+                            Swal.fire({
+                                title: "Lỗi",
+                                text: "Số lượng tối đa của sản phẩm này là " + maxQuan,
+                                icon: "error"
+                            });
+                            val = maxQuan;
+                            $(this).val(maxQuan);
+                        } else if (val < 1) {
+                            $(this).val(1);
+                            val = 1;
+                        }
+
+                        if (productDetailToUpdate) {
+                            const currentVal = parseInt(productItem.find('.product-select-quantity').val() || 1);
+                            const diff = currentVal - val; // Tính hiệu số lượng (ngược dấu vì val là giá trị mới)
+                            productDetailToUpdate.quantity += diff; // Cập nhật quantity trong productList
+                            loadProductSearch({content: productList}); // Cập nhật giao diện tìm kiếm
+                        }
+
+                        const productPrice = removeAnyNonDigit(productItem.find('.product-select-price').text());
+                        const totalPrice = val * parseFloat(productPrice);
+                        const totalPriceProductEl = productItem.find('.total-price-product');
+                        totalPriceProductEl.text(formatNumber(totalPrice));
+                        calculateAllPrice();
+                        calculateLastPrice();
+                    });
+                }
+
+                function loadProductSearch(data) {
+                    const newProductList = data.content;
+
+                    // Nếu productList đã tồn tại, giữ nguyên quantity của các sản phẩm đã được cập nhật
+                    if (productList.length > 0) {
+                        newProductList.forEach(newProduct => {
+                            const existingProduct = productList.find(p => p.id === newProduct.id);
+                            if (existingProduct) {
+                                // Giữ nguyên quantity của productDetailDtos đã được cập nhật
+                                newProduct.productDetailDtos.forEach(newDetail => {
+                                    const existingDetail = existingProduct.productDetailDtos.find(d => d.id === newDetail.id);
+                                    if (existingDetail) {
+                                        newDetail.quantity = existingDetail.quantity; // Giữ quantity hiện tại
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    productList = newProductList; // Cập nhật productList với dữ liệu mới nhưng giữ quantity
+
+                    if (productList.length > 0) {
+                        $('.no-search-found').addClass('hidden');
+                        $('.list-search-product').removeClass('hidden');
+                        var html = '';
+                        productList.forEach(product => {
+                            product.productDetailDtos.forEach(productDetail => {
+                                var price = ``;
+                                if (productDetail.discountedPrice) {
+                                    price = `<span>
+                        <span class="product-old-price text-sm line-through text-gray-500 italic">${productDetail.price}</span>
+                        <span class="product-price text-md font-bold text-blue-500">${productDetail.discountedPrice}</span>
+                    </span>`;
+                                } else {
+                                    price = `<span>
+                        <span class="product-price text-md font-bold text-blue-500">${productDetail.price}</span>
+                    </span>`;
+                                }
+                                var imageUrl = productDetail.images && productDetail.images.length > 0 ? productDetail.images[0].link : '/default-image.jpg';
+                                html += `<div class="search-product-item-container hover:bg-blue-50 rounded-sm cursor-pointer">
+                    <div data-product-id="${product.id}" data-product-detail-id="${productDetail.id}" data-quantity="${productDetail.quantity}" class="search-product-item flex items-center px-2 py-2 ">
+                        <div class="image-container w-12 mr-2">
+                            <img class="w-full" src="/${imageUrl}" alt="">
+                        </div>
+                        <div class="search-product-info flex-1">
+                            <div class="flex justify-between">
+                                <h5 class="product-name font-bold">${product.name}</h5>
+                                <span class="product-code text-gray-600 text-sm">#${product.code}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400 text-sm">
+                                    <span>Màu: </span><span>${productDetail.colorName || 'N/A'}</span></span>
+                                </span>
+                                <span class="text-gray-400 text-sm">
+                                    <span>Cỡ: </span><span>${productDetail.sizeName || 'N/A'}</span></span>
+                                </span>
+                                <span class="text-sm">
+                                    <span>Số lượng: </span> <span class="product-quantity">${productDetail.quantity}</span>
+                                </span>
+                                ${price}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                            });
+                        });
+                        $(".list-search-product").html(html);
+                        $('.search-product-item').off('click').on('click', async function () {
+                            var productId = $(this).attr('data-product-id');
+                            var productDetailId = $(this).attr('data-product-detail-id');
+                            var productDetailList = [];
+                            var product = {};
+                            var canAdd = true;
+
+                            // Tìm sản phẩm trong productList
+                            var foundProduct = productList.find(x => x.id == productId);
+                            if (foundProduct) {
+                                productDetailList = foundProduct.productDetailDtos;
+                                product = foundProduct;
+                                var productDetailSe = productDetailList.find(x => x.id == productDetailId);
+
+                                if (productDetailSe && productDetailSe.quantity >= 1) {
+                                    productDetailSe.quantity -= 1; // Trừ số lượng
+                                    handleAddToOrder(productDetailSe, productDetailId, canAdd, product);
+                                    // Cập nhật lại danh sách tìm kiếm
+                                    $(".list-search-product").html(''); // Xóa nội dung cũ trước khi load lại
+                                    loadProductSearch({content: productList}); // Load lại với productList hiện tại
+                                } else {
+                                    Swal.fire({
+                                        title: "Lỗi",
+                                        text: "Sản phẩm đã hết hàng",
+                                        icon: "error"
+                                    });
+                                }
+                            }
+                        });
+                    } else {
+                        $(".list-search-product").html('');
+                        $('.no-search-found').removeClass('hidden');
+                    }
+                }
+
+                function loadOrdreNumber() {
+                    var productSelectItems = document.querySelectorAll('.product-select-body.active .product-select-item');
+                    productSelectItems.forEach((item, index) => {
+                        var stt = index + 1;
+                        item.querySelector('.order-number').textContent = stt.toString();
+                    });
+                }
+
+                var allPrice = document.querySelector('.all-price');
+                var lastPrice = document.querySelector('#last-price');
+                var productDiscount = document.getElementById("product-discount");
+                var voucherDiscount = document.getElementById("voucher-discount");
+                var pay = {
+                    id: 1,
+                    totalMoney: 0,
+                    vourcher: '',
+                    discount: '',
+                    requireMoney: 0,
+                    customerPay: '',
+                    customerChange: 0
+                };
+
+                function resetPayArea() {
+                    allPrice.innerText = '0';
+                    lastPrice.innerText = '0';
+                    $("#customerPayInput").val(0);
+                    $("#money-change").text(0);
+                    $("#search-product").val('');
+                }
+
+                function calculateAllPrice() {
+                    var totalPrice = 0;
+                    document.querySelectorAll('.product-select-body.active .product-select-item').forEach(item => {
+                        totalPrice += parseFloat(item.querySelector('.total-price-product').textContent.replace(/[^0-9]/g, ''));
+                    });
+                    pay.totalMoney = totalPrice;
+                    allPrice.innerText = formatNumber(totalPrice);
+                    calculateVoucherPrice();
+                }
+
+                function calculateVoucherPrice() {
+                    if (voucherChoosed) {
+                        if (pay.totalMoney < voucherChoosed.minimumAmountInCart) {
+                            $('.selected-voucher.active').html('');
+                            $('.selected-voucher.active').attr('selected-id', '');
+                            voucherChoosed = null;
+                            return;
+                        }
+                        if (voucherChoosed.percentage) {
+                            var value = Math.round(pay.totalMoney * voucherChoosed.percentage / 100);
+                            if (value > voucherChoosed.maximumAmount) {
+                                pay.vourcher = voucherChoosed.maximumAmount;
+                            } else {
+                                pay.vourcher = value;
+                            }
+                            voucherDiscount.innerText = formatNumber(pay.vourcher);
+                        } else {
+                            if (voucherChoosed.discountAmount) {
+                                voucherDiscount.innerText = formatNumber(voucherChoosed.discountAmount);
+                            }
+                        }
+                    } else {
+                        voucherDiscount.innerText = '0';
+                        calculateLastPrice();
+                    }
+                }
+
+                function calculateLastPrice() {
+                    var lastPriceValue = parseFloat(allPrice.textContent.replace(/[^0-9]/g, '')) - parseFloat(productDiscount.textContent.replace(/[^0-9]/g, '')) - parseFloat(voucherDiscount.textContent.replace(/[^0-9]/g, ''));
+                    if (lastPriceValue > 0) {
+                        lastPrice.innerText = formatNumber(lastPriceValue.toString());
+                        pay.requireMoney = lastPriceValue;
+                        pay.customerChange = pay.customerPay - pay.requireMoney;
+                        if (pay.customerPay > 0) {
+                            updateCustomerChange();
+                        }
+                    } else {
+                        lastPrice.innerText = '0';
+                        pay.requireMoney = 0;
+                    }
+                }
+
+                $('#add-customer-btn').on('click', function () {
+                    $('#overlay').show();
+                    $('#crypto-modal').removeClass('hidden');
+                });
+
+                $('.close-modal-customer').click(() => {
+                    $('#overlay').hide();
+                    $('#crypto-modal').addClass('hidden');
+                });
+
+                function formatNumber(number) {
+                    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+
+                $("#customerPayInput").on('input', function () {
+                    var value = $(this).val();
+                    if (value.length > 15) {
+                        $(this).val('');
+                        pay.customerPay = 0;
+                        updateCustomerChange();
+                        return;
+                    }
+                    value = removeAnyNonDigit(value);
+                    pay.customerPay = value;
+                    updateCustomerChange();
+                    $(this).val(formatNumber(value));
+                });
+
+                function removeAnyNonDigit(value) {
+                    return value.replace(/\D/g, '');
+                }
+
+                function updateCustomerChange() {
+                    pay.customerChange = pay.customerPay - pay.requireMoney;
+                    if (pay.customerChange > 0) {
+                        $("#money-change").text(formatNumber(pay.customerChange));
+                    } else {
+                        $("#money-change").text(0);
+                    }
+                }
+
+                var debounceTimerCus;
+                $("#search-customer").on('input', function () {
+                    if (debounceTimerCus) {
+                        clearTimeout(debounceTimerCus);
+                    }
+                    var searchKey = $(this).val().trim();
+                    if (searchKey == "") {
+                        $(".list-search-customer").html('');
+                        return;
+                    }
+                    debounceTimerCus = setTimeout(async function () {
+                        await $.ajax({
+                            method: 'GET',
+                            type: 'json',
+                            url: `/api/customer/filter?keyword=${searchKey}&size=10`,
+                            contentType: "application/json; charset=utf-8",
+                            success: function (data) {
+                                loadCustomerSearch(data);
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire({
+                                    title: "Lỗi",
+                                    text: xhr.responseJSON.message,
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }, 500);
+                });
+
+                function loadHtmlCustomerSelected(customerId, customerName, customerCode, customerPhone) {
+                    $('.selected-customer.active').attr('selected-id', customerId || '');
+                    $('.selected-customer.active').html(`
+        <div class="p-2 flex items-center justify-between">
+            <div>
+                <span class="font-bold">${customerName || 'Khách lẻ'}</span>
+                <br>
+                <span class="text-gray-400">${customerCode || ''}</span>
+            </div>
+            <div>
+                <span class="font-bold">${customerPhone || ''}</span>
+            </div>
+            <span id="delete-selected-customer-btn" class="p-1 hover:bg-gray-400 rounded-full font-bold cursor-pointer">×</span>
+        </div>`);
+                    $('#delete-selected-customer-btn').click(() => {
+                        $('.selected-customer.active').html('<span class="font-bold italic text-gray-500">Khách lẻ</span>');
+                        $('.selected-customer.active').attr('selected-id', '');
+                    });
+                }
+
+                function loadCustomerSearch(data) {
+                    var customerList = data.content;
+                    if (customerList.length > 0) {
+                        $('.no-search-customer-found').addClass('hidden');
+                        $('.list-search-customer').removeClass('hidden');
+                        var html = '';
+                        customerList.forEach(item => {
+                            html += `<div class="search-customer-item-container hover:bg-blue-50 rounded-sm cursor-pointer">
+                            <div class="search-customer-item p-2 flex justify-between items-center" data-customer-id="${item.id}">
+                                <div>
+                                    <span class="font-bold text-md customer-name">${item.name}</span> <br>
+                                    <span class="text-gray-500 text-sm customer-code">#${item.code}</span>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-md customer-phone">${item.phoneNumber}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                        });
+                        $('.list-search-customer').html(html);
+                        $('.search-customer-item').on('click', function (e) {
+                            var item = $(e.currentTarget);
+                            var customerCode = item.find('.customer-code').text();
+                            var customerName = item.find('.customer-name').text();
+                            var customerPhone = item.find('.customer-phone').text();
+                            var customerId = item.attr('data-customer-id');
+                            $(".list-search-customer").addClass('hidden');
+                            loadHtmlCustomerSelected(customerId, customerName, customerCode, customerPhone);
+                        });
+                    } else {
+                        $(".list-search-customer").html('');
+                        $('.no-search-customer-found').removeClass('hidden');
+                    }
+                }
+
+                $("#search-customer").on('focus', function () {
+                    if ($(this).val().trim() != "") {
+                        $('.no-search-customer-found').addClass('hidden');
+                        $('.list-search-customer').removeClass('hidden');
+                    }
+                });
+
+                $("#phoneNumber").on('keypress', function (e) {
+                    const key = e.key;
+                    if (!/[\d\b]/.test(key)) {
+                        e.preventDefault();
+                    }
+                });
+
+                Validator({
+                    form: '#add-customer-form',
+                    formGroupSelector: '.form-group',
+                    errorSelector: '.error',
+                    rules: [
+                        Validator.isRequired('#fullName', 'Vui lòng nhập họ tên'),
+                        Validator.isRequired('#phoneNumber', 'Vui lòng nhập số điện thoại'),
+                        Validator.maxLength('#fullName', 100),
+                        Validator.maxLength('#phoneNumber', 10),
+                    ],
+                    onSubmit: async function (data) {
+                        var dataSend = {
+                            code: data.customerCode,
+                            name: data.fullName,
+                            phoneNumber: data.phoneNumber
+                        };
+                        await $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            url: '/api/customer',
+                            data: JSON.stringify(dataSend),
+                            success: function (data) {
+                                $('#overlay').hide();
+                                $('#crypto-modal').addClass('hidden');
+                                $(".list-search-customer").addClass('hidden');
+                                loadHtmlCustomerSelected(data.id, data.name, data.code, data.phoneNumber);
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire({
+                                    title: "Lỗi",
+                                    text: xhr.responseJSON.message,
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }
+                });
+
+                $(".voucher-choose-btn").on('click', async function () {
+                    $('#loading-overlay').show();
+                    await $.ajax({
+                        type: 'GET',
+                        url: `/api/private/discount-code-valid?sort=startDate,desc`,
+                        dataType: 'json',
+                        success: function (data) {
+                            const voucherList = data.content;
+                            loadHtmlVoucherSelectList(voucherList);
+                            $('#loading-overlay').hide();
+                            $('#overlay').show();
+                            $('#voucher-modal').removeClass('hidden');
+                        },
+                        error: function () {
+                            Swal.fire({
+                                title: "Lỗi",
+                                text: "Có lỗi xảy ra",
+                                icon: "error"
+                            });
+                            $('#loading-overlay').hide();
+                        }
+                    });
+                });
+
+
+                function showShippingForm() {
+                    const customerName = $(".selected-customer.active .font-bold").text() || "";
+                    const customerPhone = "";
+                    const shippingForm = `
+<div id="shipping-form" class="mt-4 p-6 bg-white rounded-lg shadow-md border border-gray-200">
+    <h5 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Thông tin giao hàng</h5>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Hàng 1 - Thông tin cơ bản -->
+        <div class="form-group">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tên người nhận <span class="text-red-500">*</span></label>
+            <input type="text" id="shipping-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                value="${customerName || 'Khách lẻ'}" required>
+        </div>
+
+        <div class="form-group">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại <span class="text-red-500">*</span></label>
+            <input type="text" id="shipping-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                value="${customerPhone}" required>
+        </div>
+
+        <!-- Hàng 2 - Địa chỉ -->
+        <div class="form-group">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố <span class="text-red-500">*</span></label>
+            <select id="shipping-province" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                <option value="">Chọn tỉnh/thành</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện <span class="text-red-500">*</span></label>
+            <select id="shipping-district" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" disabled required>
+                <option value="">Chọn quận/huyện</option>
+            </select>
+        </div>
+
+        <!-- Hàng 3 - Địa chỉ chi tiết -->
+        <div class="form-group">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phường/Xã <span class="text-red-500">*</span></label>
+            <select id="shipping-ward" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" disabled required>
+                <option value="">Chọn phường/xã</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ cụ thể <span class="text-red-500">*</span></label>
+            <input type="text" id="shipping-address" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Số nhà, tên đường..." required>
+        </div>
+
+        <!-- Hàng 4 - Ghi chú và phí ship -->
+        <div class="form-group md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ghi chú</label>
+            <textarea id="shipping-note" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" rows="2" placeholder="Ghi chú cho shipper..."></textarea>
+        </div>
+
+        <div class="form-group md:col-span-2">
+            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-md">
+                <label class="block text-sm font-medium text-gray-700">Phí vận chuyển:</label>
+                <span id="shipping-fee" class="text-lg font-bold text-blue-600">0 ₫</span>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+                    $('#shipping-container').html(shippingForm);
+                    loadProvinces();
+                    bindShippingEvents();
+
+                }
+
+                // Load danh sách tỉnh/thành từ GHN
+                function loadProvinces() {
+                    $.ajax({
+                        url: 'https://online-gateway.ghn.vn/shiip/public-api/master-data/province',
+                        method: 'GET',
+                        headers: {
+                            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+                            'Content-Type': 'application/json'
+                        },
+                        success: function (response) {
+                            if (response.code === 200) {
+                                const provinces = response.data;
+                                provinces.forEach(province => {
+                                    $('#shipping-province').append(
+                                        `<option value="${province.ProvinceID}">${province.ProvinceName}</option>`
+                                    );
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error("Lỗi khi tải tỉnh/thành:", xhr.responseJSON);
+                        }
+                    });
+
+                    $('#shipping-province').change(function () {
+                        const provinceId = $(this).val();
+                        if (provinceId) {
+                            loadDistricts(provinceId);
+                            $('#shipping-district').val('').prop('disabled', false);
+                            $('#shipping-ward').val('').prop('disabled', true);
+                            $('#shipping-fee').val('0'); // Reset phí ship
+                        } else {
+                            $('#shipping-district').val('').prop('disabled', true);
+                            $('#shipping-ward').val('').prop('disabled', true);
+                        }
+                    });
+                }
+
+                // Load danh sách quận/huyện
+                function loadDistricts(provinceId) {
+                    $.ajax({
+                        url: `https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${provinceId}`,
+                        method: 'GET',
+                        headers: {
+                            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+                            'Content-Type': 'application/json'
+                        },
+                        success: function (response) {
+                            if (response.code === 200) {
+                                const districts = response.data;
+                                $('#shipping-district').empty().append('<option value="">Chọn quận/huyện</option>');
+                                districts.forEach(district => {
+                                    $('#shipping-district').append(
+                                        `<option value="${district.DistrictID}">${district.DistrictName}</option>`
+                                    );
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error("Lỗi khi tải quận/huyện:", xhr.responseJSON);
+                        }
+                    });
+
+                    $('#shipping-district').change(function () {
+                        const districtId = $(this).val();
+                        if (districtId) {
+                            loadWards(districtId);
+                            $('#shipping-ward').val('').prop('disabled', false);
+                            $('#shipping-fee').val('0'); // Reset phí ship
+                        } else {
+                            $('#shipping-ward').val('').prop('disabled', true);
+                        }
+                    });
+                }
+
+                // Load danh sách phường/xã
+                function loadWards(districtId) {
+                    $.ajax({
+                        url: `https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${districtId}`,
+                        method: 'GET',
+                        headers: {
+                            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+                            'Content-Type': 'application/json'
+                        },
+                        success: function (response) {
+                            if (response.code === 200) {
+                                const wards = response.data;
+                                $('#shipping-ward').empty().append('<option value="">Chọn phường/xã</option>');
+                                wards.forEach(ward => {
+                                    $('#shipping-ward').append(
+                                        `<option value="${ward.WardCode}">${ward.WardName}</option>`
+                                    );
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            console.error("Lỗi khi tải phường/xã:", xhr.responseJSON);
+                        }
+                    });
+                }
+
+                function bindShippingEvents() {
+                    $('#shipping-province, #shipping-district, #shipping-ward, #shipping-address').change(function () {
+                        // Chỉ tính phí khi tất cả trường đã có giá trị
+                        if ($('#shipping-province').val() &&
+                            $('#shipping-district').val() &&
+                            $('#shipping-ward').val() &&
+                            $('#shipping-address').val()) {
+                            calculateShippingFee();
+                        }
+                    });
+                }
+
+                function getAvailableServices(from_district, to_district, callback) {
+                    $.ajax({
+                        url: 'https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services',
+                        method: 'GET',
+                        headers: {
+                            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+                            'Content-Type': 'application/json'
+                        },
+                        data: {
+                            shop_id: 5871267, // Thêm shop_id vào query params
+                            from_district: from_district,
+                            to_district: to_district
+                        },
+                        success: function (response) {
+                            callback(response.data);
+                        },
+                        error: function (xhr) {
+                            console.error("Lỗi khi lấy dịch vụ vận chuyển:", xhr.responseJSON);
+                            callback(null);
+                        }
+                    });
+                }
+
+                // Tính phí ship
+                function calculateShippingFee() {
+                    const provinceId = $('#shipping-province').val();
+                    const districtId = $('#shipping-district').val();
+                    const wardCode = $('#shipping-ward').val();
+                    const address = $('#shipping-address').val();
+
+                    if (!provinceId || !districtId || !wardCode || !address) {
+                        $('#shipping-fee').text('0 ₫');
+                        return;
+                    }
+                    $('#shipping-fee').text('Đang tính...');
+
+                    // Lấy danh sách dịch vụ khả dụng trước
+                    getAvailableServices(1490, parseInt(districtId), function (services) {
+                        if (services && services.length > 0) {
+                            const service_id = services[0].service_id;
+
+                            // Tính phí ship sau khi có service_id
+                            $.ajax({
+                                url: 'https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee',
+                                method: 'POST',
+                                headers: {
+                                    'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+                                    'Content-Type': 'application/json',
+                                    'ShopId': '5871267' // Vẫn giữ trong header cho API tính phí
+                                },
+                                data: JSON.stringify({
+                                    "from_district_id": 1490,
+                                    "service_id": service_id,
+                                    "to_district_id": parseInt(districtId),
+                                    "to_ward_code": wardCode,
+                                    "weight": 200,
+                                    "length": 10,
+                                    "width": 10,
+                                    "height": 10
+                                }),
+                                success: function (response) {
+                                    if (response.code === 200) {
+                                        const fee = response.data.total;
+                                        $('#shipping-fee').text(formatNumber(fee) + ' ₫ ');
+                                        calculateLastPrice();
+                                    } else {
+                                        $('#shipping-fee').text('0 ₫');
+                                        console.error("Lỗi GHN:", response.message);
+                                    }
+                                },
+                                error: function (xhr) {
+                                    console.error("Lỗi khi tính phí ship:", xhr.responseJSON);
+                                    $('#shipping-fee').text('0 ₫');
+                                }
+                            });
+                        } else {
+                            $('#shipping-fee').text('0 ₫');
+                            Toastify({
+                                text: "Không có dịch vụ vận chuyển nào khả dụng cho khu vực này",
+                                className: "error",
+                                style: {
+                                    background: "red",
+                                }
+                            }).showToast();
+                        }
+                    });
+                }
+
+                // Xử lý toggle giao hàng
+                $('#is-shipping').change(function () {
+                    if ($(this).is(':checked')) {
+                        showShippingForm();
+                    } else {
+                        $('#shipping-container').empty();
+                        $('#shipping-fee').text('0 ₫');
+                        calculateLastPrice();
+                    }
+                });
+
+                // Cập nhật hàm calculateLastPrice để tính cả phí ship
+                function calculateLastPrice() {
+                    var lastPriceValue = parseFloat(allPrice.textContent.replace(/[^0-9]/g, '')) -
+                        parseFloat(productDiscount.textContent.replace(/[^0-9]/g, '')) -
+                        parseFloat(voucherDiscount.textContent.replace(/[^0-9]/g, ''));
+
+                    // Thêm phí ship nếu có
+                    if ($('#is-shipping').is(':checked')) {
+                        const shippingFee = parseFloat($('#shipping-fee').text().replace(/[^0-9]/g, '') || 0);
+                        lastPriceValue += shippingFee;
+                    }
+
+                    if (lastPriceValue > 0) {
+                        lastPrice.innerText = formatNumber(lastPriceValue.toString());
+                        pay.requireMoney = lastPriceValue;
+                        pay.customerChange = pay.customerPay - pay.requireMoney;
+                        if (pay.customerPay > 0) {
+                            updateCustomerChange();
+                        }
+                    } else {
+                        lastPrice.innerText = '0';
+                        pay.requireMoney = 0;
+                    }
+                }
+
+
+                // Cập nhật hàm submit
+                async function handleSubmit() {
+                    const customerId = $(".selected-customer.active").attr("selected-id") || null;
+                    const voucherId = $(".selected-voucher.active").attr("selected-id") || null;
+                    const orderDetails = [];
+
+                    $(".product-select-body.active .product-select-item").each(function () {
+                        orderDetails.push({
+                            productDetailId: $(this).attr("data-product-detail-id"),
+                            quantity: parseInt($(this).find(".product-select-quantity").val())
+                        });
+                    });
+
+                    if (orderDetails.length <= 0) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: "Đơn hiện tại trống",
+                            icon: "error"
+                        });
+                        return;
+                    }
+
+                    if (pay.customerPay == '') {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: "Vui lòng nhập số tiền khách đưa",
+                            icon: "error"
+                        });
+                        return;
+                    }
+
+                    const promotionPrice = parseInt(removeAnyNonDigit($("#voucher-discount").text())) +
+                        parseInt(removeAnyNonDigit($("#product-discount").text()));
+                    const paymentMethodId = $('input[name="paymentMethod"]:checked').val();
+                    console.log("paymentMethodId:", paymentMethodId);
+                    const dataSend = {
+                        customer: customerId ? {id: customerId} : null,
+                        paymentMethodId: parseInt(paymentMethodId),
+                        billingAddress: "",
+                        promotionPrice: promotionPrice,
+                        voucherId: voucherId ? parseInt(voucherId) : null,
+                        orderDetailDtos: orderDetails,
+                        isShipping: $('#is-shipping').is(':checked')
+                    };
+
+                    if (dataSend.isShipping) {
+                        dataSend.shippingFee = parseFloat($('#shipping-fee').text().replace(/[^0-9]/g, '') || 0);
+
+                        // Lấy thông tin từ form giao hàng
+                        const shippingName = $('#shipping-name').val();
+                        const shippingPhone = $('#shipping-phone').val()
+                        if (!shippingPhone) {
+                            alert('Vui lòng nhập số điện thoại giao hàng!');
+                            return;
+                        }
+                        const shippingProvince = $('#shipping-province option:selected').text();
+                        const shippingDistrict = $('#shipping-district option:selected').text();
+                        const shippingWard = $('#shipping-ward option:selected').text();
+                        const shippingAddress = $('#shipping-address').val();
+
+                        // Tạo địa chỉ đầy đủ
+                        const fullAddress = `${shippingAddress}, ${shippingWard}, ${shippingDistrict}, ${shippingProvince}`;
+                        dataSend.shippingFullAddress = fullAddress;
+
+                        // Thêm thông tin shipping name và phone
+                        dataSend.shippingName = shippingName;
+                        dataSend.shippingPhone = shippingPhone;
+                        dataSend.shippingNote = $('#shipping-note').val();
+
+                        // Nếu có customerId nhưng không chọn địa chỉ từ danh sách (tự nhập mới)
+                        if (customerId && !$('#shipping-address-select').val()) {
+                            dataSend.shippingAddressId = null; // Không chọn từ danh sách
+                        }
+                    }
+
+                    if (paymentMethodId == 3) {
+                        $(".qr-payment-container").removeClass('hidden');
+                        $(".qr-payment-container").find('img').attr("src",
+                            `https://img.vietqr.io/image/Vietinbank-101878188522-compact2.jpg?amount=${pay.requireMoney}&addInfo=Thanh%20toan%20don%20hang&accountName=Pham%20Hai%20Dang`);
+                        dataSendIfChuyenKhoan = dataSend;
+                    } else {
+                        await handleAjaxRequest(dataSend);
+                    }
+                }
+
+                function loadHtmlVoucherSelectList(voucherList) {
+                    var html = '';
+                    if (voucherList.length > 0) {
+                        voucherList.forEach(item => {
+                            // Xử lý số tiền với BigDecimal
+                            const amount = item.discountAmount ? parseFloat(item.discountAmount) : 0;
+                            const minimumAmount = item.minimumAmount ? parseFloat(item.minimumAmount) : 0;
+                            const maximumAmount = item.maximumAmount ? parseFloat(item.maximumAmount) : 0;
+
+                            const formattedMinAmount = formatNumber(minimumAmount);
+                            const type = item.type;
+                            const endDate = new Date(item.endDate);
+                            const formattedDate = endDate.toLocaleDateString('en-GB');
+
+                            let svg = '';
+                            let htmlMaxAmount = '';
+                            let htmlAmount = '';
+
+                            if (type == 1) { // Giảm giá theo %
+                                svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20.04 8.71V4h-4.7L12 .69L8.71 4H4v4.71L.69 12L4 15.34v4.7h4.71L12 23.35l3.34-3.31h4.7v-4.7L23.35 12l-3.31-3.29M8.83 7.05c.98 0 1.77.79 1.77 1.78a1.77 1.77 0 0 1-1.77 1.77c-.99 0-1.78-.79-1.78-1.77c0-.99.79-1.78 1.78-1.78M15.22 17c-.98 0-1.77-.8-1.77-1.78a1.77 1.77 0 0 1 1.77-1.77c.98 0 1.78.79 1.78 1.77A1.78 1.78 0 0 1 15.22 17m-6.72.03L7 15.53L15.53 7l1.5 1.5l-8.53 8.53Z"/>
+                </svg>`;
+                                htmlAmount = `<p class="font-bold">Giảm <span>${item.percentage}%</span></p>`;
+                            } else if (type == 2) { // Giảm giá cố định
+                                svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12.79 21L3 11.21v2c0 .53.21 1.04.59 1.41l7.79 7.79c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.79 21z"/>
+                    <path fill="currentColor" d="M11.38 17.41c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.63.58A2.04 2.04 0 0 0 11.21 0H5C3.9 0 3 .9 3 2v6.21c0 .53.21 1.04.59 1.41l7.79 7.79zM7.25 3a1.25 1.25 0 1 1 0 2.5a1.25 1.25 0 0 1 0-2.5z"/>
+                </svg>`;
+                                htmlAmount = `<p class="font-bold">Giảm <span>${formatNumber(amount)} đ</span></p>`;
+                            }
+
+                            if (maximumAmount > 0) {
+                                htmlMaxAmount = `<span class="ml-2">Giảm tối đa: ${formatNumber(maximumAmount)}</span>`;
+                            }
+
+                            html += `<div data-voucher="${item.id}" class="flex items-center shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 rounded cursor-pointer mb-2 voucher-item">
+                <div class="flex items-center justify-center rounded w-14 bg-blue-100 h-20 mr-2">
+                    ${svg}
+                </div>
+                <div class="w-full">
+                    ${htmlAmount}
+                    <p class="text-black text-sm">Cho đơn từ ${formattedMinAmount} ${htmlMaxAmount}</p>
+                    <span class="mr-2 text-sm text-gray-600">HSD: ${formattedDate}</span>
+                    <span class="text-sm text-gray-600">Còn: ${item.maximumUsage}</span>
+                </div>
+            </div>`;
+                        });
+                    } else {
+                        html = '<div class="font-italic text-gray-400">Không có mã giảm giá nào</div>';
+                    }
+                    $('.vourcher-list').html(html);
+                    handleClickVoucher(voucherList);
+                }
+
+                function handleClickVoucher(voucherList) {
+                    $('.voucher-item').on('click', function () {
+                        const voucherId = $(this).attr('data-voucher');
+                        const item = voucherList.find(item => item.id == voucherId);
+
+                        // Kiểm tra điều kiện áp dụng voucher
+                        const currentTotal = parseFloat(removeAnyNonDigit(allPrice.textContent));
+                        const minAmount = parseFloat(item.minimumAmount);
+
+                        if (minAmount > currentTotal) {
+                            Swal.fire({
+                                title: "Lỗi",
+                                text: `Giá trị đơn hàng (${formatNumber(currentTotal)}) không đủ để áp dụng mã giảm giá này (tối thiểu ${formatNumber(minAmount)})`,
+                                icon: "error"
+                            });
+                            return;
+                        }
+
+                        // Kiểm tra thời hạn voucher
+                        const now = new Date();
+                        const endDate = new Date(item.endDate);
+                        if (now > endDate) {
+                            Swal.fire({
+                                title: "Lỗi",
+                                text: "Mã giảm giá đã hết hạn",
+                                icon: "error"
+                            });
+                            return;
+                        }
+
+                        // Kiểm tra số lần sử dụng
+                        if (item.maximumUsage <= 0) {
+                            Swal.fire({
+                                title: "Lỗi",
+                                text: "Mã giảm giá đã hết số lần sử dụng",
+                                icon: "error"
+                            });
+                            return;
+                        }
+
+                        voucherChoosed = item;
+                        const amount = item.type == 1 ? item.percentage : parseFloat(item.discountAmount);
+                        const formattedMinAmount = formatNumber(minAmount);
+                        const type = item.type;
+                        const formattedDate = endDate.toLocaleDateString('en-GB');
+
+                        let svg = '';
+                        let textHead = '';
+                        const maximumAmount = item.maximumAmount ? parseFloat(item.maximumAmount) : 0;
+                        let htmlMaxAmount = '';
+
+                        if (type == 1) {
+                            textHead = `<p class="font-bold text-sm">Giảm <span>${amount}%</span></p>`;
+                            svg = `<!-- SVG giảm giá % -->`;
+                        } else if (type == 2) {
+                            textHead = `<p class="font-bold text-sm">Giảm <span>${formatNumber(amount)} đ</span></p>`;
+                            svg = `<!-- SVG giảm giá cố định -->`;
+                        }
+
+                        if (maximumAmount > 0) {
+                            htmlMaxAmount = `<span class="ml-2">Giảm tối đa: ${formatNumber(maximumAmount)}</span>`;
+                        }
+
+                        var html = `<div class="p-2 flex items-center justify-between border border-blue-400 relative">
+    <div class="flex items-center justify-center rounded w-14 bg-blue-100 h-10 mr-2">
+        ${type == 1 ?
+                            `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20.04 8.71V4h-4.7L12 .69L8.71 4H4v4.71L.69 12L4 15.34v4.7h4.71L12 23.35l3.34-3.31h4.7v-4.7L23.35 12l-3.31-3.29M8.83 7.05c.98 0 1.77.79 1.77 1.78a1.77 1.77 0 0 1-1.77 1.77c-.99 0-1.78-.79-1.78-1.77c0-.99.79-1.78 1.78-1.78M15.22 17c-.98 0-1.77-.8-1.77-1.78a1.77 1.77 0 0 1 1.77-1.77c.98 0 1.78.79 1.78 1.77A1.78 1.78 0 0 1 15.22 17m-6.72.03L7 15.53L15.53 7l1.5 1.5l-8.53 8.53Z"/>
+            </svg>` :
+                            `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12.79 21L3 11.21v2c0 .53.21 1.04.59 1.41l7.79 7.79c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.79 21z"/>
+                <path fill="currentColor" d="M11.38 17.41c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.63.58A2.04 2.04 0 0 0 11.21 0H5C3.9 0 3 .9 3 2v6.21c0 .53.21 1.04.59 1.41l7.79 7.79zM7.25 3a1.25 1.25 0 1 1 0 2.5a1.25 1.25 0 0 1 0-2.5z"/>
+            </svg>`
+                        }
+    </div>
+    <div class="w-full">
+        ${textHead}
+        <p class="text-black text-sm">Cho đơn từ ${formattedMinAmount} ${htmlMaxAmount}</p>
+    </div>
+    <span class="absolute right-1 top-1 close-voucher-btn cursor-pointer">×</span>
+</div>`;
+
+                        $('.selected-voucher.active').attr('selected-id', voucherId).html(html);
+                        $('#overlay').hide();
+                        $('#voucher-modal').addClass('hidden');
+                        calculateAllPrice();
+                        calculateLastPrice();
+
+                        $('.close-voucher-btn').on('click', function () {
+                            $('.selected-voucher.active').html('').attr('selected-id', '');
+                            voucherChoosed = null;
+                            calculateVoucherPrice();
+                        });
+                    });
+                }
+
+                $('.close-modal-voucher').on('click', closeModalVoucher);
+
+                function closeModalVoucher() {
+                    $('#overlay').hide();
+                    $('#voucher-modal').addClass('hidden');
+                }
+
+                $('#submitBtn').on('click', handleSubmit);
+
+
+                async function handleAjaxRequest(dataSend) {
+                    $('#loading-overlay').show();
+                    await $.ajax({
+                        type: 'POST',
+                        url: '/api/orderAdmin',
+                        data: JSON.stringify(dataSend),
+                        contentType: "application/json; charset=utf-8",
+                        success: async function (data) {
+                            $('#loading-overlay').hide();
+                            $(".product-select-body.active").html('');
+                            resetPayArea();
+                            Toastify({
+                                text: "Thanh toán thành công",
+                                className: "info",
+                                style: {
+                                    background: "linear-gradient(to right, #00b09b, #96c93d)",
+                                }
+                            }).showToast();
+                            console.log("Bill ID:", data.billId); // Kiểm tra giá trị billId
+                            if (!Number.isInteger(parseInt(data.billId))) {
+                                Swal.fire({
+                                    title: "Lỗi",
+                                    text: "ID hóa đơn không hợp lệ: " + data.billId,
+                                    icon: "error"
+                                });
+                                return;
+                            }
+                            var generateUrl = `/admin/generate-pdf/${data.billId}`;
+                            await fetch(generateUrl)
+                                .then(response => response.text())
+                                .then(htmlContent => {
+                                    var printWindow = window.open('', '', 'width=800,height=1000');
+                                    printWindow.document.open();
+                                    printWindow.document.write(htmlContent);
+                                    printWindow.document.close();
+                                    printWindow.print();
+                                })
+                                .catch(error => {
+                                    $('#loading-overlay').hide();
+                                    Swal.fire({
+                                        title: "Lỗi",
+                                        text: "Lỗi export pdf phía server",
+                                        icon: "error"
+                                    });
+                                });
+                        },
+                        error: function (xhr, status, error) {
+                            $('#loading-overlay').hide();
+                            Swal.fire({
+                                title: "Lỗi",
+                                text: xhr.responseJSON.message,
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
+
+                $("#confirm-pay").click(function () {
+                    handleAjaxRequest(dataSendIfChuyenKhoan);
+                });
+
+                $(".close-modal-payment").click(function () {
+                    $(".qr-payment-container").addClass('hidden');
+                });
+
+                function formatNumber(number) {
+                    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+
+                var video = document.getElementById("qr-video");
+                var canvas = document.getElementById("qr-canvas");
+                var ctx = canvas.getContext("2d");
+                var enableCameraButton = document.getElementById("enable-camera-button");
+                var stream;
+
+                enableCameraButton.addEventListener("click", function () {
+                    if (!stream) {
+                        $(".scan-container").removeClass('hidden');
+                        navigator.mediaDevices
+                            .getUserMedia({video: true})
+                            .then(function (cameraStream) {
+                                stream = cameraStream;
+                                video.srcObject = stream;
+                                video.play();
+                                startScanning();
+                            })
+                            .catch(function (error) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Error accessing the camera:" + error,
+                                    icon: "error"
+                                });
+                            });
+                    } else {
+                        stream.getTracks().forEach(function (track) {
+                            track.stop();
+                        });
+                        video.srcObject = null;
+                        stream = null;
+                    }
+                });
+
+                $('.close-modal-scan').click(function () {
+                    $(".scan-container").addClass('hidden');
+                    if (stream) {
+                        stream.getTracks().forEach(function (track) {
+                            track.stop();
+                        });
+                        video.srcObject = null;
+                        stream = null;
+                    }
+                });
+
+                function startScanning() {
+                    let scanInterval;
+
+                    function scanBarcode() {
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        var code = jsQR(imageData.data, imageData.width, imageData.height);
+                        if (code) {
+                            clearInterval(scanInterval);
+                            $.ajax({
+                                type: 'GET',
+                                dataType: 'json',
+                                url: `/api/products/getByBarcode?barcode=${code.data}`,
+                                success: function (data) {
+                                    var productDetail = data.productDetailDtos[0];
+                                    var result = handleAddToOrder(productDetail, productDetail.id, true, data);
+                                    var text = '';
+                                    if (result == 1) {
+                                        Swal.fire({
+                                            title: "Thông báo",
+                                            text: "Sản phẩm này đã hết",
+                                            icon: "error"
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                scanInterval = setInterval(scanBarcode, 60);
+                                            }
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            title: "Thông báo",
+                                            text: "Thêm sản phẩm mới thành công",
+                                            icon: "success"
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                scanInterval = setInterval(scanBarcode, 60);
+                                            }
+                                        });
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    Swal.fire({
+                                        title: "Lỗi",
+                                        text: xhr.responseJSON.message,
+                                        icon: "error"
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            scanInterval = setInterval(scanBarcode, 60);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+
+                    scanInterval = setInterval(scanBarcode, 60);
+                }
+
+                function onlyAllowNumberInput(e) {
+                    const key = e.key;
+                    if (key === '-') {
+                        e.preventDefault();
+                    }
+                }
+            });
+        </script>
+    </div>
+</div>
+</body>
+</html>

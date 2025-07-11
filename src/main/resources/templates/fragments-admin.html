@@ -22,6 +22,7 @@
           src="https://code.jquery.com/jquery-3.7.1.min.js"
           integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
           crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
@@ -40,19 +41,40 @@
 <body>
 
 <th:block th:fragment="script">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://unpkg.com/@popperjs/core@2" ></script>
+  <!-- Giữ jQuery ban đầu, xóa bản trùng lặp -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ...></script> -->
+  <!-- Giữ một phiên bản Popper.js -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <!-- Thêm Bootstrap 4 và 5 JS để hỗ trợ modal -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script th:inline="javascript" th:src="@{/admin/vendors/bootstrap/dist/js/bootstrap.min.js}"></script>
   <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script th:inline="javascript" th:src="@{/admin/assets/js/main.js}"></script>
   <script th:src="@{/admin/assets/js/validator.js}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Xóa SweetAlert2 trùng lặp -->
+<!--   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>-->
 
   <script>
+    // Sử dụng jQuery.noConflict để tránh xung đột
+    var bootstrap4 = $.noConflict(true); // Namespace cho Bootstrap 4
+    window.jQuery410 = bootstrap4; // Gán lại jQuery cho Bootstrap 4
+
+    (function() {
+      var bootstrap5 = {
+        Modal: null
+      };
+      document.querySelectorAll('script[src*="bootstrap/5"]').forEach(script => {
+        script.addEventListener('load', function() {
+          bootstrap5.Modal = window.bootstrap.Modal; // Lấy Modal từ Bootstrap 5
+        });
+      });
+    })();
+
     function confirmChangeStatus(statusMessage, statusCode, e) {
-      e.stopPropagation()
+      e.stopPropagation();
       Swal.fire({
         title: "Xác nhận?",
         text: `Xác nhận chuyển sang ${statusMessage}`,
@@ -64,14 +86,14 @@
       }).then((result) => {
         if (result.isConfirmed) {
           const form = e.target.closest(".cancelForm");
-          var url = form.action + `?trangThaiDonHang=${statusCode}`
-          window.location.href = url
+          var url = form.action + `?trangThaiDonHang=${statusCode}`;
+          window.location.href = url;
         }
       });
     }
 
     function confirmChangeReturnStatus(statusMessage, e) {
-      e.stopPropagation()
+      e.stopPropagation();
       Swal.fire({
         title: "Xác nhận?",
         text: `Xác nhận chuyển sang ${statusMessage}`,
@@ -83,11 +105,25 @@
       }).then((result) => {
         if (result.isConfirmed) {
           const form = e.target.closest(".changeStatusForm");
-          form.submit()
+          form.submit();
         }
       });
-
     }
+
+    // Thêm kiểm tra và hỗ trợ modal
+    $(document).ready(function() {
+      // Ví dụ sử dụng modal Bootstrap 4
+      if (typeof bootstrap4 !== 'undefined' && bootstrap4.fn.modal) {
+        console.log("Bootstrap 4 modal is available");
+        // Sử dụng bootstrap4.$('#modalId').modal('show') nếu cần
+      }
+
+      // Ví dụ sử dụng modal Bootstrap 5
+      if (window.bootstrap && window.bootstrap.Modal) {
+        console.log("Bootstrap 5 modal is available");
+        // Sử dụng new bootstrap.Modal(document.getElementById('modalId')).show()
+      }
+    });
   </script>
 </th:block>
 </body>

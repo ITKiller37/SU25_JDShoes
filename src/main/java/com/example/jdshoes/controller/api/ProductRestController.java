@@ -32,4 +32,9 @@ public class ProductRestController {
     public List<ProductDto> getAllProductsApi(SearchProductDto searchRequest) {
         return productService.getAllProductNoPaginationApi(searchRequest);
     }
+
+    @GetMapping("/api/products/filter")
+    public Page<ProductDto> filterProductApi(SearchProductDto searchDto, @PageableDefault(page = 0, size = 10) Pageable pageable){
+        return productService.searchProduct(searchDto, pageable);
+    }
 }

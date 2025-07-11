@@ -1,7 +1,6 @@
 package com.example.jdshoes.service.Impl;
 
 
-
 import com.example.jdshoes.dto.Account.AccountDto;
 import com.example.jdshoes.dto.Account.ChangePasswordDto;
 import com.example.jdshoes.dto.AddressShipping.AddressShippingDto;
@@ -10,6 +9,7 @@ import com.example.jdshoes.entity.Account;
 import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.entity.Role;
+import com.example.jdshoes.entity.enumClass.RoleName;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.AccountRepository;
 import com.example.jdshoes.repository.AddressShippingRepository;
@@ -20,7 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Page<Account> findByRoleWithPaging(RoleName role, Pageable pageable) {
+        return accountRepository.findByRole_Name(role, pageable);
+    }
+
+    @Override
     public Account save(Account account) {
         return accountRepository.save(account);
     }
@@ -76,6 +82,13 @@ public class AccountServiceImpl implements AccountService {
         account.setNonLocked(false);
         return accountRepository.save(account);
     }
+
+
+    @Override
+    public Page<Account> searchEmployeeByEmailOrName(RoleName role, String keyword, Pageable pageable) {
+        return accountRepository.searchEmployeeByEmailOrName(role, keyword, pageable);
+    }
+
 
     @Override
     public Account openAccount(Long id) {
