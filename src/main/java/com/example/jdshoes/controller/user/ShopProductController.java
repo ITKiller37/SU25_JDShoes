@@ -1,15 +1,11 @@
 package com.example.jdshoes.controller.user;
 
-import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.SearchProductDto;
 import com.example.jdshoes.entity.Category;
 import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.Size;
-import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.service.*;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,12 +132,12 @@ public class ShopProductController {
     }
 
 
-    @ResponseBody
-    @GetMapping("/productDetails/{productId}/product")
-    public List<ProductDetailDto> getProductDetailJson(@PathVariable Long productId) throws NotFoundException {
-        List<ProductDetailDto> productDetails = productDetailService.getByProductId(productId);
-        return productDetails;
-    }
+//    @ResponseBody
+//    @GetMapping("/productDetails/{productId}/product")
+//    public List<ProductDetailDto> getProductDetailJson(@PathVariable Long productId) throws NotFoundException {
+//        List<ProductDetailDto> productDetails = productDetailService.getByProductId(productId);
+//        return productDetails;
+//    }
 
     @ModelAttribute("listSizes")
     public List<Size> getSize() {

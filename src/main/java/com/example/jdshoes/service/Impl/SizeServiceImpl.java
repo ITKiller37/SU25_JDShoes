@@ -1,9 +1,7 @@
 package com.example.jdshoes.service.Impl;
 
-import com.example.jdshoes.dto.Material.MaterialDto;
 import com.example.jdshoes.dto.Size.SizeDto;
 import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.entity.Material;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.Size;
 import com.example.jdshoes.exception.NotFoundException;
@@ -130,8 +128,9 @@ public class SizeServiceImpl implements SizeService {
         // Cập nhật các trường của existingSize
         existingSize.setCode(size.getCode().trim());
         existingSize.setName(size.getName().trim());
+        existingSize.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
-        return sizeRepository.save(existingSize);
+        return sizeRepository.save(size);
     }
 
     @Override
@@ -141,19 +140,14 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public void delete(Long id) {
-        Size existingSize = sizeRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy kích cỡ có id " + id));
-        existingSize.setDeleteFlag(!existingSize.getDeleteFlag()); // Đảo ngược trạng thái
-        sizeRepository.save(existingSize);
+        Size size = sizeRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy cỡ có id " + id) );
+        size.setDeleteFlag(true);
+        sizeRepository.save(size);
     }
 
     @Override
     public List<Size> getAll() {
         return sizeRepository.findAll();
-    }
-
-    @Override
-    public List<Size> getAllActive() {
-        return sizeRepository.findAllByDeleteFlagFalse();
     }
 
     private Size convertToEntity(SizeDto sizeDto) {

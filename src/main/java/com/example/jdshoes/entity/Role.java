@@ -1,10 +1,11 @@
 package com.example.jdshoes.entity;
 
 import com.example.jdshoes.entity.enumClass.RoleName;
-import lombok.*;
-
-
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.util.Date;
 

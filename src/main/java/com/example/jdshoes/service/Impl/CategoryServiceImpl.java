@@ -2,8 +2,6 @@ package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Category.CategoryDto;
 import com.example.jdshoes.entity.Category;
-import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.CategoryRepository;
 import com.example.jdshoes.service.CategoryService;
@@ -116,25 +114,21 @@ public class CategoryServiceImpl implements CategoryService {
         existingCategory.setCode(category.getCode().trim());
         existingCategory.setName(category.getName().trim());
         existingCategory.setStatus(category.getStatus()); // Giữ nguyên trạng thái hoặc cập nhật nếu có từ request
+        existingCategory.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
-        return categoryRepository.save(existingCategory);
+        return categoryRepository.save(category);
     }
 
     @Override
     public void delete(Long id) {
-        Category existingCategory = categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy loại sản pẩm có id " + id));
-        existingCategory.setDeleteFlag(!existingCategory.getDeleteFlag()); // Đảo ngược trạng thái
-        categoryRepository.save(existingCategory);
+        Category category = categoryRepository.findById(id).orElseThrow(null);
+        category.setDeleteFlag(true);
+        categoryRepository.save(category);
     }
 
     @Override
     public List<Category> getAll() {
         return categoryRepository.findAll();
-    }
-
-    @Override
-    public List<Category> getAllActive() {
-        return categoryRepository.findAllByDeleteFlagFalse();
     }
 
     private Category convertToEntity(CategoryDto categoryDto) {

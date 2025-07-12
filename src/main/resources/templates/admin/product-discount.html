@@ -3,11 +3,18 @@
       layout:decorate="~{admin/admin-layout.html}">
 <head>
     <meta charset="UTF-8">
-    <title>Đợt giảm giá</title>
+    <title>Giảm giá sản phẩm</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <script
+            src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <style>
         td {
             max-width: 200px;
@@ -17,156 +24,187 @@
     </style>
 </head>
 <body>
+
 <div class="bg-white min-vh-100">
-    <div layout:fragment="content">
+    <div class="" layout:fragment="content">
         <div class="section bg-white px-3 py-3 min-vh-100">
-            <h2 class="mt-3">Quản lý đợt giảm giá</h2>
+            <h2 class="mt-3">Quản lý giảm giá sản phẩm</h2>
+
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/admin">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Đợt giảm giá</li>
+                    <li class="breadcrumb-item active" aria-current="page">Giảm giá sản phẩm</li>
                 </ol>
             </nav>
             <div class="d-flex flex-row-reverse">
                 <a th:href="@{/admin-only/product-discount-create}" class="btn btn-success">Tạo giảm giá +</a>
             </div>
             <div class="alert alert-success" th:if="${message != null}" th:text="${message}"></div>
+
             <div class="mt-3">
                 <table id="myTable" class="table table-striped">
                     <thead>
                     <tr>
-                        <th>Mã đợt</th>
-                        <th>Tên đợt</th>
-                        <th>Giá trị giảm</th>
-                        <th>Ngày bắt đầu</th>
-                        <th>Ngày kết thúc</th>
+                        <th>Mã SP</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Màu</th>
+                        <th>Cỡ</th>
+                        <th>Giá gốc</th>
+                        <th>Giá giảm</th>
+                        <th>Thời gian áp dụng</th>
+                        <th>Thời gian kết thúc</th>
                         <th>Trạng thái</th>
                         <th>Thao tác</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="d : ${discounts}">
-                        <td th:text="${d.code}"></td>
-                        <td th:text="${d.name}"></td>
+                    <tr th:each="discount : ${productDiscounts}">
                         <td>
-                            <span th:if="${d.type == '%'}"
-                                  th:text="${#numbers.formatDecimal(d.discountedAmount, 0, 'POINT', 0, 'COMMA')} + '%'"></span>
-                            <span th:if="${d.type != '%'}"
-                                  th:text="${#numbers.formatDecimal(d.discountedAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></span>
-                        </td>
-
-                        <td th:text="${#temporals.format(d.startDate, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td th:text="${#temporals.format(d.endDate, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td>
-                            <span th:if="${d.status == 'Chưa bắt đầu'}" class="badge bg-secondary">Chưa bắt đầu</span>
-                            <span th:if="${d.status == 'Đang hoạt động'}" class="badge bg-success">Đang hoạt động</span>
-                            <span th:if="${d.status == 'Đã kết thúc'}" class="badge bg-danger">Đã kết thúc</span>
+                            <span th:text="${discount.productDetail.product.code}"></span>
                         </td>
                         <td>
-                            <!--  Button detail -->
-                            <button class="btn btn-outline-primary btn-sm rounded-circle me-1 view-discount-btn"
-                                    th:data-id="${d.id}" title="Chi tiết">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     class="bi bi-eye" viewBox="0 0 16 16">
-                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zm-8 4a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                                </svg>
-                            </button>
+                            <span th:text="${discount.productDetail.product.name}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${discount.productDetail.color.name}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${discount.productDetail.size.name}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${#numbers.formatDecimal(discount.productDetail.price, 0, 'POINT', 0, 'COMMA')}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${#numbers.formatDecimal(discount.discountedAmount, 0, 'POINT', 0, 'COMMA')}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(discount.startDate, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(discount.endDate, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                        </td>
+                        <td>
+                            <span th:if="${discount.closed}" class="badge badge-danger">Đã đóng</span>
+                            <span th:if="${discount.closed == false}" class="badge badge-success">Hoạt động</span>
+                        </td>
+                        <td>
+                            <button th:if="${discount.closed == false}" th:data-close-id="${discount.id}" class="close-discount-btn btn btn-outline-danger rounded">Đóng</button>
+                            <button th:if="${discount.closed}" th:data-open-id="${discount.id}" class="open-discount-btn btn btn-outline-success rounded">Mở</button>
 
-                            <!-- Button Delete -->
-                            <button class="delete-discount-btn btn btn-outline-danger btn-sm rounded-circle"
-                                    th:data-id="${d.id}" title="Xóa">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     class="bi bi-trash" viewBox="0 0 16 16">
-                                    <path d="M5.5 5.5A.5.5 0 0 1 6 5h4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0V6H6v6.5a.5.5 0 0 1-1 0v-7z"/>
-                                    <path fill-rule="evenodd"
-                                          d="M14.5 3a1 1 0 0 1-1 1H13v9a2
-                                              2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1
-                                              1 0 0 1 0-2h3a1 1 0 0 1 1-1h4a1 1
-                                              0 0 1 1 1h3a1 1 0 0 1 1 1zM4.118
-                                              4 4 4.059V13a1 1 0 0 0 1 1h6a1 1
-                                              0 0 0 1-1V4.059L11.882 4H4.118zM2.5
-                                              3a.5.5 0 0 0 0 1H3h10h.5a.5.5
-                                              0 0 0 0-1H13h-1V2a.5.5 0 0
-                                              0-.5-.5h-4a.5.5 0 0 0-.5.5v1H5H3h-.5z"/>
-                                </svg>
-                            </button>
                         </td>
                     </tr>
+
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Script -->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
         <script th:inline="javascript">
-            $(document).ready(function () {
+            $(document).ready( function () {
+
                 new DataTable('#myTable', {
                     order: [],
                     language: {
                         search: "Tìm kiếm:",
-                        lengthMenu: "Hiển thị _MENU_ bản ghi 1 trang",
-                        zeroRecords: "Không tìm thấy bản ghi nào",
-                        info: "Hiển thị trang _PAGE_ trong _PAGES_",
-                        paginate: {
-                            first: "<<",
-                            last: ">>",
-                            next: ">",
-                            previous: "<"
+                        "lengthMenu": "Hiển thị _MENU_ bản ghi 1 trang",
+                        "zeroRecords": "Không tìm thấy bản ghi nào",
+                        "info": "Hiển thị trang _PAGE_ trong _PAGES_",
+                        "paginate": {
+                            "first":      "<<",
+                            "last":       ">>",
+                            "next":       ">",
+                            "previous":   "<"
                         },
                     }
-                }).on('draw.dt', () => setEvent());
+                })
+                    .on('draw.dt', () => setEvent())
 
-                setEvent();
+                setEvent()
 
                 function setEvent() {
-                    // Delete
-                    $(document).on('click', '.delete-discount-btn', function () {
-                        var deleteId = $(this).attr('data-id');
+                    $('.close-discount-btn').on('click', function () {
+                        var closeId = $(this).attr('data-close-id')
                         Swal.fire({
-                            title: 'Xác nhận xóa',
-                            text: 'Bạn có chắc chắn muốn xóa đợt giảm giá này?',
+                            title: 'Đóng giảm giá',
+                            text: 'Bạn chắc chắn muốn đóng giảm giá này',
                             icon: 'warning',
                             showCancelButton: true,
-                            confirmButtonText: 'Xóa',
+                            confirmButtonText: 'Xác nhân',
                             cancelButtonText: 'Hủy'
                         }).then(async (result) => {
                             if (result.isConfirmed) {
                                 await $.ajax({
-                                    type: 'DELETE',
-                                    url: `/api/private/product-discount/${deleteId}`,
+                                    type: 'POST',
+                                    url: `/api/private/product-discount/${closeId}/status/true`,
+                                    dataType: 'json',
                                     success: async function () {
+                                        // Chuyển trang khi người dùng nhấn "OK"
                                         await Toastify({
-                                            text: "Xóa thành công",
+                                            text: "Đóng giảm giá thành công",
                                             className: "success",
-                                            style: { background: "green" },
-                                            duration: 2000
+                                            style: {
+                                                background: "green",
+                                            }
                                         }).showToast();
+                                        window.location.reload()
 
-                                        window.location.reload();
                                     },
-                                    error: function (xhr) {
-                                        Swal.fire("Lỗi", xhr.responseJSON?.message || "Không thể xóa", "error");
+                                    error: function (xhr, status, error) {
+                                        swal("Error", xhr.responseJSON.message, "error")
                                     }
-                                });
+                                })
+
                             }
                         });
-                    });
+                    })
+                    $('.open-discount-btn').on('click', function () {
+                        var openId = $(this).attr('data-open-id')
+                        Swal.fire({
+                            title: 'Mở giảm giá',
+                            text: 'Bạn chắc chắn muốn mở giảm giá này',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Xác nhân',
+                            cancelButtonText: 'Hủy'
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                await $.ajax({
+                                    type: 'POST',
+                                    url: `/api/private/product-discount/${openId}/status/false`,
+                                    dataType: 'json',
+                                    success: async function () {
+                                        // Chuyển trang khi người dùng nhấn "OK"
+                                        await Toastify({
+                                            text: "Mở giảm giá thành công",
+                                            className: "success",
+                                            style: {
+                                                background: "green",
+                                            }
+                                        }).showToast();
+                                        window.location.reload()
 
-                    // View Detail
-                    $(document).on('click', '.view-discount-btn', function () {
-                        const discountId = $(this).data('id');
-                        window.location.href = `/admin-only/product-discount/${discountId}`;
-                    });
+                                    },
+                                    error: function (xhr, status, error) {
+                                        swal("Error", xhr.responseJSON.message, "error")
+                                    }
+                                })
+
+                            }
+                        });
+                    })
                 }
+
+
             });
+
+
+
         </script>
     </div>
 </div>
+
 </body>
 </html>

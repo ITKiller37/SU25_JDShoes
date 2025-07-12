@@ -2,8 +2,6 @@ package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Brand.BrandDto;
 import com.example.jdshoes.entity.Brand;
-import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.BrandRepository;
 import com.example.jdshoes.service.BrandService;
@@ -27,20 +25,20 @@ public class BrandServiceImpl implements BrandService {
 
         // 1. Kiểm tra nếu tên nhãn hàng rỗng hoặc chỉ chứa khoảng trắng
         if (brandDto.getName() == null || brandDto.getName().trim().isEmpty()) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên thương hiệu");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên nhãn hàng");
         }
         // 2. Kiểm tra nếu tên nhãn hàng đã tồn tại
         if (brandRepository.existsByName(brandDto.getName().trim())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên thương hiệu '" + brandDto.getName() + "' đã tồn tại");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên nhãn hàng '" + brandDto.getName() + "' đã tồn tại");
         }
 
         // 3. Kiểm tra nếu mã nhãn hàng rỗng hoặc chỉ chứa khoảng trắng
         if (brandDto.getCode() == null || brandDto.getCode().trim().isEmpty()) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã thương hiệu");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
         }
         // 4. Kiểm tra nếu mã nhãn hàng đã tồn tại
         if (brandRepository.existsByCode(brandDto.getCode().trim())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã thương hiệu '" + brandDto.getCode() + "' đã tồn tại");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng '" + brandDto.getCode() + "' đã tồn tại");
         }
 
         Brand brand = convertToEntity(brandDto);
@@ -59,18 +57,18 @@ public class BrandServiceImpl implements BrandService {
     public Brand createBrand(Brand brand) {
         // Kiểm tra mã
         if (brand.getCode() == null || brand.getCode().trim().isEmpty()) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã thương hiệu");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
         }
         if (brandRepository.existsByCode(brand.getCode().trim())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã thương hiệu '" + brand.getCode() + "' đã tồn tại");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng '" + brand.getCode() + "' đã tồn tại");
         }
 
         // Kiểm tra tên
         if (brand.getName() == null || brand.getName().trim().isEmpty()) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên thương hiệu");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên nhãn hàng");
         }
         if (brandRepository.existsByName(brand.getName().trim())) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên thương hiệu '" + brand.getName() + "' đã tồn tại");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên nhãn hàng '" + brand.getName() + "' đã tồn tại");
         }
         brand.setStatus(1);
         brand.setDeleteFlag(false);
@@ -91,27 +89,27 @@ public class BrandServiceImpl implements BrandService {
     public Brand updateBrand(Long id, Brand brand) {
         // Lấy brand hiện có từ DB
         Brand existingBrand = brandRepository.findById(id)
-                .orElseThrow(() -> new ShoesApiException(HttpStatus.NOT_FOUND, "Không tìm thấy thương hiệu với ID: " + id));
+                .orElseThrow(() -> new ShoesApiException(HttpStatus.NOT_FOUND, "Không tìm thấy nhãn hàng với ID: " + id));
 
         // Kiểm tra mã nhãn hàng
         if (brand.getCode() == null || brand.getCode().trim().isEmpty()) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã thương hiệu");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập mã nhãn hàng");
         }
         // Chỉ kiểm tra trùng mã nếu mã mới khác mã cũ
         if (!existingBrand.getCode().equals(brand.getCode().trim())) {
             if (brandRepository.existsByCode(brand.getCode().trim())) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã thương hiệu '" + brand.getCode() + "' đã tồn tại");
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mã nhãn hàng '" + brand.getCode() + "' đã tồn tại");
             }
         }
 
         // Kiểm tra tên khi sửa
         if (brand.getName() == null || brand.getName().trim().isEmpty()) {
-            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên thương hiệu");
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Vui lòng nhập tên nhãn hàng");
         }
         // Chỉ kiểm tra trùng tên nếu tên mới khác tên cũ, và tên đó không phải của chính bản ghi đang sửa
         if (!existingBrand.getName().equals(brand.getName().trim())) {
             if (brandRepository.existsByNameAndIdNot(brand.getName().trim(), id)) {
-                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên thương hiệu '" + brand.getName() + "' đã tồn tại");
+                throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Tên nhãn hàng '" + brand.getName() + "' đã tồn tại");
             }
         }
 
@@ -119,25 +117,21 @@ public class BrandServiceImpl implements BrandService {
         existingBrand.setCode(brand.getCode().trim());
         existingBrand.setName(brand.getName().trim());
         existingBrand.setStatus(brand.getStatus()); // Giữ nguyên trạng thái hoặc cập nhật nếu có từ request
+        existingBrand.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
         return brandRepository.save(existingBrand);
     }
 
     @Override
     public void delete(Long id) {
-        Brand existingBrand = brandRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy thương hiệu có id " + id));
-        existingBrand.setDeleteFlag(!existingBrand.getDeleteFlag()); // Đảo ngược trạng thái
-        brandRepository.save(existingBrand);
+        Brand brand = brandRepository.findById(id).orElseThrow(null);
+        brand.setDeleteFlag(true);
+        brandRepository.save(brand);
     }
 
     @Override
     public List<Brand> getAll() {
         return brandRepository.findAll();
-    }
-
-    @Override
-    public List<Brand> getAllActive() {
-        return brandRepository.findAllByDeleteFlagFalse();
     }
 
     private Brand convertToEntity(BrandDto brandDto) {

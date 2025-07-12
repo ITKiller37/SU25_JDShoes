@@ -3,10 +3,8 @@ package com.example.jdshoes.repository.Specification;
 import com.example.jdshoes.dto.Product.SearchProductDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
-
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
-
 
 import java.util.ArrayList;
 import java.util.List;
