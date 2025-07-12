@@ -31,6 +31,10 @@ public class ProductDetailDto {
     private String materialName;
     private String categoryName;
 
+    private Size size;
+    private Color color;
+    private BigDecimal discountedPrice;
+
     private BigDecimal discountedAmount;
     private Long colorId;
     private List<ImageDto> images;

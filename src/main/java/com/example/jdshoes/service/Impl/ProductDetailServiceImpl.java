@@ -6,6 +6,7 @@ import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.ProductDiscount;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.repository.ProductDetailRepository;
+import com.example.jdshoes.repository.ProductDiscountRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Autowired
     ProductRepository productRepository;
+
+    @Autowired
+    ProductDiscountRepository productDiscountRepository;
 
     public ProductDetailServiceImpl(ProductDetailRepository productDetailRepository) {
         this.productDetailRepository = productDetailRepository;
@@ -42,34 +46,34 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetailRepository.deleteById(id);
     }
 
-//    @Override
-//    public List<ProductDetailDto> getByProductId(Long id) throws NotFoundException {
-//        Product product = productRepository.findById(id).orElseThrow( () -> new NotFoundException("Product not found"));
-//        List<ProductDetail> productDetails = productDetailRepository.getProductDetailByProductId(id);
-//        List<ProductDetailDto> productDetailDTOs = new ArrayList<>();
-//
-//        for (ProductDetail productDetail : productDetails) {
-//            ProductDetailDto productDetailDTO = new ProductDetailDto();
-//            // Set properties of productDetailDTO based on productDetail
-//            productDetailDTO.setId(productDetail.getId());
-//            productDetailDTO.setProductId(productDetail.getProduct().getId());
-//            productDetailDTO.setPrice(productDetail.getPrice());
-//            productDetailDTO.setSize(productDetail.getSize());
-//            productDetailDTO.setColor(productDetail.getColor());
-//            productDetailDTO.setQuantity(productDetail.getQuantity());
-//
-//            ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-//            if(productDiscount != null) {
-////                Date endDate = productDiscount.getEndDate();
-////                Date currentDate = new Date();
-////                if (currentDate.compareTo(endDate) > 0) {
-////                }
-//                productDetailDTO.setDiscountedPrice(productDiscount.getDiscountedAmount());
-//
-//            }
-//            // Set other properties as needed
-//            productDetailDTOs.add(productDetailDTO);
-//        }
-//        return productDetailDTOs;
-//    }
+    @Override
+    public List<ProductDetailDto> getByProductId(Long id) throws NotFoundException {
+        Product product = productRepository.findById(id).orElseThrow( () -> new NotFoundException("Product not found"));
+        List<ProductDetail> productDetails = productDetailRepository.getProductDetailByProductId(id);
+        List<ProductDetailDto> productDetailDTOs = new ArrayList<>();
+
+        for (ProductDetail productDetail : productDetails) {
+            ProductDetailDto productDetailDTO = new ProductDetailDto();
+            // Set properties of productDetailDTO based on productDetail
+            productDetailDTO.setId(productDetail.getId());
+            productDetailDTO.setProductId(productDetail.getProduct().getId());
+            productDetailDTO.setPrice(productDetail.getPrice());
+            productDetailDTO.setSize(productDetail.getSize());
+            productDetailDTO.setColor(productDetail.getColor());
+            productDetailDTO.setQuantity(productDetail.getQuantity());
+
+            ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
+            if(productDiscount != null) {
+//                Date endDate = productDiscount.getEndDate();
+//                Date currentDate = new Date();
+//                if (currentDate.compareTo(endDate) > 0) {
+//                }
+                productDetailDTO.setDiscountedPrice(productDiscount.getDiscountedAmount());
+
+            }
+            // Set other properties as needed
+            productDetailDTOs.add(productDetailDTO);
+        }
+        return productDetailDTOs;
+    }
 }

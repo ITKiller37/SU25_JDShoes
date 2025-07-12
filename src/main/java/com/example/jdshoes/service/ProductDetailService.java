@@ -18,5 +18,5 @@ public interface ProductDetailService {
     // Xóa một ProductDetail theo ID
     void delete(Long id);
 
-//    List<ProductDetailDto> getByProductId(Long id) throws com.project.DuAnTotNghiep.exception.NotFoundException;
+    List<ProductDetailDto> getByProductId(Long id) throws com.example.jdshoes.exception.NotFoundException;
 }
