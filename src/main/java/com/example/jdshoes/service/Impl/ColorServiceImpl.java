@@ -33,6 +33,9 @@ public class ColorServiceImpl implements ColorService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ColorRepository colorRepo;
+
     @Override
     public List<Color> getColorByProductId(Long productId) throws NotFoundException {
 
@@ -176,5 +179,11 @@ public class ColorServiceImpl implements ColorService {
         colorDto.setCode(color.getCode());
         colorDto.setName(color.getName());
         return colorDto;
+    }
+    @Override
+    public List<Color> getColorsByProductIdAndSizeId(Long productId, Long sizeId) throws NotFoundException {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Product not found"));
+        Size size = sizeRepository.findById(sizeId).orElseThrow(() -> new NotFoundException("Size not found"));
+        return colorRepo.findColorsByProductAndSize(product, size);
     }
 }
