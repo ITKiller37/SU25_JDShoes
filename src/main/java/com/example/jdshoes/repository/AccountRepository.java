@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
@@ -16,6 +17,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query("select a from Account a where a.email = ?1 and a.id <> ?2")
     Account findByEmail(String email, Long id);
+
+    @Query("select a from Account a where a.email = ?1")
+    Optional<Account> findByEmailOpt(String email);
 
     @Query(value = "SELECT CONCAT('T', MONTH(a.create_date)) AS month, COUNT(a.id) AS count FROM Account a" +
             " WHERE a.create_date between '2023-01-01' AND '2023-12-31' " +

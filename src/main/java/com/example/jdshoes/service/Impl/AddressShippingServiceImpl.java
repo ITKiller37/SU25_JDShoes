@@ -13,6 +13,7 @@ import com.example.jdshoes.repository.AddressShippingRepository;
 import com.example.jdshoes.repository.CustomerRepository;
 import com.example.jdshoes.sercurity.CustomUserDetails;
 import com.example.jdshoes.service.AddressShippingService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -90,6 +91,16 @@ public class AddressShippingServiceImpl implements AddressShippingService {
         // Handle the case where the principal is not a CustomUserDetails
         return null; // or throw an exception, depending on your use case
     }
+    @Override
+    @Transactional
+    public void setDefaultAddress(Long addressId, Long customerId) {
+        addressShippingRepository.resetDefaultAddress(customerId);
+        AddressShipping address = addressShippingRepository.findById(addressId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy địa chỉ"));
+        address.setIsDefault(true);
+        addressShippingRepository.save(address);
+    }
+
 
 
 }

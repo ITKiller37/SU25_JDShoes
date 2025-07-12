@@ -30,6 +30,15 @@ public class AddressShipping {
 
     private String province;
 
+    private Boolean isDefault = false;
+
+    public Boolean getIsDefault() {
+        return isDefault;
+    }
+
+    public void setIsDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 
 
     @Nationalized

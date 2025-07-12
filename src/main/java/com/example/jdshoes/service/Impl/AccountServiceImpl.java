@@ -39,6 +39,9 @@ public class AccountServiceImpl implements AccountService {
     private AddressShippingRepository addressShippingRepository;
 
     @Autowired
+    private UserLoginUtil userLoginUtil;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @Override
@@ -108,7 +111,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto getAccountLogin() {
-        Account account = UserLoginUtil.getCurrentLogin();
+        Account account = userLoginUtil.getCurrentLogin();
         Customer customer = customerRepository.findByAccount_Id(account.getId());
         account.setCustomer(customer);
         return convertToDto(account);
@@ -116,7 +119,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto updateProfile(AccountDto accountDto) {
-        Account account = UserLoginUtil.getCurrentLogin();
+        Account account = userLoginUtil.getCurrentLogin();
         Customer customer = customerRepository.findByAccount_Id(account.getId());
         if(!accountDto.getPhoneNumber().trim().equals(customer.getPhoneNumber())) {
             if(customerRepository.existsByPhoneNumber(accountDto.getPhoneNumber())) {
@@ -131,7 +134,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void changePassword(ChangePasswordDto changePasswordDto) {
-        Account account = UserLoginUtil.getCurrentLogin();
+        Account account = userLoginUtil.getCurrentLogin();
         // Kiểm tra mật khẩu hiện tại
         if (!passwordEncoder.matches(changePasswordDto.getCurrentPassword(), account.getPassword())) {
             throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mật khẩu hiện tại không chính xác");
