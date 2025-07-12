@@ -132,9 +132,20 @@ public class ShopProductController {
         if (product == null) {
             return "/error/404";
         }
+
+        Long productId = product.getId(); // Lấy id sản phẩm
+
+        // Lấy size và color theo productId
+        List<Size> sizes = sizeService.getSizesByProductId(productId);
+        List<Color> colors = colorService.getColorsByProductId(productId);
+
         model.addAttribute("product", product);
+        model.addAttribute("listSizes", sizes);
+        model.addAttribute("listColors", colors);
+
         return "user/product-detail";
     }
+
 
 
     @ResponseBody
@@ -144,13 +155,13 @@ public class ShopProductController {
         return productDetails;
     }
 
-    @ModelAttribute("listSizes")
-    public List<Size> getSize() {
-        return sizeService.getAll();
-    }
-
-    @ModelAttribute("listColors")
-    public List<Color> getColor() {
-        return colorService.findAll();
-    }
+//    @ModelAttribute("listSizes")
+//    public List<Size> getSize() {
+//        return sizeService.getAll();
+//    }
+//
+//    @ModelAttribute("listColors")
+//    public List<Color> getColor() {
+//        return colorService.findAll();
+//    }
 }

@@ -244,6 +244,10 @@ public class ProductServiceImpl implements ProductService {
             detailDto.setBarcode(detail.getBarcode());
             detailDto.setProductId(product.getId());
 
+            // ✅ Gán size và color
+            detailDto.setSize(detail.getSize());
+            detailDto.setColor(detail.getColor());
+
             // Gán thêm Color ID để dùng lọc
             detailDto.setColorId(detail.getColor().getId());
             detailDto.setColorName(detail.getColor().getName());
@@ -261,8 +265,8 @@ public class ProductServiceImpl implements ProductService {
         }).collect(Collectors.toList());
 
         dto.setProductDetailDtos(detailDtos);
-
         return dto;
     }
+
 
 }

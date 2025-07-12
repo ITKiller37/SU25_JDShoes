@@ -2,13 +2,11 @@ package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Material.MaterialDto;
 import com.example.jdshoes.dto.Size.SizeDto;
-import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.entity.Material;
-import com.example.jdshoes.entity.Product;
-import com.example.jdshoes.entity.Size;
+import com.example.jdshoes.entity.*;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.ColorRepository;
+import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.repository.SizeRepository;
 import com.example.jdshoes.service.SizeService;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SizeServiceImpl implements SizeService {
@@ -32,6 +31,9 @@ public class SizeServiceImpl implements SizeService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
 
     @Override
     public SizeDto createSizeApi(SizeDto sizeDto) {
@@ -166,5 +168,13 @@ public class SizeServiceImpl implements SizeService {
         sizeDto.setName(size.getName());
         sizeDto.setCode(size.getCode());
         return sizeDto;
+    }
+    @Override
+    public List<Size> getSizesByProductIdH(Long productId) {
+        List<ProductDetail> productDetails = productDetailRepository.findByProductId(productId);
+        return productDetails.stream()
+                .map(ProductDetail::getSize)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
