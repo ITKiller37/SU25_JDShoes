@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-@Service
 public interface ProductDetailService {
     // Tìm ProductDetail theo ID
     Optional<ProductDetail> findById(Long id);

@@ -1,13 +1,22 @@
 package com.example.jdshoes.service;
 
-import com.example.jdshoes.dto.ProductDiscount.ProductDiscountCreateDto;
+import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
+import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
+import com.example.jdshoes.entity.ProductDiscount;
 
 import java.util.List;
 
 public interface ProductDiscountService {
+    List<ProductDiscountDto> getAllDiscounts();
+    void deleteById(Integer id);
+    ProductDiscount createDiscount(ProductDiscountDto dto);
+    void createMultipleDiscounts(CreateProductDiscountRequest request);
 
-    ProductDiscountDto updateCloseProductDiscount(Integer discountId, boolean closed);
 
-    List<ProductDiscountDto> createProductDiscountMultiple(ProductDiscountCreateDto productDiscountCreateDto);
+    ProductDiscountDto getById(Long id);
+
+    void update(Long id, ProductDiscountDto dto);
+
+    List<DiscountedProductDto> getDiscountedProductDtosByDiscountId(Long id);
 }
