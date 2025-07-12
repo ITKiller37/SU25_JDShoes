@@ -2,7 +2,6 @@ package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.Color.ColorDto;
 import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,9 +32,4 @@ public interface ColorService {
     void delete(Long id);
 
     List<Color> findAll();
-
-    List<Color> getColorsByProductIdAndSizeId(Long productId, Long sizeId) throws NotFoundException;
-
-    List<Color> getAllActive();
-
 }

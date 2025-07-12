@@ -5,7 +5,6 @@ import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.entity.*;
 import com.example.jdshoes.service.*;
 import com.example.jdshoes.utils.FileUploadUtil;
-
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Controller
@@ -141,33 +138,6 @@ public class ProductController {
             redirectAttributes.addFlashAttribute("duplicateCode", "Mã sản phẩm đã tồn tại");
             return "redirect:/admin/product-create";
         }
-        // Kiểm tra trùng tên sản phẩm
-        if (productService.existsByName(product.getName())) {
-            redirectAttributes.addFlashAttribute("duplicateName", "Tên sản phẩm đã tồn tại");
-            return "redirect:/admin/product-create";
-        }
-
-        // Kiểm tra các trường bắt buộc
-        if (product.getName() == null || product.getName().isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Tên sản phẩm không được để trống");
-            return "redirect:/admin/product-create";
-        }
-
-        if (product.getBrand() == null || product.getBrand().getId() == null) {
-            redirectAttributes.addFlashAttribute("error", "Thương hiệu không được để trống");
-            return "redirect:/admin/product-create";
-        }
-
-        if (product.getCategory() == null || product.getCategory().getId() == null) {
-            redirectAttributes.addFlashAttribute("error", "Loại sản phẩm không được để trống");
-            return "redirect:/admin/product-create";
-        }
-
-        if (product.getMaterial() == null || product.getMaterial().getId() == null) {
-            redirectAttributes.addFlashAttribute("error", "Chất liệu không được để trống");
-            return "redirect:/admin/product-create";
-        }
-
         String randomString = UUID.randomUUID().toString();
         session.setAttribute("randomCreateKey", randomString);
         session.setAttribute("createProductPart1" + randomString, product);
@@ -300,7 +270,6 @@ public class ProductController {
         part1Data.setProductDetails(productDetails);
         System.out.println("Saving product with " + productDetails.size() + " variants");
         productService.save(part1Data);
-        productService.updateProductStatusBasedOnQuantity(part1Data);
 
         session.removeAttribute("randomCreateKey");
         session.removeAttribute("createProductPart1" + randomCreateKey);
@@ -309,58 +278,28 @@ public class ProductController {
         return "redirect:/admin/product-all";
     }
 
-    @PostMapping("/product-toggle-status")
-    public String toggleProductStatus(
-            @RequestParam("maSanPham") String maSanPham,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Product product = productService.findByCode(maSanPham);
-            if (product == null) {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm với mã " + maSanPham);
-                return "redirect:/admin/product-all";
-            }
-
-            Integer currentStatus = product.getStatus();
-            Integer newStatus = (currentStatus != null && currentStatus == 1) ? 2 : 1;
-
-            product.setStatus(newStatus);
-            productService.save(product);
-
-            String statusText = newStatus == 1 ? "Còn bán" : "Ngừng bán";
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Cập nhật trạng thái sản phẩm " + maSanPham + " thành " + statusText + " thành công");
-
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi cập nhật trạng thái sản phẩm: " + e.getMessage());
-        }
-
-        return "redirect:/admin/product-all";
-    }
-
     @ModelAttribute("listSize")
     public List<Size> getSize() {
-        return sizeService.getAllActive();
+        return sizeService.getAll();
     }
 
     @ModelAttribute("listColor")
     public List<Color> getColor() {
-        return colorService.getAllActive();
+        return colorService.findAll();
     }
 
     @ModelAttribute("listBrand")
     public List<Brand> getBrand() {
-        return brandService.getAllActive();
+        return brandService.getAll();
     }
 
     @ModelAttribute("listCategory")
     public List<Category> getCategory() {
-        return categoryService.getAllActive();
+        return categoryService.getAll();
     }
 
     @ModelAttribute("listMaterial")
     public List<Material> getMaterial() {
-        return materialService.getAllActive();
+        return materialService.getAll();
     }
-
-
 }

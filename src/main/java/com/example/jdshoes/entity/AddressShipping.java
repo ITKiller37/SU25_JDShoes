@@ -1,13 +1,11 @@
 package com.example.jdshoes.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
-import org.springframework.stereotype.Service;
-
-import jakarta.persistence.*;
 
 
 @Getter
@@ -30,6 +28,15 @@ public class AddressShipping {
 
     private String province;
 
+    private Boolean isDefault = false;
+
+    public Boolean getIsDefault() {
+        return isDefault;
+    }
+
+    public void setIsDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 
 
     @Nationalized

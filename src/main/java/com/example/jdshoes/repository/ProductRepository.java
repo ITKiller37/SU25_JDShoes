@@ -56,11 +56,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> , JpaSpe
     Page<ProductSearchDto> getAll(Pageable pageable);
 
     boolean existsByCode(String code);
-    boolean existsByName(String name);
 
     Product findTopByOrderByIdDesc();
 
     Product findByCode(String code);
-
 
 }

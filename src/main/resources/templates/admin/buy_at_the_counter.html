@@ -700,13 +700,7 @@
                                     icon: "error"
                                 });
                                 input.val(maxQuan);
-                                nextVal = maxQuan;
                             }
-
-                            // Cập nhật số lượng trong productList
-                            productDetailSe.quantity = maxQuan - nextVal;
-                            updateSearchProductQuantity(productDetailId, productDetailSe.quantity);
-
                             const productPrice = removeAnyNonDigit(item.find('.product-select-price').text());
                             const totalPrice = nextVal * parseFloat(productPrice);
                             const totalPriceProductEl = item.find('.total-price-product');
@@ -720,11 +714,6 @@
                     if (!canAdd) {
                         return;
                     }
-
-                    // Chỉ trừ số lượng ở đây khi thêm sản phẩm mới
-                    productDetailSe.quantity -= 1;
-                    updateSearchProductQuantity(productDetailId, productDetailSe.quantity);
-
 
                     const productPrice = formatNumber(productDetailSe.price);
                     const discountedPrice = productDetailSe.discountedPrice;
@@ -838,15 +827,14 @@
 
                     $('.product-select-quantity').on('input change', function (e) {
                         var val = $(this).val() === "" ? 1 : parseInt($(this).val());
-                        const productItem = $(this).closest('.product-select-item');
+                        const productItem = $(this).parent().parent().parent().parent();
                         const maxQuan = parseInt(productItem.attr('data-max-quan'));
                         const itemProductDetailId = productItem.attr('data-product-detail-id');
+                        let productDetailToUpdate = null;
 
                         // Tìm productDetail tương ứng trong productList
-                        let productDetailToUpdate = null;
                         productList.forEach(product => {
-                            const detail = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
-                            if (detail) productDetailToUpdate = detail;
+                            productDetailToUpdate = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
                         });
 
                         if (val > maxQuan) {
@@ -863,25 +851,19 @@
                         }
 
                         if (productDetailToUpdate) {
-                            // Tính toán số lượng mới dựa trên số lượng ban đầu (maxQuan)
-                            // Số lượng thực tế = maxQuan - số lượng đã chọn
-                            productDetailToUpdate.quantity = maxQuan - val;
-
-                            // Cập nhật lại số lượng trong danh sách tìm kiếm
-                            updateSearchProductQuantity(itemProductDetailId, productDetailToUpdate.quantity);
+                            const currentVal = parseInt(productItem.find('.product-select-quantity').val() || 1);
+                            const diff = currentVal - val; // Tính hiệu số lượng (ngược dấu vì val là giá trị mới)
+                            productDetailToUpdate.quantity += diff; // Cập nhật quantity trong productList
+                            loadProductSearch({content: productList}); // Cập nhật giao diện tìm kiếm
                         }
 
                         const productPrice = removeAnyNonDigit(productItem.find('.product-select-price').text());
                         const totalPrice = val * parseFloat(productPrice);
-                        productItem.find('.total-price-product').text(formatNumber(totalPrice));
+                        const totalPriceProductEl = productItem.find('.total-price-product');
+                        totalPriceProductEl.text(formatNumber(totalPrice));
                         calculateAllPrice();
                         calculateLastPrice();
                     });
-                }
-
-                // Hàm cập nhật số lượng trong danh sách tìm kiếm
-                function updateSearchProductQuantity(productDetailId, newQuantity) {
-                    $(`.search-product-item[data-product-detail-id="${productDetailId}"] .product-quantity`).text(newQuantity);
                 }
 
                 function loadProductSearch(data) {
@@ -954,22 +936,23 @@
                         $('.search-product-item').off('click').on('click', async function () {
                             var productId = $(this).attr('data-product-id');
                             var productDetailId = $(this).attr('data-product-detail-id');
+                            var productDetailList = [];
+                            var product = {};
                             var canAdd = true;
 
                             // Tìm sản phẩm trong productList
                             var foundProduct = productList.find(x => x.id == productId);
                             if (foundProduct) {
-                                var productDetailSe = foundProduct.productDetailDtos.find(x => x.id == productDetailId);
+                                productDetailList = foundProduct.productDetailDtos;
+                                product = foundProduct;
+                                var productDetailSe = productDetailList.find(x => x.id == productDetailId);
 
                                 if (productDetailSe && productDetailSe.quantity >= 1) {
-                                    // Chỉ gọi handleAddToOrder mà không trừ số lượng ở đây
-                                    var result = handleAddToOrder(productDetailSe, productDetailId, canAdd, foundProduct);
-
-                                    if (result !== 1) { // Nếu không phải lỗi hết hàng
-                                        // Cập nhật lại danh sách tìm kiếm
-                                        $(".list-search-product").html('');
-                                        loadProductSearch({content: productList});
-                                    }
+                                    productDetailSe.quantity -= 1; // Trừ số lượng
+                                    handleAddToOrder(productDetailSe, productDetailId, canAdd, product);
+                                    // Cập nhật lại danh sách tìm kiếm
+                                    $(".list-search-product").html(''); // Xóa nội dung cũ trước khi load lại
+                                    loadProductSearch({content: productList}); // Load lại với productList hiện tại
                                 } else {
                                     Swal.fire({
                                         title: "Lỗi",
@@ -1600,11 +1583,10 @@
                         return;
                     }
 
-                    // Kiểm tra số tiền khách đưa
-                    if (pay.customerPay === '' || parseFloat(pay.customerPay) < parseFloat(pay.requireMoney)) {
+                    if (pay.customerPay == '') {
                         Swal.fire({
                             title: "Lỗi",
-                            text: `Số tiền khách đưa (${formatNumber(pay.customerPay || 0)}) không đủ để thanh toán (${formatNumber(pay.requireMoney)}). Vui lòng kiểm tra lại!`,
+                            text: "Vui lòng nhập số tiền khách đưa",
                             icon: "error"
                         });
                         return;

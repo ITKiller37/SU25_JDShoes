@@ -759,11 +759,7 @@
                                         <span class="ribbon1"><span>Sale</span></span>
                                     </div>
                                     <div class="block2-pic hov-img0 label-new" data-label="New" style="height: 340px">
-                                        <img th:if="${product.productDetailDtos != null && !product.productDetailDtos.isEmpty() &&
-              product.productDetailDtos[0].images != null && !product.productDetailDtos[0].images.isEmpty()}"
-                                             th:src="@{${product.productDetailDtos[0].images[0].link}}"
-                                             alt="Ảnh sản phẩm"
-                                             style="height: 100%; width: 100%">
+                                        <img th:src="@{'/' + ${product.productDetailDtos[0].images[0].getLink()}}" alt="IMG-PRODUCT" style="height: 100%; width: 100%">
                                         <a th:href="@{product-detail/{id} (id = ${product.code})}"
                                                                        class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 ">
                                             Chi Tiết
@@ -781,7 +777,16 @@
                                 </div>
                             </div>
                         </div>
+                <!-- Pagination -->
+    <!--            <div class="flex-c-m flex-w w-full p-t-38">-->
+    <!--                <a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7 active-pagination1">-->
+    <!--                    1-->
+    <!--                </a>-->
 
+    <!--                <a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7">-->
+    <!--                    2-->
+    <!--                </a>-->
+    <!--            </div>-->
             </div>
         </section>
         <script>

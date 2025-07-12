@@ -1,100 +1,150 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout.html}">
-
-
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-
+    <title>Danh sách khách hàng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" class="container-fluid mt-3">
 
-    <div class="d-flex">
-        <h4>Danh sách khách hàng</h4>
-        <form id="formsearch" class="col-sm-4" style="margin-left: 100px">
-            <input th:value="${search == null?'':search}" required name="search" placeholder="Tìm kiếm" class="form-control">
+    <script th:src="@{/admin/js/address.js}"></script>
+    <script>
+        window.onload = function () {
+            if (typeof loadAddress === "function") {
+                loadAddress();
+            } else {
+                console.warn("loadAddress không được định nghĩa!");
+            }
+        };
+    </script>
+    <div class="d-flex flex-wrap align-items-center mb-3">
+        <h4 class="mb-0 mr-3">Danh sách khách hàng</h4>
+        <form id="formsearch" class="form-inline flex-grow-1">
+            <input th:value="${search == null ? '' : search}" required name="search" placeholder="Tìm kiếm"
+                   class="form-control mr-2 w-auto">
+            <button form="formsearch" class="btn btn-primary mr-2">Tìm kiếm</button>
+            <a href="/admin/customers" class="btn btn-secondary mr-2" title="Làm mới"><i class="fa fa-refresh"></i></a>
+            <a href="/admin/add-customer" class="btn btn-success"><i class="fa fa-plus"></i> Thêm khách hàng</a>
         </form>
-        <button form="formsearch" class="btn btn-primary">Tìm kiếm</button>
-        <a href="/admin/customers" class="btn btn-primary" style="margin-left: 20px"><i class="fa fa-refresh"></i></a>
-        <a href="/admin/add-customer" class="btn btn-success" style="margin-left: 20px"><i class="fa fa-plus"></i> Thêm khách hàng</a>
-    </div>
-    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
-    <table class="table my-3">
-        <thead class="thead-light">
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Mã khách hàng
-                <a th:href="@{/admin/customers(page=0, sort='id,asc')}" class="sort-link">↑</a>
-                <a th:href="@{/admin/customers(page=0, sort='id,desc')}" class="sort-link">↓</a>
-            </th>
-            <th scope="col">Tên khách hàng</th>
-            <th scope="col">Số điện thoại</th>
-            <th scope="col">Email</th>
-            <th scope="col">Mã tài khoản</th>
-            <th scope="col">Địa chỉ</th>
-            <th scope="col">Thao tác</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="items:${items}">
-            <th scope="row" th:text="${items.id}">1</th>
-            <td th:text="${items.code}">Mark</td>
-            <td th:text="${items.name}"></td>
-            <td th:text="${items.phoneNumber}"></td>
-            <td th:text="${items.email}"></td>
-            <td th:text="${items.account == null ? '':items.account.code}"></td>
-            <td>
-<!--                <select class="form-control">-->
-<!--                    <option th:each="add:${items.addressShippings}" th:text="${add.address}"></option>-->
-<!--                </select>-->
-                <div style="max-height: 120px; overflow: auto">
-                    <span th:each="add:${items.addressShippings}" th:text="${add.address}" style="display: block"></span>
-                </div>
-            </td>
-            <td>
-                <a th:href="@{/admin/delete-customer(id=${items.id})}" onclick="return confirm('Bạn có chắc chắn muốn xóa khách hàng này?');"><i class="fa fa-trash" ></i></a>
-<!--                <a th:href="@{/admin/edit-customer(id=${items.id})}"><i class="fa fa-edit" ></i></a>-->
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="clearfix float-right">
-        <ul class="pagination">
-            <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/customers(page=0,
-                search=${search}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
-                   class="page-link">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-            </li>
-            <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/customers(page=${items.number - 1},
-                search=${search}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
-                   class="page-link">
-                    <i class="fas fa-angle-left"></i>
-                </a>
-            </li>
-            <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/customers(page=${items.number + 1},
-                sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')},
-                search=${search}
-                )}"
-                   class="page-link">
-                    <i class="fas fa-angle-right"></i>
-                </a>
-            </li>
-            <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/customers(page=${items.totalPages - 1},
-                search=${search}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
-                   class="page-link">
-                    <i class="fas fa-angle-double-right"></i>
-                </a>
-            </li>
-        </ul>
     </div>
 
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="thead-light">
+            <tr>
+                <th>#</th>
+                <th>Mã KH</th>
+                <th>Tên KH</th>
+                <th>SĐT</th>
+                <th>Email</th>
+                <th>Mã TK</th>
+                <th>Giới tính</th>
+                <th class="address-column">Địa chỉ</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${items}">
+                <td th:text="${item.id}"></td>
+                <td th:text="${item.code}"></td>
+                <td th:text="${item.name}"></td>
+                <td th:text="${item.phoneNumber}"></td>
+                <td th:text="${item.email}"></td>
+                <td th:text="${item.account != null ? item.account.code : '-'}"></td>
+                <td th:text="${item.gender}"></td>
+                <td class="address-column text-left">
+                    <div th:each="add : ${item.addressShippings}" class="mb-2 border p-2 rounded">
+                        <div>
+                            <span th:text="${add.address}"></span>
+                            <span th:if="${add.isDefault}" class="badge badge-success ml-2">Mặc định</span>
+                        </div>
+                        <form th:if="${!add.isDefault}"
+                              th:action="@{'/admin/customer/address/' + ${add.id} + '/set-default'}"
+                              method="post" class="mt-1">
+                            <button type="submit" class="btn btn-sm btn-primary">Đặt mặc định</button>
+                        </form>
+                    </div>
+                </td>
+                <td>
+                    <a th:href="@{/admin/delete-customer(id=${item.id})}"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa khách hàng này?');"
+                       class="btn btn-sm btn-danger mb-1">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-success mb-1" data-toggle="modal"
+                            th:data-id="${item.id}" th:data-name="${item.name}" onclick="setIdCus(this.getAttribute('data-id'), this.getAttribute('data-name'));"
+                            data-target="#addAddressModal">
+                        <i class="fa fa-plus"></i> Thêm địa chỉ
+                    </button>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form action="/admin/add-address-customer" method="post" >
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thêm địa chỉ cho <span id="tenkh"></span> </h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="idkh" name="idkh">
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label>Chọn tỉnh</label>
+                                <select  onchange="loadHuyen(this.options[this.selectedIndex].getAttribute('name-add'));" id="tinh" class="form-control" name="province"></select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Chọn huyện</label>
+                                <select onchange="loadXa(this.options[this.selectedIndex].getAttribute('name-add'));"  id="huyen" class="form-control" name="district"></select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label>Chọn xã</label>
+                                <select id="xa" class="form-control" name="ward"></select>
+                            </div>
+                            <div class="col-sm-12 mt-2">
+                                <label>Tên đường, số nhà</label>
+                                <input name="detail" class="form-control" placeholder="Tên đường, số nhà">
+                            </div>
+                            <div class="col-sm-12 mt-2">
+                                <label>Địa chỉ mặc định</label>
+                                <input name="isDefault" type="checkbox">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Thêm địa chỉ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function setIdCus(idcus, name){
+            document.getElementById("idkh").value = idcus
+            document.getElementById("tenkh").innerHTML = name
+        }
+    </script>
 </div>
+
+
+
+
 </body>
 </html>
