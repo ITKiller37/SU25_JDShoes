@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface ProductService {
@@ -32,6 +33,13 @@ public interface ProductService {
     List<ProductDto> getAllProductNoPaginationApi(SearchProductDto searchRequest);
 
     Page<Product> getAllProduct(Pageable able);
+
+
+    boolean existsByName(String name);
+
+    Product findByCode(String maSanPham);
+
+    void updateProductStatusBasedOnQuantity(Product product);
 
     ProductDto getProductDtoByCode(String code);
 

@@ -204,9 +204,9 @@
             <div class="heading">
                 <h5>Thông tin sản phẩm</h5>
                 <div class="">
-                    <span th:if="${product.status == 0}" class="stocking text-primary">Đang khởi tạo</span>
-                    <span th:if="${product.status == 1}" class="stocking badge badge-success">Còn bán</span>
-                    <span th:if="${product.status == 2}" class="out-of-stock badge badge-danger">Ngừng bán</span>
+                    <span th:if="${product.status == 0}" class="badge bg-secondary">Đang khởi tạo</span>
+                    <span th:if="${product.status == 1}" class="badge bg-success">Còn bán</span>
+                    <span th:if="${product.status == 2}" class="badge bg-danger">Ngừng bán</span>
                 </div>
             </div>
             <div class="spec-list row">
@@ -220,7 +220,7 @@
                 <div class="col-md-6">
                     <div class="spec-item">
                         <span class="spec-icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
-                        <span class="spec-title">Nhãn hàng</span>
+                        <span class="spec-title">Thương hiệu</span>
                         <span class="spec-value" th:text="${product.brand.name}"></span>
                     </div>
                 </div>
@@ -273,6 +273,9 @@
                     <div>
                         <i class="fa fa-info-circle text-dark" aria-hidden="true"></i>
                         <span class="text-dark font-italic">Phiên bản [[${iter.index + 1}]]</span>
+                        <span th:if="${product.status == 2}" class="variant-status-badge badge bg-danger ms-2">Ngừng bán</span>
+                        <span th:if="${product.status == 1 and version.quantity == 0}" class="variant-status-badge badge bg-danger ms-2">Ngừng bán</span>
+                        <span th:if="${product.status == 1 and version.quantity > 0}" class="variant-status-badge badge bg-success ms-2">Còn bán</span>
                     </div>
                     <div class="row align-items-center text mt-2">
                         <div class="col-md-2">
@@ -343,7 +346,7 @@
 
                         <div class="row">
                             <div class="col-12 col-md-4 mb-3">
-                                <label for="modalCategoryName" class="form-label">* Danh mục:</label>
+                                <label for="modalCategoryName" class="form-label">* Loại sản phẩm:</label>
                                 <input type="text" class="form-control" id="modalCategoryName" name="categoryName" readonly required>
                             </div>
                             <div class="col-12 col-md-4 mb-3">
@@ -678,6 +681,26 @@
                 data.images.forEach(image => {
                     versionItem.find('.image-list').append(`<div class="col-md-2 image-container"><img src="/${image.link}" alt="Product Image" class="w-100"></div>`);
                 });
+            }
+
+            // Cập nhật trạng thái "Còn bán / Ngừng bán"
+            const productStatus = /*[[${product.status}]]*/ 2; // Thymeleaf sẽ render giá trị vào đây
+
+            // Kiểm tra và cập nhật badge trạng thái
+            let badgeSpan = versionItem.find('.variant-status-badge');
+            if (badgeSpan.length === 0) {
+                // Nếu chưa có badge, tạo mới
+                badgeSpan = $('<span class="variant-status-badge ms-2"></span>');
+                versionItem.find('> div:first-child').append(badgeSpan);
+            }
+
+            // Cập nhật nội dung và class cho badge
+            if (productStatus === 2) {
+                badgeSpan.attr('class', 'variant-status-badge badge bg-danger ms-2').text('Ngừng bán');
+            } else if (productStatus === 1 && data.quantity === 0) {
+                badgeSpan.attr('class', 'variant-status-badge badge bg-danger ms-2').text('Ngừng bán');
+            } else {
+                badgeSpan.attr('class', 'variant-status-badge badge bg-success ms-2').text('Còn bán');
             }
         }
 

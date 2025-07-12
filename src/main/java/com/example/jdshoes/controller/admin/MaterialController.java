@@ -102,9 +102,14 @@ public class MaterialController {
         }
     }
 
-    @GetMapping("/material-delete/{id}")
-    public String delete(@PathVariable("id") Long id){
-        materialService.delete(id);
+    @GetMapping("/material-toggle-status/{id}")
+    public String toggleStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            materialService.delete(id); // Gọi hàm delete để đổi trạng thái
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi trạng thái chất liệu thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/admin/material-all";
     }
 }

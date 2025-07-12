@@ -83,9 +83,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public void delete(Long id) {
-        Material material = materialRepository.findById(id).orElseThrow(null);
-        material.setDeleteFlag(true);
-        materialRepository.save(material);
+        Material existingMaterial = materialRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy chât liệu có id " + id));
+        existingMaterial.setDeleteFlag(!existingMaterial.getDeleteFlag()); // Đảo ngược trạng thái
+        materialRepository.save(existingMaterial);
     }
 
     @Override
@@ -120,14 +120,18 @@ public class MaterialServiceImpl implements MaterialService {
         existingMaterial.setCode(material.getCode().trim());
         existingMaterial.setName(material.getName().trim());
         existingMaterial.setStatus(material.getStatus()); // Giữ nguyên trạng thái hoặc cập nhật nếu có từ request
-        existingMaterial.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
-        return materialRepository.save(material);
+        return materialRepository.save(existingMaterial);
     }
 
     @Override
     public List<Material> getAll() {
         return materialRepository.findAll();
+    }
+
+    @Override
+    public List<Material> getAllActive() {
+        return materialRepository.findAllByDeleteFlagFalse();
     }
 
     private Material convertToEntity(MaterialDto materialDto) {

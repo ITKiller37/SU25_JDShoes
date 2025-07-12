@@ -130,9 +130,8 @@ public class SizeServiceImpl implements SizeService {
         // Cập nhật các trường của existingSize
         existingSize.setCode(size.getCode().trim());
         existingSize.setName(size.getName().trim());
-        existingSize.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
-        return sizeRepository.save(size);
+        return sizeRepository.save(existingSize);
     }
 
     @Override
@@ -142,14 +141,19 @@ public class SizeServiceImpl implements SizeService {
 
     @Override
     public void delete(Long id) {
-        Size size = sizeRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy cỡ có id " + id) );
-        size.setDeleteFlag(true);
-        sizeRepository.save(size);
+        Size existingSize = sizeRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy kích cỡ có id " + id));
+        existingSize.setDeleteFlag(!existingSize.getDeleteFlag()); // Đảo ngược trạng thái
+        sizeRepository.save(existingSize);
     }
 
     @Override
     public List<Size> getAll() {
         return sizeRepository.findAll();
+    }
+
+    @Override
+    public List<Size> getAllActive() {
+        return sizeRepository.findAllByDeleteFlagFalse();
     }
 
     private Size convertToEntity(SizeDto sizeDto) {

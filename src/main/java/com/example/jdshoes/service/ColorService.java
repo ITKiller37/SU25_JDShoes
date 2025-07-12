@@ -35,4 +35,7 @@ public interface ColorService {
     List<Color> findAll();
 
     List<Color> getColorsByProductIdAndSizeId(Long productId, Long sizeId) throws NotFoundException;
+
+    List<Color> getAllActive();
+
 }

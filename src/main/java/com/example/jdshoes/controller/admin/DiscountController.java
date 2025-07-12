@@ -89,6 +89,7 @@ public class DiscountController {
         String maTuSinh = "KM" + (int)(Math.random() * 9000 + 1000);
         discount.setCode(maTuSinh);
         discount.setDeleteFlag(true);
+        discount.setStatus(1);
         discountService.createDiscount(discount);
         return "redirect:/admin-only/discounts";
     }
@@ -130,7 +131,7 @@ public class DiscountController {
         return "redirect:/admin-only/discounts"; // Điều hướng lại trang danh sách
     }
 
-    @Scheduled(fixedRate = 30000) // 30 giây một lần
+    @Scheduled(fixedRate = 3000) // 30 giây một lần
     public void updateDiscountStatusAutomatically() {
         List<Discount> discounts = discountRepository.findAll();
 
