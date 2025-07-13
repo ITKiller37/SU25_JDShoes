@@ -27,7 +27,7 @@ public class ProductDiscountController {
 
     @DeleteMapping("/api/private/product-discount/{id}")
     @ResponseBody
-    public String deleteProductDiscount(@PathVariable Integer id) {
+    public String deleteProductDiscount(@PathVariable Long id) {
         System.out.println("Xóa ID: " + id);
         productDiscountService.deleteById(id);
         return "Xóa thành công";

@@ -12,7 +12,9 @@ import java.util.List;
 
 public interface ProductDiscountService {
     List<ProductDiscountDto> getAllDiscounts();
-    void deleteById(Integer id);
+
+    void deleteById(Long id);
+
     ProductDiscount createDiscount(ProductDiscountDto dto);
     void createMultipleDiscounts(CreateProductDiscountRequest request);
 

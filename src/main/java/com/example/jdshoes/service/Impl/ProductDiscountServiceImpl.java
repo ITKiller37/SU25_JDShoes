@@ -4,7 +4,6 @@ package com.example.jdshoes.service.Impl;
 import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
 import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
-import com.example.jdshoes.entity.Discount;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.ProductDiscount;
 import com.example.jdshoes.entity.ProductDiscountDetail;
@@ -83,8 +82,8 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
 
     @Override
-    public void deleteById(Integer id) {
-        ProductDiscount productDiscount = productDiscountRepository.findById(Long.valueOf(id))
+    public void deleteById(Long id) {
+        ProductDiscount productDiscount = productDiscountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy đợt giảm giá có id = " + id));
         productDiscountRepository.delete(productDiscount);
     }

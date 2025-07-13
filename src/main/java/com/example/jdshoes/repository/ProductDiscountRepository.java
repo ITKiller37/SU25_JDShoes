@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ProductDiscountRepository extends JpaRepository<ProductDiscount, Integer> {
+public interface ProductDiscountRepository extends JpaRepository<ProductDiscount, Long> {
 
     ProductDiscount findByProductDetail_Id(Long productDetailId);
 
