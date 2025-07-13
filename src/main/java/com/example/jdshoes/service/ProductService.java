@@ -35,4 +35,5 @@ public interface ProductService {
 
     ProductDto getProductDtoByCode(String code);
 
+    ProductDto findById(Long id);
 }
