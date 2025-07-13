@@ -1,3 +1,4 @@
+
 package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.Size.SizeDto;
@@ -26,5 +27,6 @@ public interface SizeService {
 
     List<Size> getAll();
 
-    List<Size> getAllActive();
+    List<Size> getSizesByProductIdH(Long productId);
 }
+

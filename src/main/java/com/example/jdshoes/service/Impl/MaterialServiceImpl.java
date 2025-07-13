@@ -1,8 +1,6 @@
 package com.example.jdshoes.service.Impl;
 
-import com.example.jdshoes.dto.Color.ColorDto;
 import com.example.jdshoes.dto.Material.MaterialDto;
-import com.example.jdshoes.entity.Color;
 import com.example.jdshoes.entity.Material;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
@@ -83,9 +81,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public void delete(Long id) {
-        Material existingMaterial = materialRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy chât liệu có id " + id));
-        existingMaterial.setDeleteFlag(!existingMaterial.getDeleteFlag()); // Đảo ngược trạng thái
-        materialRepository.save(existingMaterial);
+        Material material = materialRepository.findById(id).orElseThrow(null);
+        material.setDeleteFlag(true);
+        materialRepository.save(material);
     }
 
     @Override
@@ -120,18 +118,14 @@ public class MaterialServiceImpl implements MaterialService {
         existingMaterial.setCode(material.getCode().trim());
         existingMaterial.setName(material.getName().trim());
         existingMaterial.setStatus(material.getStatus()); // Giữ nguyên trạng thái hoặc cập nhật nếu có từ request
+        existingMaterial.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
-        return materialRepository.save(existingMaterial);
+        return materialRepository.save(material);
     }
 
     @Override
     public List<Material> getAll() {
         return materialRepository.findAll();
-    }
-
-    @Override
-    public List<Material> getAllActive() {
-        return materialRepository.findAllByDeleteFlagFalse();
     }
 
     private Material convertToEntity(MaterialDto materialDto) {

@@ -1,117 +1,103 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout.html}">
+
+
 <head>
-    <meta charset="UTF-8">
-    <title>Quản lý màu sắc</title>
+  <meta charset="UTF-8">
+  <title>Title</title>
+
 </head>
 <body>
 <div layout:fragment="content">
-    <h4>Quản lý màu sắc</h4>
-    <a href="/admin/color-create" class="btn btn-success my-3 float-right"><i class="fa fa-plus-square"></i> <span>Thêm màu mới</span></a>
-    <div th:if="${successMessage}">
-        <input type="hidden" id="successMessage" th:value="${successMessage}"/>
-    </div>
-    <table class="table my-3">
-        <thead class="thead-light">
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Mã màu
-                <a th:href="@{/admin/color-all(page=0, sort='id,asc')}" class="sort-link">↑</a>
-                <a th:href="@{/admin/color-all(page=0, sort='id,desc')}" class="sort-link">↓</a>
-            </th>
-            <th scope="col">Tên màu</th>
-            <th scope="col">Trạng thái</th>
-            <th scope="col">Thao tác</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="items:${items}">
-            <th scope="row" th:text="${items.id}">1</th>
-            <td th:text="${items.code}">Mark</td>
-            <td th:text="${items.name}"></td>
-            <td>
-               <span th:class="${items.deleteFlag} ? 'badge bg-danger' : 'badge bg-success'"
-                     th:text="${items.deleteFlag} ? 'Không hoạt động' : 'Hoạt động'">
-               </span>
-            </td>
-            <td>
-                <a th:href="@{'/admin/edit-color/' + ${items.id}}"><i class="fa ti-pencil-alt"></i></a>
-                <a th:href="@{'/admin/color-toggle-status/' + ${items.id}}" class="toggle-status ms-2"
-                   th:attr="data-status=${items.deleteFlag} ? 'Không hoạt động' : 'Hoạt động'">
-                    <i class="fa fa-power-off"></i>
-                </a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="clearfix float-right">
-        <ul class="pagination">
-            <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/color-all(page=0, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
-                   class="page-link">
-                    <i class="fas fa-angle-double-left"></i>
-                </a>
-            </li>
-            <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/color-all(page=${items.number - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
-                   class="page-link">
-                    <i class="fas fa-angle-left"></i>
-                </a>
-            </li>
-            <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/color-all(page=${items.number + 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
-                   class="page-link">
-                    <i class="fas fa-angle-right"></i>
-                </a>
-            </li>
-            <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
-                <a th:href="@{/admin/color-all(page=${items.totalPages - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
-                   class="page-link">
-                    <i class="fas fa-angle-double-right"></i>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-    <script th:inline="javascript">
-        $(document).ready(function () {
-            $('.toggle-status').on('click', function (e) {
-                e.preventDefault();
-                var url = $(this).attr('href');
-                var status = $(this).attr('data-status');
-                Swal.fire({
-                    title: "Xác nhận?",
-                    text: `Bạn chắc chắn muốn đổi trạng thái màu sang ${status === 'Hoạt động' ? 'Không hoạt động' : 'Hoạt động'}?`,
-                    icon: "warning",
-                    showCancelButton: true,
-                    cancelButtonText: 'Hủy',
-                    confirmButtonText: 'Xác nhận',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = url;
-                    }
-                });
-            });
 
-            var successMessage = $('#successMessage').val();
-            if (successMessage) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: successMessage,
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            }
+  <h4>Quản lý màu sắc</h4>
+  <a href="/admin/color-create" class="btn btn-success my-3 float-right"><i class="fa fa-plus-square"></i> <span>Thêm màu mới</span></a>
+  <div th:if="${successMessage}">
+    <input type="hidden" id="successMessage" th:value="${successMessage}" />
+  </div>
+  <table class="table my-3">
+    <thead class="thead-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Mã màu
+        <a th:href="@{/src/main/webapp/admin/color-all(page=0, sort='id,asc')}" class="sort-link">↑</a>
+        <a th:href="@{/src/main/webapp/admin/color-all(page=0, sort='id,desc')}" class="sort-link">↓</a>
+      </th>
+      <th scope="col">Tên màu</th>
+      <th scope="col">Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="items:${items}">
+      <th scope="row" th:text="${items.id}">1</th>
+      <td th:text="${items.code}">Mark</td>
+      <td th:text="${items.name}"></td>
+      <td>
+        <a th:href="@{'/admin/edit-color/'+${items.id}}"><i class="fa ti-pencil-alt"></i></a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="clearfix float-right">
+    <ul class="pagination">
+      <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/src/main/webapp/admin/color-list(page=0, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-double-left"></i>
+        </a>
+      </li>
+      <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/src/main/webapp/admin/color-list(page=${items.number - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-left"></i>
+        </a>
+      </li>
+      <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/src/main/webapp/admin/color-list(page=${items.number + 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-right"></i>
+        </a>
+      </li>
+      <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/src/main/webapp/admin/color-list(page=${items.totalPages - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-double-right"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <script>
+    $(document).ready(function () {
+      $('.delete-btn').on('click', function (e) {
+        Swal.fire({
+          title: "Xác nhận?",
+          text: `Bạn chắc chắn muốn xóa màu này`,
+          icon: "warning",
+          showCancelButton: true,
+          cancelButtonText: 'Hủy',
+          confirmButtonText: 'Xác nhận',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // const id = $(this).attr('data-product-id')
+            var url = $(this).attr('data-link')
+            window.location.href = url
+          }
         });
-    </script>
+      })
+      var successMessage = $('#successMessage').val();
+      if (successMessage) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: successMessage,
+          timer: 3000, // Tự động ẩn sau 3 giây
+          showConfirmButton: false
+        });
+      }
+    })
+  </script>
 </div>
 </body>
 </html>

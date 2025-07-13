@@ -1,6 +1,5 @@
 package com.example.jdshoes.controller.admin;
 
-
 import com.example.jdshoes.entity.Account;
 import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
@@ -12,6 +11,7 @@ import com.example.jdshoes.repository.RoleRepository;
 import com.example.jdshoes.utils.MailServices;
 import com.example.jdshoes.utils.RandomUtils;
 import com.example.jdshoes.utils.VNCharacterUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,143 +31,120 @@ public class AdminCustomerController {
 
     @Autowired
     private CustomerRepository customerRepository;
-
     @Autowired
     private AccountRepository accountRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private RoleRepository roleRepository;
-
     @Autowired
     private MailServices mailServices;
-
     @Autowired
     private AddressShippingRepository addressShippingRepository;
 
     @GetMapping("/customers")
-    public String viewPage(Model model,@RequestParam(name = "page", defaultValue = "0") int page,
-                           @RequestParam(name = "sort", defaultValue = "name,asc") String sortField, @RequestParam(required = false) String search){
-        int pageSize = 5; // Number of items per page
+    public String viewPage(Model model,
+                           @RequestParam(name = "page", defaultValue = "0") int page,
+                           @RequestParam(name = "sort", defaultValue = "name,asc") String sortField,
+                           @RequestParam(required = false) String search) {
+
+        int pageSize = 8;
         String[] sortParams = sortField.split(",");
         String sortFieldName = sortParams[0];
-        Sort.Direction sortDirection = Sort.Direction.ASC;
+        Sort.Direction sortDirection = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
 
-        if (sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")) {
-            sortDirection = Sort.Direction.DESC;
-        }
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by(sortDirection, sortFieldName));
+        Page<Customer> customerPage;
 
-        Sort sort = Sort.by(sortDirection, sortFieldName);
-
-        Pageable pageable = PageRequest.of(page, pageSize, sort);
-        Page<Customer> materialPage = null;
-        if(search == null){
-            materialPage = customerRepository.findAll(pageable);
-        }
-        else{
-            materialPage = customerRepository.findByParam("%"+search+"%", pageable);
+        if (search == null || search.trim().isEmpty()) {
+            customerPage = customerRepository.findAllUserCustomers(pageable);
+        } else {
+            customerPage = customerRepository.findAllUserCustomersBySearch("%" + search.trim() + "%", pageable);
         }
 
         model.addAttribute("sortField", sortFieldName);
         model.addAttribute("sortDirection", sortDirection);
-        if(search != null){
-            model.addAttribute("search", search);
-        }
-        else{
-            model.addAttribute("search", "");
-        }
-        model.addAttribute("items", materialPage);
+        model.addAttribute("search", search != null ? search : "");
+        model.addAttribute("items", customerPage);
+
         return "admin/customers";
     }
 
+
     @GetMapping("/delete-customer")
-    public String deleteCustomer(@RequestParam Long id){
-        Customer customer = customerRepository.findById(id).get();
-        customer.setDeleted(true);
-        customerRepository.save(customer);
+    public String deleteCustomer(@RequestParam Long id) {
+        Customer customer = customerRepository.findById(id).orElse(null);
+        if (customer != null) {
+            customer.setDeleted(true);
+            customerRepository.save(customer);
+        }
         return "redirect:/admin/customers";
     }
 
     @GetMapping("/add-customer")
-    public String addCustomerView(Model model, @RequestParam(required = false) Long id){
-        if(id == null){
+    public String addCustomerView(Model model, @RequestParam(required = false) Long id) {
+        if (id == null) {
             model.addAttribute("customer", new Customer());
             model.addAttribute("account", new Account());
-            model.addAttribute("title","Thêm khách hàng");
-        }
-        else{
-            model.addAttribute("customer", customerRepository.findById(id).get());
-            model.addAttribute("title","Cập nhật khách hàng");
+            model.addAttribute("title", "Thêm khách hàng");
+        } else {
+            Customer customer = customerRepository.findById(id).orElse(null);
+            model.addAttribute("customer", customer);
+            model.addAttribute("title", "Cập nhật khách hàng");
+
             Account account = accountRepository.findByCustomer(id);
-            if(account == null){
-                model.addAttribute("account", new Account());
-            }
-            else{
-                model.addAttribute("account", account);
-            }
+            model.addAttribute("account", account != null ? account : new Account());
         }
         return "admin/addcustomer";
     }
+
     @PostMapping("/add-customer")
     public String addCustomerPost(@ModelAttribute Customer customer,
                                   RedirectAttributes redirectAttributes,
-                                  @RequestParam String tinh, @RequestParam String huyen, @RequestParam String xa, @RequestParam String tenduong) {
+                                  @RequestParam String tinh,
+                                  @RequestParam String huyen,
+                                  @RequestParam String xa,
+                                  @RequestParam String tenduong) {
+
         AddressShipping addressShipping = new AddressShipping();
         addressShipping.setStreet(tenduong);
         addressShipping.setWard(xa);
         addressShipping.setDistrict(huyen);
         addressShipping.setProvince(tinh);
-        addressShipping.setAddress(tenduong+", "+xa+", "+huyen+", "+tinh);
+        addressShipping.setAddress(tenduong + ", " + xa + ", " + huyen + ", " + tinh);
+        addressShipping.setIsDefault(true);
 
         if (customer.getId() == null) {
-            // Check email trùng
             String passDecode = RandomUtils.randomPass();
             if (accountRepository.findByEmail(customer.getEmail()) != null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Email đã được sử dụng");
                 return "redirect:/admin/add-customer";
             }
 
-            // Sinh mã khách hàng
             Customer lastCustomer = customerRepository.findTopByOrderByIdDesc();
             long nextCustomerId = (lastCustomer == null) ? 1 : lastCustomer.getId() + 1;
-            String customerCode = "KH" + String.format("%04d", nextCustomerId);
-            customer.setCode(customerCode);
+            customer.setCode("KH" + String.format("%04d", nextCustomerId));
             customer.setDeleted(false);
             customerRepository.save(customer);
-            System.out.println("id customer: "+customer.getId());
-            // Tạo mã tài khoản
+
             Account lastAccount = accountRepository.findTopByOrderByIdDesc();
             long nextAccountId = (lastAccount == null) ? 1 : lastAccount.getId() + 1;
-            String accountCode = "TK" + String.format("%04d", nextAccountId);
-
-            // Tạo và gán thông tin Account
             Account account = new Account();
-            account.setCode(accountCode);
+            account.setCode("TK" + String.format("%04d", nextAccountId));
             account.setEmail(customer.getEmail());
             account.setPassword(passwordEncoder.encode(passDecode));
             account.setCreateDate(LocalDateTime.now());
             account.setUpdateDate(LocalDateTime.now());
             account.setRole(roleRepository.findByRoleName(RoleName.ROLE_USER));
             account.setNonLocked(true);
-
-            // Gán liên kết 2 chiều
-            account.setCustomer(customer); // Hibernate cần cái này vì @JoinColumn(customer_id)
-            customer.setAccount(account); // không bắt buộc nhưng nên có
-
-            // Lưu account (Hibernate sẽ tự cascade customer)
+            account.setCustomer(customer);
+            customer.setAccount(account);
             accountRepository.save(account);
 
-            // Gửi email
             String content = VNCharacterUtils.buildAccountInfoEmail(account.getEmail(), passDecode);
-            mailServices.sendEmail(
-                    account.getEmail(),
-                    "Thông tin tài khoản",
-                    content,
-                    false,
-                    true
-            );
+            mailServices.sendEmail(account.getEmail(), "Thông tin tài khoản", content, false, true);
 
             addressShipping.setCustomer(account.getCustomer());
             addressShippingRepository.save(addressShipping);
@@ -176,5 +153,77 @@ public class AdminCustomerController {
         return "redirect:/admin/customers";
     }
 
+    @PostMapping("/customer/address/{id}/set-default")
+    @Transactional
+    public String setDefaultAddress(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        AddressShipping addressShipping = addressShippingRepository.findById(id).orElse(null);
+        if (addressShipping != null && addressShipping.getCustomer() != null) {
+            Long customerId = addressShipping.getCustomer().getId();
+            addressShippingRepository.updateAllIsDefaultFalseByCustomer(customerId);
 
+            addressShipping.setIsDefault(true);
+            addressShippingRepository.save(addressShipping);
+
+            redirectAttributes.addFlashAttribute("successMessage", "Đã đặt địa chỉ mặc định thành công.");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy địa chỉ cần đặt mặc định.");
+        }
+        return "redirect:/admin/customers";
+    }
+
+
+
+    @PostMapping("/customer/{customerId}/address/add")
+    public String addAddressToCustomer(@PathVariable("customerId") Long customerId,
+                                       @RequestParam(name = "province") String tinh,
+                                       @RequestParam(name = "district") String huyen,
+                                       @RequestParam(name = "ward") String xa,
+                                       @RequestParam(name = "street") String tenduong,
+                                       RedirectAttributes redirectAttributes) {
+
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+
+        if (customer == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khách hàng.");
+            return "redirect:/admin/customers";
+        }
+
+        AddressShipping addressShipping = new AddressShipping();
+        addressShipping.setStreet(tenduong);
+        addressShipping.setWard(xa);
+        addressShipping.setDistrict(huyen);
+        addressShipping.setProvince(tinh);
+        addressShipping.setAddress(tenduong + ", " + xa + ", " + huyen + ", " + tinh);
+        addressShipping.setIsDefault(false); // Không đặt mặc định khi thêm nhanh
+        addressShipping.setCustomer(customer);
+
+        addressShippingRepository.save(addressShipping);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Thêm địa chỉ cho khách hàng thành công!");
+
+        return "redirect:/admin/customers";
+    }
+
+    @PostMapping("/add-address-customer")
+    public String addAddress(@RequestParam Long idkh, @RequestParam String ward, @RequestParam String district,
+                             @RequestParam String province, @RequestParam String detail, @RequestParam(required = false) Boolean isDefault){
+        if(isDefault == null){
+            isDefault = false;
+        }
+        Customer customer = customerRepository.findById(idkh).get();
+        AddressShipping addressShipping = new AddressShipping();
+        addressShipping.setAddress(detail+", "+ward+", "+district+", "+province);
+        addressShipping.setCustomer(customer);
+        addressShipping.setStreet(detail);
+        addressShipping.setWard(ward);
+        addressShipping.setDistrict(district);
+        addressShipping.setProvince(province);
+        addressShipping.setIsDefault(isDefault);
+
+        if(isDefault != null && isDefault == true){
+            addressShippingRepository.updateAllIsDefaultFalseByCustomer(idkh);
+        }
+        addressShippingRepository.save(addressShipping);
+        return "redirect:/admin/customers";
+    }
 }

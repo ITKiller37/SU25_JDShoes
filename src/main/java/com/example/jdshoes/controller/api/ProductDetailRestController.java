@@ -7,7 +7,6 @@ import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.service.ImageService;
 import com.example.jdshoes.service.ProductDetailService;
-import com.example.jdshoes.service.ProductService;
 import com.example.jdshoes.utils.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,9 +38,6 @@ public class ProductDetailRestController {
 
     @Autowired
     private ImageService imageService;
-
-    @Autowired
-    private ProductService productService;
 
     @Value("${upload.directory}")
     private String uploadDirectory;
@@ -175,10 +171,6 @@ public class ProductDetailRestController {
 
             // Lưu ProductDetail (và cascade đến Product nếu có cấu hình)
             productDetailService.save(productDetail);
-            // Cập nhật trạng thái sản phẩm dựa vào tổng số lượng
-            if (productDetail.getProduct() != null) {
-                productService.updateProductStatusBasedOnQuantity(productDetail.getProduct());
-            }
 
             return ResponseEntity.ok("Product Detail and Product description updated successfully.");
 

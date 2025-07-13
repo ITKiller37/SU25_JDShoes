@@ -24,6 +24,4 @@ public interface MaterialService {
     Material updateMaterial(Material material);
 
     List<Material> getAll();
-
-    List<Material> getAllActive();
 }

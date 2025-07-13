@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{user/layout-user.html}">
+      layout:decorate="~{user/layout-user.html}"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -157,8 +158,8 @@
 
                                 <div class="size-204 respon6-next">
                                     <div class="rs1-select2 bor8 bg0">
-                                        <select class="js-select2" name="time" id="colorSelect">
-                                            <option th:value="0">Choose a color</option>
+                                        <select class="js-select2" name="time" id="colorSelect" form="formbuynow">
+                                            <option value="">Choose a color</option>
                                             <th:block th:each="color : ${listColors}">
                                                 <option th:value="${color.id}" th:text="${color.name}"></option>
                                             </th:block>
@@ -175,7 +176,7 @@
                                             <i class="fs-16 zmdi zmdi-minus"></i>
                                         </div>
 
-                                        <input class="mtext-104 cl3 txt-center num-product" type="number"
+                                        <input class="mtext-104 cl3 txt-center num-product" type="number" form="formbuynow"
                                                name="num-product" value="1">
 
                                         <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
@@ -183,9 +184,23 @@
                                         </div>
                                     </div>
                                     <span class="remaning-product" style="font-size: 12px"></span>
-                                    <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
+                                    <button sec:authorize="isAuthenticated()" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
                                         Thêm vào giỏ
                                     </button>
+                                    <form onsubmit="return checkPayment()" id="formbuynow" sec:authorize="isAnonymous()" action="/buynow" method="get">
+                                        <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-details">
+                                            Mua ngay
+                                        </button>
+                                    </form>
+                                    <script>
+                                        function checkPayment(){
+                                            if(document.getElementById("colorSelect").value == ""){
+                                                alert("Hãy chọn màu sắc và kích thước")
+                                                return false;
+                                            }
+                                            return true;
+                                        }
+                                    </script>
                                 </div>
                             </div>
                         </div>
@@ -914,7 +929,7 @@
                 var sizeId = $(this).val()
                 handleSizeChange(sizeId)
             })
-            
+
             $("#colorSelect").on('change', function (e) {
                 var colorId = $(this).val()
                 handleColorChange(colorId)

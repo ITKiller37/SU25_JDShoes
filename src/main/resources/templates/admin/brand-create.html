@@ -1,77 +1,57 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout.html}">
+
+
 <head>
   <meta charset="UTF-8">
-  <title>Thông tin thương hiệu</title>
+  <title>Title</title>
+
 </head>
 <body>
 <div layout:fragment="content">
-  <h4>Thông tin thương hiệu</h4>
 
-  <form th:object="${Brand}" id="brand-form" method="post" th:action="${action}">
+  <h4>Thông tin nhãn hàng</h4>
+  <form th:object="${Brand}" method="post" th:action="${action}" id="brand-form">
     <div class="my-3">
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>Mã thương hiệu</label>
-          <span class="text-danger"> *</span>
-          <input type="text" class="form-control" th:field="*{code}" placeholder="Nhập mã thương hiệu" id="code">
-          <span class="error text-danger"></span>
+          <span class="red_require"> *</span>
+          <input type="text" class="form-control" th:field="*{code}" placeholder="Nhập mã nhãn hàng">
+          <span class="error"></span>
+
         </div>
         <div class="form-group col-md-6">
           <label>Tên thương hiệu</label>
-          <span class="text-danger"> *</span>
-          <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên thương hiệu" id="name">
-          <span class="error text-danger"></span>
+          <span class="red_require"> *</span>
+          <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên nhãn hàng">
+          <span class="error"></span>
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary m-1" id="submitBtn">
-        <i class="fa ti-save"></i> Lưu lại
+      <button type="submit" class="btn btn-primary m-1"><i class="fa ti-save"></i> Lưu lại
       </button>
-      <a href="/admin/brand-all" class="btn btn-secondary m-1">
-        <i class="fa fa-mail-reply"></i> <span>Hủy bỏ</span>
-      </a>
+
+      <a href="/admin/brand-all" class="btn btn-secondary m-1"><i class="fa fa-mail-reply (alias)"></i> <span>Hủy bỏ</span></a>
+
     </div>
   </form>
-
   <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
-
-  <!-- Scripts -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-  <script th:inline="javascript">
+  <script>
     $(document).ready(function () {
-      // Validate form
       Validator({
         form: '#brand-form',
         formGroupSelector: '.form-group',
         errorSelector: '.error',
         rules: [
-          Validator.isRequired('#code', 'Vui lòng nhập mã thương hiệu'),
-          Validator.isRequired('#name', 'Vui lòng nhập tên thương hiệu'),
-          Validator.maxLength('#name', 40, 'Tên thương hiệu tối đa 40 ký tự'),
-          Validator.maxLength('#code', 20, 'Mã thương hiệu tối đa 20 ký tự'),
-        ],
-        onSubmit: function (data) {
-          // Xác nhận trước khi lưu
-          Swal.fire({
-            title: 'Xác nhận?',
-            text: 'Bạn có chắc chắn muốn lưu thương hiệu này?',
-            icon: 'question',
-            showCancelButton: true,
-            cancelButtonText: 'Hủy',
-            confirmButtonText: 'Xác nhận',
-            reverseButtons: true
-          }).then((result) => {
-            if (result.isConfirmed) {
-              document.getElementById('brand-form').submit();
-            }
-          });
-        }
+          Validator.isRequired('#code', 'Vui lòng nhập mã nhãn hàng'),
+          Validator.isRequired('#name', 'Vui lòng nhập tên nhãn hàng'),
+          Validator.maxLength('#name', 40),
+          Validator.maxLength('#code', 20),
+        ]
       });
-    });
+    })
   </script>
 </div>
 </body>

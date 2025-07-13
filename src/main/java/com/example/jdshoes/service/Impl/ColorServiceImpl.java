@@ -1,14 +1,13 @@
+
 package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Category.CategoryDto;
 import com.example.jdshoes.dto.Color.ColorDto;
-import com.example.jdshoes.entity.Category;
-import com.example.jdshoes.entity.Color;
-import com.example.jdshoes.entity.Product;
-import com.example.jdshoes.entity.Size;
+import com.example.jdshoes.entity.*;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.ColorRepository;
+import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.repository.SizeRepository;
 import com.example.jdshoes.service.ColorService;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ColorServiceImpl implements ColorService {
@@ -32,6 +32,12 @@ public class ColorServiceImpl implements ColorService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ColorRepository colorRepo;
+
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
 
     @Override
     public List<Color> getColorByProductId(Long productId) throws NotFoundException {
@@ -135,9 +141,9 @@ public class ColorServiceImpl implements ColorService {
         // Cập nhật các trường của existingColor
         existingColor.setCode(color.getCode().trim());
         existingColor.setName(color.getName().trim());
+        existingColor.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
-
-        return colorRepository.save(existingColor);
+        return colorRepository.save(color);
     }
 
     @Override
@@ -147,19 +153,14 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public void delete(Long id) {
-        Color existingColor = colorRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có id " + id));
-        existingColor.setDeleteFlag(!existingColor.getDeleteFlag()); // Đảo ngược trạng thái
+        Color existingColor = colorRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có id " + id) );
+        existingColor.setDeleteFlag(true);
         colorRepository.save(existingColor);
     }
 
     @Override
     public List<Color> findAll() {
         return colorRepository.findAll();
-    }
-
-    @Override
-    public List<Color> getAllActive() {
-        return colorRepository.findAllByDeleteFlagFalse();
     }
 
     private Color convertToEntity(ColorDto colorDto) {
@@ -177,4 +178,19 @@ public class ColorServiceImpl implements ColorService {
         colorDto.setName(color.getName());
         return colorDto;
     }
+    @Override
+    public List<Color> getColorsByProductIdAndSizeId(Long productId, Long sizeId) throws NotFoundException {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("Product not found"));
+        Size size = sizeRepository.findById(sizeId).orElseThrow(() -> new NotFoundException("Size not found"));
+        return colorRepo.findColorsByProductAndSize(product, size);
+    }
+    @Override
+    public List<Color> getColorsByProductId(Long productId) {
+        List<ProductDetail> productDetails = productDetailRepository.findByProductId(productId);
+        return productDetails.stream()
+                .map(ProductDetail::getColor)
+                .distinct()
+                .collect(Collectors.toList());
+    }
 }
+

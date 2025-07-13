@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -102,14 +101,9 @@ public class MaterialController {
         }
     }
 
-    @GetMapping("/material-toggle-status/{id}")
-    public String toggleStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
-        try {
-            materialService.delete(id); // Gọi hàm delete để đổi trạng thái
-            redirectAttributes.addFlashAttribute("successMessage", "Đổi trạng thái chất liệu thành công");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        }
+    @GetMapping("/material-delete/{id}")
+    public String delete(@PathVariable("id") Long id){
+        materialService.delete(id);
         return "redirect:/admin/material-all";
     }
 }

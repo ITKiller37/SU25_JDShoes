@@ -6,7 +6,6 @@ import com.example.jdshoes.dto.Bill.BillDtoInterface;
 import com.example.jdshoes.entity.Bill;
 import com.example.jdshoes.entity.enumClass.BillStatus;
 import com.example.jdshoes.entity.enumClass.InvoiceType;
-import com.jayway.jsonpath.JsonPath;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

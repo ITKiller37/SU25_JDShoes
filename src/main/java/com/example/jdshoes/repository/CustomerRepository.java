@@ -44,4 +44,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("select c from Customer c where (c.deleted is null or c.deleted = false)")
     Page<Customer> findAll(Pageable pageable);
+    @Query("SELECT c FROM Customer c WHERE c.account.role.name = com.example.jdshoes.entity.enumClass.RoleName.ROLE_USER AND c.deleted = false")
+    Page<Customer> findAllUserCustomers(Pageable pageable);
+
+    @Query("SELECT c FROM Customer c WHERE c.account.role.name = com.example.jdshoes.entity.enumClass.RoleName.ROLE_USER AND c.deleted = false AND (c.name LIKE :search OR c.email LIKE :search OR c.phoneNumber LIKE :search)")
+    Page<Customer> findAllUserCustomersBySearch(@Param("search") String search, Pageable pageable);
+
 }

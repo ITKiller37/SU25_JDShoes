@@ -1,18 +1,12 @@
 package com.example.jdshoes.service.Impl;
 
-import com.example.jdshoes.dto.Product.ProductDetailDto;
-import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
-import com.example.jdshoes.entity.ProductDiscount;
-import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service

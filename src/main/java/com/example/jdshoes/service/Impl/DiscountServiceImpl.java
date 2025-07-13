@@ -3,7 +3,6 @@ package com.example.jdshoes.service.Impl;
 import com.example.jdshoes.dto.Discount.DiscountDto;
 import com.example.jdshoes.dto.Discount.SearchDiscountCodeDto;
 import com.example.jdshoes.entity.Discount;
-import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.repository.DiscountRepository;
 import com.example.jdshoes.repository.Specification.DiscountCodeSpec;
 import com.example.jdshoes.service.DiscountService;
@@ -95,7 +94,7 @@ public class DiscountServiceImpl implements DiscountService {
         }
     }
 
-//    @Override
+    //    @Override
 //    public Discount updateStatus(Integer discountCodeId, int status) {
 //        Discount discountCode = discountRepository.findById(discountCodeId).orElseThrow(() -> new NotFoundException("Không tìm thấy mã giảm giá"));
 //        discountCode.setStatus(status);
@@ -120,5 +119,5 @@ public class DiscountServiceImpl implements DiscountService {
         return dto;
     }
 
-  
+
 }

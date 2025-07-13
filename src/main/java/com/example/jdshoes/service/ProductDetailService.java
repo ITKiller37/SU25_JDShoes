@@ -1,10 +1,8 @@
 package com.example.jdshoes.service;
 
-import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.entity.ProductDetail;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
