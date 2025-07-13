@@ -29,7 +29,9 @@ public class ProductDiscount {
     private String type;
     private BigDecimal value;
     private boolean closed;
+
     private String description;
+
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private BigDecimal discountedAmount;

@@ -4,6 +4,8 @@ import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
 import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
 import com.example.jdshoes.entity.Product;
+import com.example.jdshoes.entity.ProductDiscount;
+import com.example.jdshoes.repository.ProductDiscountRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductDiscountService;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -20,6 +23,7 @@ import java.util.List;
 public class ProductDiscountController {
     private final ProductDiscountService productDiscountService;
     private final ProductRepository productRepository;
+    private final ProductDiscountRepository productDiscountRepository;
 
     @DeleteMapping("/api/private/product-discount/{id}")
     @ResponseBody
@@ -53,11 +57,14 @@ public class ProductDiscountController {
 
     @GetMapping("/admin-only/product-discount/{id}")
     public String editDiscountForm(@PathVariable Long id, Model model) {
+
         ProductDiscountDto discountDto = productDiscountService.getById(id);
         model.addAttribute("discount", discountDto);
+        System.out.println("Mo ta" + discountDto.getDescription());
 
         List<Product> productList = productRepository.findAll();
         model.addAttribute("productDetails", productList);
+
 
         List<DiscountedProductDto> appliedProducts = productDiscountService.getDiscountedProductDtosByDiscountId(id);
         model.addAttribute("products", appliedProducts);
@@ -65,10 +72,11 @@ public class ProductDiscountController {
         return "admin/product-discount-edit";
     }
 
-    @PostMapping("/admin-only/product-discount/{id}/edit")
-    public String updateDiscount(@PathVariable Long id, @ModelAttribute ProductDiscountDto dto, RedirectAttributes redirect) {
-        productDiscountService.update(id, dto);
-        redirect.addFlashAttribute("message", "Cập nhật thành công");
-        return "redirect:/admin-only/product-discount";
-    }
+//    @PutMapping("/api/private/product-discount/{id}")
+//    public String updateProductDiscount(@PathVariable Long id,
+//                                        @RequestBody @Valid CreateProductDiscountRequest request) {
+//        productDiscountService.updateDiscount(id, request);
+//        return "Cập nhật đợt giảm giá thành công";
+//    }
+
 }

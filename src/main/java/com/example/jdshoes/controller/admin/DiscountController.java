@@ -94,6 +94,7 @@ public class DiscountController {
     }
     @GetMapping("/admin-only/detailDiscount/{id}")
     public String getDiscountById(@PathVariable("id") Integer id, Model model) {
+
         Discount discount = discountService.getDiscountById(id).get();
 
         model.addAttribute("discount", discount);

@@ -4,7 +4,9 @@ import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
 import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
 import com.example.jdshoes.entity.ProductDiscount;
+import jakarta.validation.Valid;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 public interface ProductDiscountService {
@@ -16,7 +18,7 @@ public interface ProductDiscountService {
 
     ProductDiscountDto getById(Long id);
 
-    void update(Long id, ProductDiscountDto dto);
-
     List<DiscountedProductDto> getDiscountedProductDtosByDiscountId(Long id);
+
+    void updateDiscount(Long id, @Valid CreateProductDiscountRequest request);
 }

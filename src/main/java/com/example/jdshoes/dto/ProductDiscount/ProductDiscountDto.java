@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.math.BigDecimal;
@@ -32,9 +33,10 @@ public class ProductDiscountDto {
     private boolean closed;
 
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDate;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDate;
 
     private BigDecimal discountedAmount;

@@ -3,6 +3,7 @@ package com.example.jdshoes.service.Impl;
 import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
 import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
+import com.example.jdshoes.entity.Discount;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.ProductDiscount;
 import com.example.jdshoes.entity.ProductDiscountDetail;
@@ -52,11 +53,13 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         dto.setId(discount.getId());
         dto.setCode(discount.getCode());
         dto.setName(discount.getName());
+        dto.setDescription(discount.getDescription());
         dto.setDiscountedAmount(discount.getDiscountedAmount());
         dto.setStartDate(discount.getStartDate());
         dto.setEndDate(discount.getEndDate());
         dto.setType(discount.getType());
         discount.setStatus(discount.getStatus());
+
 
         // Tính trạng thái theo ngày hiện tại
         LocalDateTime now = LocalDateTime.now();
@@ -169,21 +172,6 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         return convertToDto(discount);
     }
 
-    @Override
-    public void update(Long id, ProductDiscountDto dto) {
-        ProductDiscount discount = productDiscountRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy đợt"));
-
-        discount.setName(dto.getName());
-        discount.setValue(dto.getValue());
-        discount.setDiscountedAmount(dto.getDiscountedAmount());
-        discount.setStartDate(dto.getStartDate());
-        discount.setEndDate(dto.getEndDate());
-        discount.setDescription(dto.getDescription());
-        discount.setType(dto.getType());
-
-        productDiscountRepository.save(discount);
-    }
 
     @Override
     public List<DiscountedProductDto> getDiscountedProductDtosByDiscountId(Long discountId) {
@@ -202,7 +190,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
             dto.setColorName(pd.getColor().getName());
             dto.setBarcode(pd.getBarcode());
             dto.setOriginalPrice(pd.getPrice());
-
+            dto.setQuantity(pd.getQuantity());
             BigDecimal discountedPrice = pd.getPrice();
             if ("%".equals(discount.getType())) {
                 discountedPrice = pd.getPrice().subtract(
@@ -221,6 +209,36 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
             return dto;
         }).collect(Collectors.toList());
     }
+    @Override
+    public void updateDiscount(Long id, CreateProductDiscountRequest request) {
+        ProductDiscount discount = productDiscountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đợt giảm giá"));
+
+        discount.setName(request.getName());
+        discount.setType(request.getType());
+        discount.setValue(request.getValue());
+        discount.setStartDate(request.getStartDate());
+        discount.setEndDate(request.getEndDate());
+        discount.setDescription(request.getDescription());
+        discount.setDiscountedAmount(request.getDiscountedAmount());
+        discount.setCode(request.getCode());
+
+        // Cập nhật danh sách sản phẩm áp dụng
+        discount.getProductDiscountDetails().clear();
+
+        List<ProductDiscountDetail> newDetails = request.getProductDetailIds().stream()
+                .map(detailId -> {
+                    ProductDiscountDetail detail = new ProductDiscountDetail();
+                    detail.setProductDiscount(discount);
+                    detail.setProductDetail(productDetailRepository.findById(detailId).orElseThrow());
+                    return detail;
+                }).toList();
+
+        discount.getProductDiscountDetails().addAll(newDetails);
+
+        productDiscountRepository.save(discount);
+    }
+
 
 }
 
