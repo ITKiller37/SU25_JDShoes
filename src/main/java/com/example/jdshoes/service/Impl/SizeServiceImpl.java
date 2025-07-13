@@ -178,5 +178,6 @@ public class SizeServiceImpl implements SizeService {
                 .distinct()
                 .collect(Collectors.toList());
     }
+    // 2 cais nayf neax
 }
 
