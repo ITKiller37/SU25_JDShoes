@@ -29,4 +29,6 @@ public class DiscountedProductDto {
 
     private String discountName;
 
+    private Integer quantity;
+
 }

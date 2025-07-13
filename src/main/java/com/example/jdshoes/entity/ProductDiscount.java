@@ -8,45 +8,37 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name = "ProductDiscount")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDiscount {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
+    @Column(nullable = false, unique = true)
     private String code;
-
-
     private String name;
-
-
     private String type;
-
-
     private BigDecimal value;
-
     private boolean closed;
 
     private String description;
 
-
     private LocalDateTime startDate;
-
-
     private LocalDateTime endDate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductDetailId")
-    private ProductDetail productDetail;
-
     private BigDecimal discountedAmount;
+    private String status;
 
+    @OneToMany(mappedBy = "productDiscount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductDiscountDetail> productDiscountDetails = new ArrayList<>();
 
 }
+
