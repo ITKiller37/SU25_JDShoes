@@ -17,15 +17,16 @@ import com.example.jdshoes.repository.*;
 import com.example.jdshoes.service.CartService;
 import com.example.jdshoes.utils.UserLoginUtil;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -41,6 +42,9 @@ public class CartServiceImpl implements CartService {
     private final DiscountRepository discountRepository;
     private final ProductDiscountRepository productDiscountRepository;
     private final AddressShippingRepository addressShippingRepository;
+
+    @Autowired
+    private UserLoginUtil userLoginUtil;
 
     public CartServiceImpl(CartRepository cartRepository,
                            CartDetailRepository cartDetailRepository,
@@ -417,7 +421,7 @@ public class CartServiceImpl implements CartService {
     }
     @Override
     public List<CartDto> getAllCartByAccountId() {
-        Account account = UserLoginUtil.getCurrentLogin();
+        Account account = userLoginUtil.getCurrentLogin();
         if (account == null || account.getCustomer() == null) {
             throw new ShoesApiException(HttpStatus.UNAUTHORIZED, "Chưa đăng nhập hoặc tài khoản không hợp lệ");
         }

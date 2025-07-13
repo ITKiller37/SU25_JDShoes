@@ -1,13 +1,12 @@
 package com.example.jdshoes.entity;
 
-import com.example.jdshoes.entity.Customer;
-import com.example.jdshoes.entity.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
 import org.springframework.format.annotation.DateTimeFormat;
-
-
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
