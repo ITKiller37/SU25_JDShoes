@@ -1,6 +1,8 @@
 package com.example.jdshoes.dto.Product;
 
 import com.example.jdshoes.dto.Image.ImageDto;
+import com.example.jdshoes.entity.Color;
+import com.example.jdshoes.entity.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +31,15 @@ public class ProductDetailDto {
     private String materialName;
     private String categoryName;
 
-    private BigDecimal discountedAmount;
+    private Size size;
+    private Color color;
+    private BigDecimal discountedPrice;
 
+//    phải coa cái này nữa
+
+    private BigDecimal discountedAmount;
+    private Long colorId;
     private List<ImageDto> images;
 }
+
+
