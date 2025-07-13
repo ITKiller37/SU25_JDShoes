@@ -1,3 +1,4 @@
+
 package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.Size.SizeDto;
@@ -28,3 +29,4 @@ public interface SizeService {
 
     List<Size> getSizesByProductIdH(Long productId); // cai nay them vo nuwa
 }
+

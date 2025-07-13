@@ -1,13 +1,13 @@
 package com.example.jdshoes.controller.api;
 
-import com.example.jdshoes.dto.CheckOrderDto;
 import com.example.jdshoes.dto.Order.OrderDto;
 import com.example.jdshoes.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

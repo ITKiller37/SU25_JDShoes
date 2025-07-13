@@ -6,7 +6,6 @@ import com.example.jdshoes.dto.Bill.BillDtoInterface;
 import com.example.jdshoes.entity.Bill;
 import com.example.jdshoes.entity.enumClass.BillStatus;
 import com.example.jdshoes.entity.enumClass.InvoiceType;
-import com.example.jdshoes.repository.BillRepository;
 import com.example.jdshoes.service.BillService;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;

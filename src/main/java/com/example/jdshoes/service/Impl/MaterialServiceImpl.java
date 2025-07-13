@@ -1,8 +1,6 @@
 package com.example.jdshoes.service.Impl;
 
-import com.example.jdshoes.dto.Color.ColorDto;
 import com.example.jdshoes.dto.Material.MaterialDto;
-import com.example.jdshoes.entity.Color;
 import com.example.jdshoes.entity.Material;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;

@@ -1,6 +1,5 @@
 package com.example.jdshoes.dto.Product;
 
-import com.example.jdshoes.entity.Brand;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
