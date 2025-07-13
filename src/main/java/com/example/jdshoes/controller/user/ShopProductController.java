@@ -121,7 +121,7 @@ public class ShopProductController {
         Long productId = product.getId(); // Lấy id sản phẩm
 
         // Lấy size và color theo productId
-        List<Size> sizes = sizeService.getSizesByProductId(productId);
+        List<Size> sizes = sizeService.getSizesByProductIdH(productId);
         List<Color> colors = colorService.getColorsByProductId(productId);
 
         model.addAttribute("product", product);
@@ -137,5 +137,6 @@ public class ShopProductController {
 //        List<ProductDetailDto> productDetails = productDetailService.getByProductId(productId);
 //        return productDetails;
 //    }
+
 }
 

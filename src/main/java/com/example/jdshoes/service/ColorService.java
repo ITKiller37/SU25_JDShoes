@@ -37,6 +37,6 @@ public interface ColorService {
 
     List<Color> getColorsByProductIdAndSizeId(Long productId, Long sizeId) throws NotFoundException;
 
-    List<Color> getColorsByProductId(Long productId);
+    List<Color> getColorsByProductId(Long productId); // then cai nay vo
 }
 

@@ -27,6 +27,6 @@ public interface SizeService {
 
     List<Size> getAll();
 
-    List<Size> getSizesByProductIdH(Long productId);
+    List<Size> getSizesByProductIdH(Long productId); // cai nay them vo nuwa
 }
 
