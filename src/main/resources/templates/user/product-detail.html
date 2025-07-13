@@ -36,6 +36,26 @@
 
 
 </head>
+<style>
+    .wrap-slick3 {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .wrap-slick3-dots {
+        width: 80px;
+        margin-right: 20px;
+    }
+
+    .slick3 {
+        flex: 1;
+    }
+    .selected {
+        background-color: #000 !important;
+        color: #fff !important;
+        border: 2px solid #000 !important;
+    }
+</style>
 <body>
 
 <div layout:fragment="content">
@@ -89,8 +109,6 @@
                     <div class="p-l-25 p-r-30 p-lr-0-lg">
                         <div class="wrap-slick3 flex-sb flex-w">
                             <div class="wrap-slick3-dots"></div>
-                            <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
-
                             <div class="slick3 gallery-lb">
                                 <th:block th:each="image : ${product.productDetailDtos[0].images}">
                                     <div class="item-slick3" th:data-thumb="'/' + ${image.link}">
@@ -113,14 +131,7 @@
                         <h4 class="mtext-105 cl2 js-name-detail p-b-14" th:text="${product.name}">
                         </h4>
 
-                        <span class="mtext-106 cl2" id="price_product" th:text="${#numbers.formatDecimal(product.productDetailDtos[0].price, 0, 'POINT', 0, 'COMMA') + ' đ'}">
-
-						</span>
-						</span>
-
-<!--                        <p class="stext-102 cl3 p-t-23" th:text="${product.describe}">-->
-<!--                            Một kết hợp từ sự thoải mái cùng độ ấm áp trong thiết kế cổ lọ.-->
-<!--                        </p>-->
+                        <span class="mtext-106 cl2" id="price_product" th:text="${#numbers.formatDecimal(product.productDetailDtos[0].price, 0, 'POINT', 0, 'COMMA') + ' đ'}"></span>
 
                         <p class="stext-102 cl3 p-t-23">
                             <span ><i class="fa fa-copyright"></i></span>&nbsp;Nhãn hiệu: <span class="font-weight-bold" th:text="${product.productDetailDtos[0].brandName}"></span> <br>
@@ -138,38 +149,29 @@
                                     Kích cỡ
                                 </div>
                                 <div class="size-204 respon6-next">
-                                    <div class="rs1-select2 bor8 bg0">
-                                        <select class="js-select2" name="size" id="sizeSelect">
-<!--                                            <option th:value="0">Choose a size</option>-->
-<!--                                            <th:block th:each="size : ${listSizes}">-->
-<!--                                                <option th:value="${size.id}" th:text="${size.name}"></option>-->
-<!--                                            </th:block>-->
-                                        </select>
-                                        <div class="dropDownSelect2"></div>
+                                    <div class="btn-group flex-wrap d-flex gap-2" role="group" id="size-button-group">
+                                        <!-- Nút size sẽ được thêm bằng JS -->
                                     </div>
+                                    <input type="hidden" name="size" id="sizeSelect">
                                 </div>
                             </div>
-
                             <div class="flex-w flex-r-m p-b-10">
                                 <div class="size-203 respon6">
-                                    Màu
+                                    Màu Sắc
                                 </div>
-
                                 <div class="size-204 respon6-next">
-                                    <div class="rs1-select2 bor8 bg0">
-                                        <select class="js-select2" name="time" id="colorSelect">
-                                            <option th:value="0">Choose a color</option>
-                                            <th:block th:each="color : ${listColors}">
-                                                <option th:value="${color.id}" th:text="${color.name}"></option>
-                                            </th:block>
-                                        </select>
-                                        <div class="dropDownSelect2"></div>
+                                    <div class="btn-group flex-wrap d-flex gap-2" role="group" id="color-button-group">
+                                        <!-- Nút màu sắc sẽ được thêm bằng JS -->
                                     </div>
+                                    <input type="hidden" name="color" id="colorSelect">
                                 </div>
                             </div>
-                            <input type="hidden" name="productDetailId", id="productDetailId">
+
+                            <input type="hidden" name="productDetailId" id="productDetailId">
+
                             <div class="flex-w flex-r-m p-b-10">
                                 <div class="size-204 flex-w flex-m respon6-next">
+                                    <!-- Nhóm số lượng và còn hàng -->
                                     <div class="wrap-num-product flex-w m-r-20 m-tb-10">
                                         <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
                                             <i class="fs-16 zmdi zmdi-minus"></i>
@@ -182,764 +184,91 @@
                                             <i class="fs-16 zmdi zmdi-plus"></i>
                                         </div>
                                     </div>
+
                                     <span class="remaning-product" style="font-size: 12px"></span>
+                                </div>
+                            </div>
+
+                            <!-- Đưa nút Thêm vào giỏ xuống dưới -->
+                            <div class="flex-w flex-r-m p-b-10">
+                                <div class="size-204 flex-w flex-m respon6-next">
                                     <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
                                         Thêm vào giỏ
                                     </button>
                                 </div>
                             </div>
                         </div>
-
-                        <!--  -->
-                        <div class="flex-w flex-m p-l-100 p-t-40 respon7">
-                            <div class="flex-m bor9 p-r-10 m-r-11">
-                                <a href="#"
-                                   class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100"
-                                   data-tooltip="Add to Wishlist">
-                                    <i class="zmdi zmdi-favorite"></i>
-                                </a>
-                            </div>
-
-                            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                               data-tooltip="Facebook">
-                                <i class="fa fa-facebook"></i>
-                            </a>
-
-                            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                               data-tooltip="Twitter">
-                                <i class="fa fa-twitter"></i>
-                            </a>
-
-                            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                               data-tooltip="Google Plus">
-                                <i class="fa fa-google-plus"></i>
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
 
-<!--            <div class="bor10 m-t-50 p-t-43 p-b-40">-->
-<!--                &lt;!&ndash; Tab01 &ndash;&gt;-->
-<!--                <div class="tab01">-->
-<!--                    &lt;!&ndash; Nav tabs &ndash;&gt;-->
-<!--                    <ul class="nav nav-tabs" role="tablist">-->
-<!--                        <li class="nav-item p-b-10">-->
-<!--                            <a class="nav-link active" data-toggle="tab" href="#description" role="tab">Description</a>-->
-<!--                        </li>-->
-
-<!--                        <li class="nav-item p-b-10">-->
-<!--                            <a class="nav-link" data-toggle="tab" href="#information" role="tab">Additional-->
-<!--                                information</a>-->
-<!--                        </li>-->
-
-<!--                        <li class="nav-item p-b-10">-->
-<!--                            <a class="nav-link" data-toggle="tab" href="#reviews" role="tab">Reviews (1)</a>-->
-<!--                        </li>-->
-<!--                    </ul>-->
-
-<!--                    &lt;!&ndash; Tab panes &ndash;&gt;-->
-<!--                    <div class="tab-content p-t-43">-->
-<!--                        &lt;!&ndash; - &ndash;&gt;-->
-<!--                        <div class="tab-pane fade show active" id="description" role="tabpanel">-->
-<!--                            <div class="how-pos2 p-lr-15-md">-->
-<!--                                <p class="stext-102 cl6">-->
-<!--                                    Aenean sit amet gravida nisi. Nam fermentum est felis, quis feugiat nunc fringilla-->
-<!--                                    sit amet. Ut in blandit ipsum. Quisque luctus dui at ante aliquet, in hendrerit-->
-<!--                                    lectus interdum. Morbi elementum sapien rhoncus pretium maximus. Nulla lectus enim,-->
-<!--                                    cursus et elementum sed, sodales vitae eros. Ut ex quam, porta consequat interdum-->
-<!--                                    in, faucibus eu velit. Quisque rhoncus ex ac libero varius molestie. Aenean tempor-->
-<!--                                    sit amet orci nec iaculis. Cras sit amet nulla libero. Curabitur dignissim, nunc nec-->
-<!--                                    laoreet consequat, purus nunc porta lacus, vel efficitur tellus augue in ipsum. Cras-->
-<!--                                    in arcu sed metus rutrum iaculis. Nulla non tempor erat. Duis in egestas nunc.-->
-<!--                                </p>-->
-<!--                            </div>-->
-<!--                        </div>-->
-
-<!--                        &lt;!&ndash; - &ndash;&gt;-->
-<!--                        <div class="tab-pane fade" id="information" role="tabpanel">-->
-<!--                            <div class="row">-->
-<!--                                <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">-->
-<!--                                    <ul class="p-lr-28 p-lr-15-sm">-->
-
-<!--                                        <li class="flex-w flex-t p-b-7">-->
-<!--											<span class="stext-102 cl3 size-205">-->
-<!--												Chất liệu-->
-<!--											</span>-->
-
-<!--                                            <span class="stext-102 cl6 size-206" th:text="${product.material}">-->
-<!--											</span>-->
-<!--                                        </li>-->
-
-<!--                                        <li class="flex-w flex-t p-b-7">-->
-<!--											<span class="stext-102 cl3 size-205">-->
-<!--												Màu sắc-->
-<!--											</span>-->
-
-<!--                                            <span class="stext-102 cl6 size-206" th:text="${product.productDetails.get(0).color}">-->
-<!--											</span>-->
-<!--                                        </li>-->
-
-<!--                                        <li class="flex-w flex-t p-b-7">-->
-<!--											<span class="stext-102 cl3 size-205" >-->
-<!--												Kích cỡ-->
-<!--											</span>-->
-
-<!--                                            <span class="stext-102 cl6 size-206" th:text="${product.productDetails.get(0).size}">-->
-<!--											</span>-->
-<!--                                        </li>-->
-<!--                                    </ul>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-
-<!--                        &lt;!&ndash; - &ndash;&gt;-->
-<!--                        <div class="tab-pane fade" id="reviews" role="tabpanel">-->
-<!--                            <div class="row">-->
-<!--                                <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">-->
-<!--                                    <div class="p-b-30 m-lr-15-sm">-->
-<!--                                        &lt;!&ndash; Review &ndash;&gt;-->
-<!--                                        <div class="flex-w flex-t p-b-68">-->
-<!--                                            <div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">-->
-<!--                                                <img src="images/avatar-01.jpg" alt="AVATAR">-->
-<!--                                            </div>-->
-
-<!--                                            <div class="size-207">-->
-<!--                                                <div class="flex-w flex-sb-m p-b-17">-->
-<!--													<span class="mtext-107 cl2 p-r-20">-->
-<!--														Ariana Grande-->
-<!--													</span>-->
-
-<!--                                                    <span class="fs-18 cl11">-->
-<!--														<i class="zmdi zmdi-star"></i>-->
-<!--														<i class="zmdi zmdi-star"></i>-->
-<!--														<i class="zmdi zmdi-star"></i>-->
-<!--														<i class="zmdi zmdi-star"></i>-->
-<!--														<i class="zmdi zmdi-star-half"></i>-->
-<!--													</span>-->
-<!--                                                </div>-->
-
-<!--                                                <p class="stext-102 cl6">-->
-<!--                                                    Quod autem in homine praestantissimum atque optimum est, id-->
-<!--                                                    deseruit. Apud ceteros autem philosophos-->
-<!--                                                </p>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-
-<!--                                        &lt;!&ndash; Add review &ndash;&gt;-->
-<!--                                        <form class="w-full">-->
-<!--                                            <h5 class="mtext-108 cl2 p-b-7">-->
-<!--                                                Add a review-->
-<!--                                            </h5>-->
-
-<!--                                            <p class="stext-102 cl6">-->
-<!--                                                Your email address will not be published. Required fields are marked *-->
-<!--                                            </p>-->
-
-<!--                                            <div class="flex-w flex-m p-t-50 p-b-23">-->
-<!--												<span class="stext-102 cl3 m-r-16">-->
-<!--													Your Rating-->
-<!--												</span>-->
-
-<!--                                                <span class="wrap-rating fs-18 cl11 pointer">-->
-<!--													<i class="item-rating pointer zmdi zmdi-star-outline"></i>-->
-<!--													<i class="item-rating pointer zmdi zmdi-star-outline"></i>-->
-<!--													<i class="item-rating pointer zmdi zmdi-star-outline"></i>-->
-<!--													<i class="item-rating pointer zmdi zmdi-star-outline"></i>-->
-<!--													<i class="item-rating pointer zmdi zmdi-star-outline"></i>-->
-<!--													<input class="dis-none" type="number" name="rating">-->
-<!--												</span>-->
-<!--                                            </div>-->
-
-<!--                                            <div class="row p-b-25">-->
-<!--                                                <div class="col-12 p-b-5">-->
-<!--                                                    <label class="stext-102 cl3" for="review">Your review</label>-->
-<!--                                                    <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10"-->
-<!--                                                              id="review" name="review"></textarea>-->
-<!--                                                </div>-->
-
-<!--                                                <div class="col-sm-6 p-b-5">-->
-<!--                                                    <label class="stext-102 cl3" for="name">Name</label>-->
-<!--                                                    <input class="size-111 bor8 stext-102 cl2 p-lr-20" id="name"-->
-<!--                                                           type="text" name="name">-->
-<!--                                                </div>-->
-
-<!--                                                <div class="col-sm-6 p-b-5">-->
-<!--                                                    <label class="stext-102 cl3" for="email">Email</label>-->
-<!--                                                    <input class="size-111 bor8 stext-102 cl2 p-lr-20" id="email"-->
-<!--                                                           type="text" name="email">-->
-<!--                                                </div>-->
-<!--                                            </div>-->
-
-<!--                                            <button-->
-<!--                                                    class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 m-b-10">-->
-<!--                                                Submit-->
-<!--                                            </button>-->
-<!--                                        </form>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
         </div>
 
-<!--        <div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">-->
-<!--			<span class="stext-107 cl6 p-lr-25">-->
-<!--				SKU: JAK-01-->
-<!--			</span>-->
-
-<!--            <span class="stext-107 cl6 p-lr-25">-->
-<!--				Categories: Jacket, Men-->
-<!--			</span>-->
-<!--        </div>-->
+<!--daay cos au r-->
     </section>
 
-
-    <!-- Related Products -->
-<!--    <section class="sec-relate-product bg0 p-t-45 p-b-105">-->
-<!--        <div class="container">-->
-<!--            <div class="p-b-45">-->
-<!--                <h3 class="ltext-106 cl5 txt-center">-->
-<!--                    Related Products-->
-<!--                </h3>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Slide2 &ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="wrap-slick2">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="slick2">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-01.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Esprit Ruffle Shirt&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$16.64&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-02.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Herschel supply&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$35.31&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-03.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Only Check Trouser&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$25.50&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-04.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Classic Trench Coat&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$75.00&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-05.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Front Pocket Jumper&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$34.75&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-06.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Vintage Inspired Classic&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$93.20&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-07.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Shirt in Stretch Cotton&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$52.66&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">&ndash;&gt;-->
-<!--&lt;!&ndash;                        &lt;!&ndash; Block2 &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                        <div class="block2">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div class="block2-pic hov-img0">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <img src="images/product-08.jpg" alt="IMG-PRODUCT">&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <a href="#"&ndash;&gt;-->
-<!--&lt;!&ndash;                                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    Quick View&ndash;&gt;-->
-<!--&lt;!&ndash;                                </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                            <div class="block2-txt flex-w flex-t p-t-14">&ndash;&gt;-->
-<!--&lt;!&ndash;                                <div class="block2-txt-child1 flex-col-l ">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="product-detail.html"&ndash;&gt;-->
-<!--&lt;!&ndash;                                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        Pieces Metallic Printed&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                    <span class="stext-105 cl3">&ndash;&gt;-->
-<!--&lt;!&ndash;										$18.96&ndash;&gt;-->
-<!--&lt;!&ndash;									</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-
-<!--&lt;!&ndash;                                <div class="block2-txt-child2 flex-r p-t-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"&ndash;&gt;-->
-<!--&lt;!&ndash;                                             src="images/icons/icon-heart-02.png" alt="ICON">&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-<!--&lt;!&ndash;                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--        </div>-->
-<!--    </section>-->
-
-    <!-- Back to top -->
-    <div class="btn-back-to-top" id="myBtn">
-		<span class="symbol-btn-back-to-top">
-			<i class="zmdi zmdi-chevron-up"></i>
-		</span>
-    </div>
-
-    <!-- Modal1 -->
-    <div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
-        <div class="overlay-modal1 js-hide-modal1"></div>
-
-        <div class="container">
-            <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
-                <button class="how-pos3 hov3 trans-04 js-hide-modal1">
-                    <img src="/image1/icons/icon-close.png" alt="CLOSE">
-                </button>
-
-                <div class="row">
-                    <div class="col-md-6 col-lg-7 p-b-30">
-                        <div class="p-l-25 p-r-30 p-lr-0-lg">
-                            <div class="wrap-slick3 flex-sb flex-w">
-                                <div class="wrap-slick3-dots"></div>
-                                <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
-
-                                <div class="slick3 gallery-lb">
-                                    <div class="item-slick3" data-thumb="image1/product-detail-01.jpg">
-                                        <div class="wrap-pic-w pos-relative">
-                                            <img src="/image1/product-detail-01.jpg" alt="IMG-PRODUCT">
-
-                                            <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
-                                               href="/image1/product-detail-01.jpg">
-                                                <i class="fa fa-expand"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="item-slick3" data-thumb="image1/product-detail-02.jpg">
-                                        <div class="wrap-pic-w pos-relative">
-                                            <img src="/image1/product-detail-02.jpg" alt="IMG-PRODUCT">
-
-                                            <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
-                                               href="/image1/product-detail-02.jpg">
-                                                <i class="fa fa-expand"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="item-slick3" data-thumb="image1/product-detail-03.jpg">
-                                        <div class="wrap-pic-w pos-relative">
-                                            <img src="/image1/product-detail-03.jpg" alt="IMG-PRODUCT">
-
-                                            <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
-                                               href="/image1/product-detail-03.jpg">
-                                                <i class="fa fa-expand"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-lg-5 p-b-30">
-                        <div class="p-r-50 p-t-5 p-lr-0-lg">
-                            <h4 class="mtext-105 cl2 js-name-detail p-b-14">
-                                Lightweight Jacket
-                            </h4>
-
-                            <span class="mtext-106 cl2">
-								$58.79
-							</span>
-
-                            <p class="stext-102 cl3 p-t-23">
-                                Với cách phối màu khác kết hợp với đường viền ở tay và cổ áo đã làm thiết kế trở nên nổi bật và trẻ trung hơn. Chi tiết túi được may bên trong áo đã thể hiện được sự tinh tế của thiết kế khi vừa giữ được tính thẩm mỹ cho trang phục
-                            </p>
-
-                            <!--  -->
-                            <div class="p-t-33">
-                                <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-203 flex-c-m respon6">
-                                        Size
-                                    </div>
-
-                                    <div class="size-204 respon6-next">
-                                        <div class="rs1-select2 bor8 bg0">
-                                            <select class="js-select2" name="time">
-                                                <option>Chọn cỡ</option>
-                                                <option>Size S</option>
-                                                <option>Size M</option>
-                                                <option>Size L</option>
-                                                <option>Size XL</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-203 flex-c-m respon6">
-                                        Color
-                                    </div>
-
-                                    <div class="size-204 respon6-next">
-                                        <div class="rs1-select2 bor8 bg0">
-                                            <select class="js-select2" name="time">
-                                                <option>Chọn màu</option>
-                                                <option>Red</option>
-                                                <option>Blue</option>
-                                                <option>White</option>
-                                                <option>Grey</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-204 flex-w flex-m respon6-next">
-                                        <div class="wrap-num-product flex-w m-r-20 m-tb-10">
-                                            <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-                                                <i class="fs-16 zmdi zmdi-minus"></i>
-                                            </div>
-
-                                            <input class="mtext-104 cl3 txt-center num-product" type="number"
-                                                   name="num-product" value="1">
-
-                                            <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-                                                <i class="fs-16 zmdi zmdi-plus"></i>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                                class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
-                                            Add to cart
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!--  -->
-                            <div class="flex-w flex-m p-l-100 p-t-40 respon7">
-                                <div class="flex-m bor9 p-r-10 m-r-11">
-                                    <a href="#"
-                                       class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100"
-                                       data-tooltip="Add to Wishlist">
-                                        <i class="zmdi zmdi-favorite"></i>
-                                    </a>
-                                </div>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                   data-tooltip="Facebook">
-                                    <i class="fa fa-facebook"></i>
-                                </a>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                   data-tooltip="Twitter">
-                                    <i class="fa fa-twitter"></i>
-                                </a>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                   data-tooltip="Google Plus">
-                                    <i class="fa fa-google-plus"></i>
-                                </a>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" th:inline="javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" th:inline="javascript"></script>
+    <script src="/vendor/slick/slick.min.js"></script>
     <script th:inline="javascript">
-        /*<![CDATA[*/
+        let sizes = /*[[${listSizes}]]*/ [];
+        let colors = /*[[${listColors}]]*/ [];
         var productId = /*[[${product.id}]]*/ 'default-value';
         var productCode = /*[[${product.code}]]*/ 'default-value';
         /*]]>*/
         var isUserLoggedIn = /*[[${#authorization.expression('isAuthenticated()')}]]*/ 'abc';
-            $.ajax({
-                type: 'GET',
-                dataType: "json",
-                url: "/colors/" + productId + "/" + "product",
-                success: function (data) {
-                    loadColorSelect(data)
-                }
-            })
 
-        $.ajax({
-            type: 'GET',
-            dataType: "json",
-            url: "/sizes/" + productId + "/" + "product",
-            success: function (data) {
-                loadSizeSelect(data)
-            },
-        })
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sizeGroup = document.getElementById("size-button-group");
+            const sizeInput = document.getElementById("sizeSelect");
 
+            sizes.forEach(size => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "btn btn-outline-dark";
+                button.textContent = size.name; // hoặc size.ten nếu bạn dùng tiếng Việt
+                button.setAttribute("data-id", size.id); // gán id để submit
+                button.addEventListener("click", function () {
+                    // Bỏ active ở tất cả nút
+                    sizeGroup.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+                    // Active nút hiện tại
+                    button.classList.add("active");
+                    // Gán giá trị cho input ẩn
+                    sizeInput.value = size.id
+                    // Gọi xử lý khi chọn kích cỡ
+                    handleSizeChange(size.id);
+                });
+                sizeGroup.appendChild(button);
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const colorGroup = document.getElementById("color-button-group");
+            const colorInput = document.getElementById("colorSelect");
 
-        async function handleColorChange(colorId) {
-            if ($("#colorSelect").val() == "") {
-                enableAllColorOptions()
-                $("#colorSelect").select2()
-                return
-            }
-            else if ($("#sizeSelect").val() !== "") {
-                 loadPrice()
-            }
-        }
+            colors.forEach(color => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "btn btn-outline-dark";
+                button.textContent = color.name;
+                button.setAttribute("data-id", color.id);
 
-        $(document).ready(function () {
-            $("#sizeSelect").on('change', function (e) {
-                var sizeId = $(this).val()
-                handleSizeChange(sizeId)
-            })
-            
-            $("#colorSelect").on('change', function (e) {
-                var colorId = $(this).val()
-                handleColorChange(colorId)
-            })
+                button.addEventListener("click", function () {
+                    // Bỏ active ở tất cả nút
+                    colorGroup.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+                    // Active nút hiện tại
+                    button.classList.add("active");
+                    // Gán giá trị cho input ẩn
+                    colorInput.value = color.id;
 
+                    // Gọi hàm đổi ảnh
+                    handleColorChange(color.id);
+                });
 
-            $(".js-addcart-detail").on('click', function (e) {
-                if(!isUserLoggedIn) {
-                    $('#loginModal').modal('show');
-                    localStorage.setItem("redirect", `/product-detail/${productCode}`)
-                }else {
-                    addToCart()
-                }
+                colorGroup.appendChild(button);
+            });
 
-            })
-
-
-            // $(document).ajaxStart(function() {
-            //     $('#loading-overlay').show();
-            // });
-            //
-            // $(document).ajaxStop(function() {
-            //     $('#loading-overlay').hide();
-            // });
-        })
+        });
 
         var initiallyAvailableColors = [];
         var availableColors = [];
@@ -976,62 +305,98 @@
             });
             $('#loading-overlay').hide()
         }
-
         function formatNumber(number) {
             return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
-        function enableAllColorOptions() {
-            // Enable all color options
-            $("#colorSelect option").removeAttr("disabled");
-        }
-
-        function disableColorOption(colorId) {
-            // Disable a specific color option by its value
-
-            $("#colorSelect option[value='" + colorId + "']").attr("disabled", "disabled");
-        }
-
-        function loadColorSelect(data) {
-            var selectElement = document.getElementById("colorSelect");
-
-            selectElement.innerHTML = '';
-
-            var defaultOption = document.createElement("option");
-            defaultOption.text = "Chọn màu";
-            defaultOption.value = "";
-            selectElement.appendChild(defaultOption);
-
-            for (var i = 0; i < data.length; i++) {
-                var option = document.createElement("option");
-                option.text = data[i].name;
-                option.value = data[i].id;
-                selectElement.appendChild(option);
+        async function handleColorChange(colorId) {
+            if ($("#sizeSelect").val() !== "") {
+                // Nếu đã có size thì gọi load giá và tồn kho
+                await loadPrice();
             }
-            // Initialize initiallyAvailableColors with the currently available colors
-            initiallyAvailableColors = data.map(function(color) {
-                return color.id;
+
+            $('#loading-overlay').show();
+            await $.ajax({
+                type: 'GET',
+                dataType: "json",
+                url: `/images/${productId}/product/${colorId}/color`,
+                success: function (images) {
+                    updateProductImages(images);
+                },
+                error: function () {
+                    console.error("Không tải được ảnh theo màu.");
+                },
+                complete: function () {
+                    $('#loading-overlay').hide();
+                }
             });
-            availableColors = initiallyAvailableColors
-
         }
 
-        function loadSizeSelect(data) {
-            var selectElement = document.getElementById("sizeSelect");
+        function updateProductImages(images) {
+            const slickContainer = $(".slick3");
+            const dotsContainer = $(".wrap-slick3-dots");
 
-            selectElement.innerHTML = '';
-
-            var defaultOption = document.createElement("option");
-            defaultOption.text = "Chọn cỡ";
-            defaultOption.value = ""
-            selectElement.appendChild(defaultOption);
-
-            for (var i = 0; i < data.length; i++) {
-                var option = document.createElement("option");
-                option.text = data[i].name;
-                option.value = data[i].id;
-                selectElement.appendChild(option);
+            if (slickContainer.hasClass('slick-initialized')) {
+                slickContainer.slick('unslick');
             }
+            if (dotsContainer.hasClass('slick-initialized')) {
+                dotsContainer.slick('unslick');
+            }
+
+            slickContainer.html('');
+            dotsContainer.html('');
+
+            const loadImagePromises = [];
+
+            images.forEach((image, index) => {
+                const img = new Image();
+                img.src = "/" + image.link;
+
+                const loadPromise = new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+                loadImagePromises.push(loadPromise);
+
+                const mainItem = `
+                <div class="item-slick3" data-thumb="/${image.link}" data-slick-index="${index}">
+                    <div class="wrap-pic-w pos-relative">
+                        <img src="/${image.link}" alt="IMG-PRODUCT">
+                        <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="/${image.link}">
+                            <i class="fa fa-expand"></i>
+                        </a>
+                    </div>
+                </div>`;
+
+                const dotItem = `
+                <div class="item-slick3" data-slick-index="${index}">
+                    <img src="/${image.link}" alt="IMG-PRODUCT" />
+                </div>`;
+
+                slickContainer.append(mainItem);
+                dotsContainer.append(dotItem);
+            });
+
+            Promise.all(loadImagePromises).then(() => {
+                slickContainer.slick({
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    arrows: false,
+                    fade: true,
+                    asNavFor: '.wrap-slick3-dots'
+                });
+
+                dotsContainer.slick({
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                    asNavFor: '.slick3',
+                    dots: false,
+                    focusOnSelect: true,
+                    vertical: true,
+                    verticalSwiping: true,
+                    arrows: false
+                });
+            });
         }
 
         async function loadPrice() {
@@ -1140,8 +505,6 @@
 
                 }
             })
-
-
         }
 
         function checkColorAndSizeSelect() {
@@ -1151,9 +514,7 @@
             }
             return true
         }
-
     </script>
 </div>
-
 </body>
 </html>

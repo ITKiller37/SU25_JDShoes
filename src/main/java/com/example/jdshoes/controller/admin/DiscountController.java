@@ -3,7 +3,6 @@ package com.example.jdshoes.controller.admin;
 //import com.example.jdshoes.dto.DiscountDto;
 import com.example.jdshoes.dto.Discount.SearchDiscountCodeDto;
 import com.example.jdshoes.entity.Discount;
-import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.repository.DiscountRepository;
 import com.example.jdshoes.service.DiscountService;
 import jakarta.validation.Valid;
@@ -21,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +91,6 @@ public class DiscountController {
     }
     @GetMapping("/admin-only/detailDiscount/{id}")
     public String getDiscountById(@PathVariable("id") Integer id, Model model) {
-
         Discount discount = discountService.getDiscountById(id).get();
 
         model.addAttribute("discount", discount);

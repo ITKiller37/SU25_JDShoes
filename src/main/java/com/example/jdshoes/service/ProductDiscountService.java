@@ -1,3 +1,4 @@
+
 package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
@@ -22,3 +23,4 @@ public interface ProductDiscountService {
 
     void updateDiscount(Long id, @Valid CreateProductDiscountRequest request);
 }
+

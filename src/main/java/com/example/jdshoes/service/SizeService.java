@@ -1,3 +1,4 @@
+
 package com.example.jdshoes.service;
 
 import com.example.jdshoes.dto.Size.SizeDto;
@@ -25,4 +26,7 @@ public interface SizeService {
     void delete(Long id);
 
     List<Size> getAll();
+
+    List<Size> getSizesByProductIdH(Long productId); // cai nay them vo nuwa
 }
+

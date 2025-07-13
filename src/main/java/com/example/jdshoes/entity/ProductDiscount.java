@@ -41,3 +41,4 @@ public class ProductDiscount {
     private List<ProductDiscountDetail> productDiscountDetails = new ArrayList<>();
 
 }
+

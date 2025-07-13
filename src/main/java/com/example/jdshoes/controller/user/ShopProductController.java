@@ -1,3 +1,4 @@
+
 package com.example.jdshoes.controller.user;
 
 import com.example.jdshoes.dto.Product.ProductDetailDto;
@@ -94,9 +95,6 @@ public class ShopProductController {
                         .map(Object::toString) // Chuyển đổi mỗi số thành chuỗi
                         .collect(Collectors.joining(","));
             }
-//            if(searchProductDto.getGender() != null) {
-//                url += "&gender=" + searchProductDto.getGender();
-//            }
             model.addAttribute("url", url);
         }
 
@@ -105,19 +103,6 @@ public class ShopProductController {
         model.addAttribute("dataFilter", searchProductDto);
         return "user/shop-product";
     }
-
-
-//    private ProductDto mapToDto(Product product) {
-//        ProductDto productDto = new ProductDto();
-//        productDto.setId(product.getId());
-//        productDto.setName(product.getName());
-//        productDto.setCode(product.getCode());
-//        productDto.setBrandId(product.getBrand().getId());
-//        productDto.setMaterialId(product.getMaterial().getId());
-//        productDto.setCreateDate(product.getCreateDate());
-//        productDto.setUpdatedDate(product.getUpdatedDate());
-//        productDto.setImageUrl(product.getImage().get(0).getLink());
-//    }
 
     @GetMapping("/getproduct/search")
     public String getProductSearch(Model model, Pageable pageable, SearchProductDto searchDto) {
@@ -132,25 +117,27 @@ public class ShopProductController {
         if (product == null) {
             return "/error/404";
         }
+
+        Long productId = product.getId(); // Lấy id sản phẩm
+
+        // Lấy size và color theo productId
+        List<Size> sizes = sizeService.getSizesByProductIdH(productId);
+        List<Color> colors = colorService.getColorsByProductId(productId);
+
         model.addAttribute("product", product);
+        model.addAttribute("listSizes", sizes);
+        model.addAttribute("listColors", colors);
+
         return "user/product-detail";
     }
 
-
-//    @ResponseBody
-//    @GetMapping("/productDetails/{productId}/product")
-//    public List<ProductDetailDto> getProductDetailJson(@PathVariable Long productId) throws NotFoundException {
-//        List<ProductDetailDto> productDetails = productDetailService.getByProductId(productId);
-//        return productDetails;
-//    }
-
-    @ModelAttribute("listSizes")
-    public List<Size> getSize() {
-        return sizeService.getAll();
+    @ResponseBody
+    @GetMapping("/productDetails/{productId}/product")
+    public List<ProductDetailDto> getProductDetailJson(@PathVariable Long productId) throws NotFoundException {
+        List<ProductDetailDto> productDetails = productDetailService.getByProductId(productId);
+        return productDetails;
     }
+//<!--daay cos au r-->
 
-    @ModelAttribute("listColors")
-    public List<Color> getColor() {
-        return colorService.findAll();
-    }
 }
+

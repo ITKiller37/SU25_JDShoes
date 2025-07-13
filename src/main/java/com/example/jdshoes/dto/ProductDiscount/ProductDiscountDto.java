@@ -43,3 +43,4 @@ public class ProductDiscountDto {
 
     private List<Long> productDetailIds;
 }
+
