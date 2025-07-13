@@ -2,19 +2,33 @@ package com.example.jdshoes.utils;
 
 
 import com.example.jdshoes.entity.Account;
-import com.example.jdshoes.sercurity.CustomUserDetails;
+import com.example.jdshoes.repository.AccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserLoginUtil {
-    public static Account getCurrentLogin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() instanceof CustomUserDetails) {
-            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-            return customUserDetails.getAccount();
-        }
 
-        // Handle the case where the principal is not a CustomUserDetails
-        return null; // or throw an exception, depending on your use case
+    @Autowired
+    private AccountRepository accountRepository;
+
+
+
+    public Account getCurrentLogin(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            System.out.println("username: "+username);
+            if(username.equalsIgnoreCase("anonymousUser")){
+                return null;
+            }
+            Account user = accountRepository.findByEmail(username);
+            return user;
+        }
+        return null;
     }
+
 }

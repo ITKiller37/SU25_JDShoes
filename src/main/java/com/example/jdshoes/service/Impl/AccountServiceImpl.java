@@ -17,11 +17,12 @@ import com.example.jdshoes.repository.CustomerRepository;
 import com.example.jdshoes.service.AccountService;
 import com.example.jdshoes.utils.UserLoginUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private AddressShippingRepository addressShippingRepository;
+
+    @Autowired
+    private UserLoginUtil userLoginUtil;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -108,7 +112,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto getAccountLogin() {
-        Account account = UserLoginUtil.getCurrentLogin();
+        Account account = userLoginUtil.getCurrentLogin();
         Customer customer = customerRepository.findByAccount_Id(account.getId());
         account.setCustomer(customer);
         return convertToDto(account);
@@ -116,7 +120,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto updateProfile(AccountDto accountDto) {
-        Account account = UserLoginUtil.getCurrentLogin();
+        Account account = userLoginUtil.getCurrentLogin();
         Customer customer = customerRepository.findByAccount_Id(account.getId());
         if(!accountDto.getPhoneNumber().trim().equals(customer.getPhoneNumber())) {
             if(customerRepository.existsByPhoneNumber(accountDto.getPhoneNumber())) {
@@ -131,7 +135,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void changePassword(ChangePasswordDto changePasswordDto) {
-        Account account = UserLoginUtil.getCurrentLogin();
+        Account account = userLoginUtil.getCurrentLogin();
         // Kiểm tra mật khẩu hiện tại
         if (!passwordEncoder.matches(changePasswordDto.getCurrentPassword(), account.getPassword())) {
             throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Mật khẩu hiện tại không chính xác");

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Cập nhật đợt giảm giá</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.1.1/flowbite.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplePagination.js/1.4/jquery.simplePagination.min.js" integrity="sha512-J4OD+6Nca5l8HwpKlxiZZ5iF79e9sgRGSf0GxLsL1W55HHdg48AEiKCXqvQCNtA1NOMOVrw15DXnVuPpBm2mPg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simplePagination.js/1.4/simplePagination.min.css" integrity="sha512-85KEMf8eFSgiFrs/gGSVg0S6JqrmCtvVcA+s1PTMl/qtqH0ucmhrYrAFXock7iSjCaVcCMUNgCEF+sdQBUp7pA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="overlay"></div>
+<!-- Main modal -->
+<div class="main-discount-create bg-gray-100 min-h-screen">
+    <div class="px-4 py-4">
+        <div class="main-section pt-8">
+            <h5 class="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white">Cập nhật đợt giảm giá</h5>
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                    <li class="inline-flex items-center">
+                        <a th:href="@{/admin}"
+                           class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                            <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                 fill="currentColor" viewBox="0 0 20 20">
+                                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                            </svg>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="m1 9 4-4-4-4"/>
+                            </svg>
+                            <a th:href="@{/admin-only/product-discount}"
+                               class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Đợt giảm
+                                giá</a>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="m1 9 4-4-4-4"/>
+                            </svg>
+                            <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">Cập nhật đợt giảm giá</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="container mt-4">
+                <div class="row align-items-stretch">
+                    <!-- CỘT TRÁI -->
+                    <div class="col-md-5 d-flex">
+                        <!-- Thêm khuyến mãi (cao bằng cột phải) -->
+                        <div class="bg-white rounded-lg shadow p-4 w-100">
+                            <form method="post" class="d-flex flex-column h-100" id="productDiscount-edit-form" action="" th:object="${discount}">
+                                <h2 class="text-lg font-semibold text-gray-800 mb-4">Thông tin đợt giảm giá</h2>
+
+                                <input type="hidden" name="id" th:field="*{id}">
+
+                                <!-- Tên khuyến mãi -->
+                                <div class="mb-3 form-group">
+                                    <label class="form-label">Tên đợt khuyến mãi</label>
+                                    <input type="text" class="form-control" th:field="*{name}" name="name" placeholder="Nhập tên đợt khuyến mãi" required>
+                                </div>
+
+                                <!-- Giá trị -->
+                                <div class="mb-3 form-group">
+                                    <label class="form-label">Giá trị</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" th:field="*{discountedAmount}" name="value" min="1" placeholder="Nhập giá trị" required>
+                                        <div class="input-group-text">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" value="%" th:field="*{type}">
+                                                <label class="form-check-label">%</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" value="VND" th:field="*{type}">
+                                                <label class="form-check-label">VNĐ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày bắt đầu -->
+                                <div class="mb-3 form-group">
+                                    <label class="form-label">Ngày bắt đầu</label>
+                                    <input type="datetime-local" class="form-control" name="startDate" required th:field="*{startDate}">
+                                </div>
+
+                                <!-- Ngày kết thúc -->
+                                <div class="mb-3 form-group">
+                                    <label class="form-label">Ngày kết thúc</label>
+                                    <input type="datetime-local" class="form-control" name="endDate" required th:field="*{endDate}">
+                                </div>
+
+                                <!-- Mô tả -->
+                                <div class="mb-3 form-group">
+                                    <label class="form-label">Mô tả</label>
+                                    <textarea class="form-control" th:field="*{description}"  placeholder="Ghi chú thêm về đợt giảm giá..." ></textarea>
+                                </div>
+
+                                <!-- Nút -->
+                                <div class="mt-3 d-flex justify-content-end gap-2">
+                                    <button id="cancel-discount-btn" type="button" class="btn btn-outline-secondary">Trở lại</button>
+                                    <button id="update-discount-btn" type="button" class="btn btn-warning">Cập nhật</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+                    <!-- CỘT PHẢI -->
+                    <div class="col-md-7">
+                        <div class="bg-white rounded-lg shadow-md p-4 h-100 d-flex flex-column">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4">Danh sách sản phẩm</h2>
+
+                            <!-- Tìm kiếm -->
+                            <form class="mb-3">
+                                <div class="d-flex gap-2">
+                                    <div class="position-relative w-50 min-w-[250px]">
+                                        <input type="search" id="search-dropdown"
+                                               class="form-control ps-5" placeholder="Tìm kiếm sản phẩm">
+                                        <div class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
+                                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                      stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- Danh sách sản phẩm -->
+                            <div class="border border-gray-200 rounded bg-white flex-grow d-flex flex-column">
+                                <!-- Header -->
+                                <div class="d-flex justify-content-between align-items-center bg-light px-3 py-2 border-bottom">
+                                    <span class="fw-bold text-muted">Sản phẩm</span>
+                                    <button id="select-all" class="btn btn-sm text-primary">Chọn tất cả</button>
+                                </div>
+
+                                <!-- Danh sách -->
+                                <div class="list-product flex-grow overflow-auto px-3 py-2">
+                                    <!-- JS render tại đây -->
+                                </div>
+
+                                <!-- Phân trang -->
+                                <div id="pagination-container" class="d-flex justify-content-end p-3 border-top"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- FORM CHI TIẾT SẢN PHẨM -->
+            <div class="bg-white rounded-lg shadow-md p-6 mt-4">
+                <!-- Tiêu đề -->
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Chi tiết sản phẩm đã chọn</h2>
+
+                <div class="grid grid-cols-5 gap-3 text-xs font-semibold text-gray-700 px-4 py-2 bg-gray-50 border border-gray-200 rounded">
+                    <div class="text-center">HÌNH ẢNH</div>
+                    <div class="">SẢN PHẨM CHI TIẾT</div>
+                    <div class="text-center">SỐ LƯỢNG</div>
+                    <div class="text-right">GIÁ</div>
+                    <div class="text-center">CHỌN</div>
+                </div>
+
+                <!-- Danh sách sản phẩm (JS append vào đây) -->
+                <div class="list-select-product divide-y divide-gray-100">
+                    <!-- Các item sản phẩm được JS tạo -->
+                </div>
+
+                <!-- Phân trang -->
+                <div class="flex justify-end pt-4">
+                    <div id="pagination-select-container"></div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+
+    </script>
+    <script th:src="@{/admin/assets/js/validator.js}"></script>
+
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            let productsSelectedFromServer = /*[[${products}]]*/ [];
+
+            // Chuyển sang JS chuẩn (nếu không inline được thì render thành JSON chuỗi)
+            if (typeof productsSelectedFromServer === 'string') {
+                productsSelectedFromServer = JSON.parse(productsSelectedFromServer);
+            }
+
+            $(document).ready(function () {
+                // Duyệt qua từng sản phẩm đã chọn
+                productsSelectedFromServer.forEach(product => {
+                    const html = `
+                <div class="product-select-item" data-select-detail-id="${product.productDetailId}">
+                    <div class="grid grid-cols-5 gap-3 items-center px-4 py-3 hover:bg-gray-50 transition text-sm text-gray-800">
+                        <div class="flex justify-center">
+                            <img src="/${product.imageUrl || 'default.jpg'}" alt="ảnh sản phẩm" class="w-14 h-16 object-cover rounded shadow">
+                        </div>
+                        <div class="text-sm text-gray-700">
+                            <div class="font-semibold truncate">${product.productName}</div>
+                            <div class="text-xs text-gray-500">[ ${product.sizeName || ''} | ${product.colorName || ''} ]</div>
+                        </div>
+                        <div class="text-center font-medium">${product.quantity || 0}</div>
+                        <div class="text-right font-semibold text-blue-700">${product.originalPrice.toLocaleString()}đ</div>
+                        <div class="flex justify-center">
+                            <input type="checkbox" class="select-discount-checkbox w-5 h-5 accent-blue-600" value="${product.productDetailId}" checked>
+                        </div>
+                    </div>
+                </div>
+            `;
+                    $('.list-select-product').append(html);
+                });
+            });
+            $('#submit-button').on('click', function () {
+                const name = $('input[name="name"]').val().trim();
+
+                if (!name) {
+                    Swal.fire('Lỗi', 'Vui lòng nhập tên đợt khuyến mãi', 'error');
+                    return;
+                }
+
+                const productDiscounts = selectedProducts.map(p => ({
+                    productDetailId: p.id,
+                    discountedAmount: p.discountedAmount,
+                    startDate: p.startDate,
+                    endDate: p.endDate
+                }));
+
+                if (productDiscounts.length === 0) {
+                    Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
+                    return;
+                }
+
+                const dataSend = {
+                    name: name,
+                    productDiscounts: productDiscounts
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/private/product-discount',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataSend),
+                    success: function () {
+                        Toastify({
+                            text: "Tạo đợt khuyến mãi thành công",
+                            className: "success",
+                            style: { background: "green" },
+                            duration: 2000
+                        }).showToast();
+
+                        setTimeout(() => window.location.href = '/admin-only/product-discount-list', 2100);
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Lỗi', xhr.responseJSON?.message || 'Không thể tạo khuyến mãi', 'error');
+                    }
+                });
+            });
+        });
+        $(document).ready(function () {
+            var productListInit= []
+            var productListCurrent = []
+            var productSelectedList = []
+            var productSelectedListDetailId = []
+            handleSubmit();
+
+            $('#start-date-all').val(getCurrentDate())
+            $('#end-date-all').val(getLastDayOfMonth())
+
+
+            $('#open-modal-btn').on('click', function () {
+                $('#overlay').show()
+            })
+
+            $('#close-modal-apply-all').on('click', function () {
+                $('#overlay').hide()
+            })
+
+            $('#apply-all-form').on('submit', function () {
+                if($("#start-date-all").val() >= $('#end-date-all').val()) {
+                    Swal.fire({text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc', icon: 'error'})
+                }
+            })
+
+
+            $(".category-item").on('click', function () {
+                let categoryId = $(this).attr('data-category-id')
+                $('#dropdown-button span').text($(this).text())
+                $('#dropdown-button').attr('selected-id', categoryId)
+                $('#dropdown').removeClass('block')
+                $('#dropdown').addClass('hidden')
+                getListProduct($('#search-dropdown').val(), categoryId)
+            })
+
+            function onlyAllowNumberInput(e) {
+                const key = e.key;
+                if (!/[\d\b]/.test(key)) {
+                    e.preventDefault();
+                }
+            }
+
+            function removeAnyNonDigit(value) {
+                return value.replace(/\D/g, '');
+            }
+
+
+            $.ajax({
+                method: 'GET',
+                type: 'json',
+                url: `/api/products-no-pagination`,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    productListInit = data
+                    productListCurrent = productListInit
+                    loadHtmlProduct(productListInit)
+                    setInitChoosedFalse()
+                    paginateProductList(productListInit)
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        title: "Lỗi",
+                        text: xhr.responseJSON.message,
+                        icon: "error"
+                    });
+                }
+            })
+
+            function setInitChoosedFalse() {
+                productListInit.forEach(product => {
+                    product.productDetailDtos.forEach(detail => {
+                        detail.choosed = false
+                    })
+                });
+            }
+
+            function paginateProductList(productList) {
+                var items = $(".product-item");
+                var numItems = items.length;
+                var perPage = 4;
+
+                items.slice(perPage).hide();
+
+                $('#pagination-container').pagination({
+                    items: numItems,
+                    itemsOnPage: perPage,
+                    cssStyle: "light-theme",
+                    onPageClick: function (pageNumber) {
+                        var showFrom = perPage * (pageNumber - 1);
+                        var showTo = showFrom + perPage;
+                        items.hide().slice(showFrom, showTo).show();
+                    }
+                });
+            }
+
+
+            function paginateSelectedProductList() {
+                var items = $(".product-select-item");
+                var numItems = items.length;
+                var perPage = 5;
+
+                items.slice(perPage).hide();
+
+                $('#pagination-select-container').pagination({
+                    items: numItems,
+                    itemsOnPage: perPage,
+                    cssStyle: "light-theme",
+                    onPageClick: function (pageNumber) {
+                        var showFrom = perPage * (pageNumber - 1);
+                        var showTo = showFrom + perPage;
+                        items.hide().slice(showFrom, showTo).show();
+                    }
+                });
+            }
+
+            $('#apply-all-btn').on('click', function () {
+                const percent = $('#percentage-all').val()
+                const startDate = $("#start-date-all").val()
+                const endDate = $('#end-date-all').val()
+
+                $('.percentage').val(percent).trigger('input')
+                $('.startDate').val(startDate)
+                $('.endDate').val(endDate)
+                $('#overlay').hide()
+            })
+
+            $('#percentage-all').on('input', function () {
+                if($(this).val() > 98) {
+                    $(this).val(98);
+                    Toastify({
+                        text: "Không thể nhập quá 98%",
+                        className: "error",
+                        style: {
+                            background: "red",
+                        }
+                    }).showToast();
+                    return
+                }
+            })
+
+
+            // Handle search product
+            var debounceTimer;
+            $("#search-dropdown").on('input', function () {
+                var searchKey = $(this).val().trim()
+                const categoryId = $('#dropdown-button').attr('selected-id')
+                if(categoryId) {
+                    getListProduct(searchKey, categoryId)
+                }else  {
+                    getListProduct(searchKey, null)
+
+                }
+            })
+
+
+            function getListProduct(keyword, categoryId) {
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+
+                var url = `/api/products-no-pagination`
+                if(keyword != null && keyword.trim() != "") {
+                    url += `?keyword=${keyword}`
+                }
+                if(categoryId != null && categoryId.trim() != "") {
+                    if(url.includes("?")) {
+                        url += `&categoryId=${categoryId}`
+                    }
+                    else {
+                        url += `?categoryId=${categoryId}`
+                    }
+                }
+
+                debounceTimer = setTimeout(async function () {
+                    await $.ajax({
+                        method: 'GET',
+                        type: 'json',
+                        url: url,
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            productListCurrent = data
+                            setChoosed(productListCurrent)
+                            loadHtmlProduct(productListCurrent)
+                            paginateProductList(productListCurrent)
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: "Lỗi",
+                                text: "xhr.responseJSON.message",
+                                icon: "error"
+                            });
+                        }
+                    })
+                }, 500)
+            }
+
+            function setChoosed(productListCurrent) {
+                productListCurrent.forEach(product => {
+                    product.productDetailDtos.forEach(detail => {
+                        if(productSelectedListDetailId.find(item => item == detail.id)) {
+                            detail.choosed = true
+                        }
+                    })
+                })
+            }
+
+            function loadHtmlProduct(productList) {
+                let html = '';
+
+                productList.forEach(product => {
+                    html += `
+      <div class="product-item border-b border-gray-200 p-3 hover:bg-gray-50 transition" data-product-id="${product.id}">
+        <div class="product-item-inner flex justify-between items-center mx-4 py-2">
+          <div class="product-info space-y-1">
+            <div class="flex items-center">
+              <span class="text-gray-500 text-sm w-28">Mã sản phẩm:</span>
+              <span class="font-bold text-base">${product.code}</span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-gray-500 text-sm w-28">Tên sản phẩm:</span>
+              <span class="font-bold text-base">${product.name}</span>
+            </div>
+          </div>
+          <div>
+            <button class="choose-product-btn hover:text-blue-500" title="Chọn sản phẩm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                <path fill="currentColor"
+                      d="M16 3C8.832 3 3 8.832 3 16s5.832 13 13 13s13-5.832 13-13S23.168 3 16 3zm0 2
+                        c6.087 0 11 4.913 11 11s-4.913 11-11 11S5 22.087 5 16S9.913 5 16 5zm-1 5v5h-5v2h5v5h2
+                        v-5h5v-2h-5v-5h-2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+                });
+
+                $('.list-product').html(html);
+                chooseProduct(); // Gắn lại sự kiện
+            }
+
+
+
+
+            function chooseProduct() {
+                $('.choose-product-btn').off('click').on('click', function () {
+                    const productItemEl = $(this).closest('.product-item');
+                    const productId = productItemEl.attr('data-product-id');
+
+                    const product = productListInit.find(p => p.id == productId);
+                    if (!product) return;
+
+                    product.productDetailDtos.forEach(detail => {
+                        if (productSelectedListDetailId.includes(detail.id)) return;
+
+                        productSelectedListDetailId.push(detail.id);
+
+                        const selectedProduct = {
+                            name: product.name,
+                            imageUrl: product.imageUrl,
+                            detail: detail
+                        };
+
+                        productSelectedList.push(selectedProduct);
+                        appendSelectProduct(selectedProduct);
+                    });
+
+                    paginateSelectedProductList();
+                });
+            }
+
+            function appendSelectProduct(product) {
+                const detail = product.detail;
+
+                const html = `
+    <div class="product-select-item" data-select-detail-id="${detail.id}">
+      <div class="grid grid-cols-5 gap-3 items-center px-4 py-3 hover:bg-gray-50 transition text-sm text-gray-800">
+
+        <!-- HÌNH ẢNH -->
+        <div class="flex justify-center">
+          <img src="/${product.imageUrl}" alt="ảnh sản phẩm" class="w-14 h-16 object-cover rounded shadow">
+        </div>
+
+        <!-- SẢN PHẨM CHI TIẾT -->
+        <div class="text-sm text-gray-700">
+          <div class="font-semibold truncate">${product.name}</div>
+          <div class="text-xs text-gray-500">[ ${detail.sizeName || ''} | ${detail.colorName || ''} ]</div>
+        </div>
+
+        <!-- SỐ LƯỢNG -->
+        <div class="text-center font-medium">${detail.quantity}</div>
+
+        <!-- GIÁ -->
+        <div class="text-right font-semibold text-blue-700">${detail.price.toLocaleString()}đ</div>
+
+        <!-- CHỌN -->
+        <div class="flex justify-center">
+          <input type="checkbox" class="select-discount-checkbox w-5 h-5 accent-blue-600" value="${detail.id}" checked>
+        </div>
+      </div>
+    </div>
+  `;
+
+                $('.list-select-product').append(html);
+                paginateSelectedProductList();
+            }
+
+            function getCurrentDate() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            function getLastDayOfMonth() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = today.getMonth() + 1;
+                const lastDayOfMonth = new Date(year, month, 0).getDate();
+                const lastDayFormatted = `${year}-${month.toString().padStart(2, '0')}-${lastDayOfMonth.toString().padStart(2, '0')}`;
+                return lastDayFormatted;
+            }
+
+            function handleInputPrice() {
+                // Khi người dùng thay đổi % giảm
+                $(".percentage").on('input change', function () {
+                    const $percentInput = $(this);
+                    const percentValue = parseFloat($percentInput.val());
+                    const $item = $percentInput.closest('.product-select-item');
+                    const initPrice = parseFloat(removeAnyNonDigit($item.find('.product-select-price').text()));
+
+                    if (percentValue > 98) {
+                        $percentInput.val(98);
+                        Toastify({
+                            text: "Không thể nhập quá 98%",
+                            className: "error",
+                            style: { background: "red" }
+                        }).showToast();
+                    }
+
+                    if (!isNaN(initPrice) && !isNaN(percentValue)) {
+                        const discountedPrice = Math.round(initPrice * (1 - percentValue / 100));
+                        $item.find('.amount').val(discountedPrice);
+                    }
+                });
+
+                // Khi người dùng thay đổi số tiền giảm cụ thể (amount)
+                $(".amount").on('input change', function () {
+                    const $amountInput = $(this);
+                    const $item = $amountInput.closest('.product-select-item');
+                    const initPrice = parseFloat(removeAnyNonDigit($item.find('.product-select-price').text()));
+                    const amountValue = parseFloat($amountInput.val());
+
+                    if (amountValue > initPrice) {
+                        $amountInput.val(initPrice);
+                        Toastify({
+                            text: "Không thể nhập quá giá gốc",
+                            className: "error",
+                            style: { background: "red" }
+                        }).showToast();
+                    }
+
+                    if (!isNaN(initPrice) && !isNaN(amountValue)) {
+                        const percent = ((initPrice - amountValue) / initPrice) * 100;
+                        $item.find('.percentage').val(percent.toFixed(2));
+                    } else {
+                        $item.find('.percentage').val('');
+                    }
+                });
+
+                // Chặn nhập sai định dạng cho phần trăm (float)
+                $(".percentage").on('keypress', function (e) {
+                    const charCode = e.which || e.keyCode;
+                    const charTyped = String.fromCharCode(charCode);
+                    const inputValue = $(this).val();
+
+                    if (!/[\d.]/.test(charTyped) || (charTyped === '.' && inputValue.includes('.'))) {
+                        e.preventDefault();
+                    }
+                });
+
+                // Chỉ cho phép nhập số nguyên ở amount
+                $(".amount").on('keypress', function (e) {
+                    onlyAllowNumberInput(e); // 👈 Hàm này bạn đã định nghĩa ở nơi khác rồi
+                });
+            }
+
+
+            function generateRandomCode() {
+                const now = new Date();
+                const yyyyMMdd = now.toISOString().slice(0,10).replace(/-/g, ''); // 20250711
+                const random = Math.floor(100 + Math.random() * 900); // 3 số ngẫu nhiên
+                return `KM${yyyyMMdd}${random}`; // KM20250711783
+            }
+
+            //     ============================================ HANDLE SUBMIT ==========================
+            function handleSubmit() {
+                $('#save-discount-btn').on('click', async function () {
+                    // Lấy dữ liệu từ form
+                    const discountName = $('input[name="name"]').val().trim();
+                    const discountCode = generateRandomCode();
+                    const description = $('textarea[name="description"]').val().trim();
+                    const valueRaw = $('input[name="value"]').val();
+                    const value = parseFloat(valueRaw);
+                    const type = $('input[name="type"]:checked').val();
+                    const startDateRaw = $('input[name="startDate"]').val();
+                    const endDateRaw = $('input[name="endDate"]').val();
+                    const startDate = startDateRaw ? startDateRaw + ':00' : null;
+                    const endDate = endDateRaw ? endDateRaw + ':00' : null;
+
+                    // Validate các trường bắt buộc
+                    if (!discountCode || !discountName || !valueRaw || !startDateRaw || !endDateRaw) {
+                        Swal.fire('Lỗi', 'Vui lòng nhập đầy đủ thông tin đợt giảm giá', 'error');
+                        return;
+                    }
+
+                    if (isNaN(value) || value <= 0) {
+                        Swal.fire('Lỗi', 'Giá trị giảm phải là số hợp lệ lớn hơn 0', 'error');
+                        return;
+                    }
+
+                    if (startDate >= endDate) {
+                        Swal.fire('Lỗi', 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc', 'error');
+                        return;
+                    }
+
+                    // Lấy danh sách sản phẩm được chọn
+                    const productDetailIds = [];
+                    $('.product-select-item').each((index, item) => {
+                        const $checkbox = $(item).find('.select-discount-checkbox');
+                        if ($checkbox.is(':checked')) {
+                            productDetailIds.push(parseInt($checkbox.val()));
+                        }
+                    });
+
+                    if (productDetailIds.length === 0) {
+                        Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
+                        return;
+                    }
+
+                    // Chuẩn bị dữ liệu gửi đi
+                    const dataSend = {
+                        code: discountCode,
+                        name: discountName,
+                        value: value,
+                        type: type,
+                        discountedAmount: value,
+                        startDate: startDate,
+                        endDate: endDate,
+                        description: description,
+                        productDetailIds: productDetailIds
+                    };
+
+                    // Gửi dữ liệu qua AJAX
+                    await $.ajax({
+                        type: "POST",
+                        url: `/api/private/product-discount/multiple`,
+                        // dataType: 'json',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(dataSend),
+                        success: function () {
+                            Swal.fire({
+                                title: 'Tạo giảm giá',
+                                text: 'Thiết lập giảm giá thành công',
+                                icon: 'success',
+                                showCancelButton: true,
+                                confirmButtonText: 'Tiếp tục thiết lập',
+                                cancelButtonText: 'Quay lại'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                } else {
+                                    window.location.href = '/admin-only/product-discount';
+                                }
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Lỗi khi gửi dữ liệu:", xhr.responseText);
+                            Swal.fire("Lỗi", "Có lỗi xảy ra khi tạo giảm giá", "error");
+                        }
+                    });
+                });
+            }
+
+
+
+            $('#cancel-discount-btn').on('click', function () {
+                window.location.href = '/admin-only/product-discount'
+            })
+
+            $('#select-all').on('click', function () {
+                $('.product-item').addClass('is-choosed')
+                $('.product-item').prop('disabled', true)
+                $('.product-item').each((index, item) => {
+                    const productEl = $(item)
+                    const detailId = productEl.attr('data-detail-id')
+                    // Kiểm tra xem detailId đã tồn tại trong mảng chưa
+                    if (!productSelectedListDetailId.includes(detailId)) {
+                        // Nếu chưa tồn tại, thêm vào mảng
+                        productSelectedListDetailId.push(detailId);
+                    }
+
+                })
+
+                productListCurrent.forEach(product => {
+                    product.productDetailDtos.forEach(detail => {
+                        appendSelectProduct({
+                            name: product.name,
+                            imageUrl: product.imageUrl,
+                            detail: detail
+                        })
+                    })
+                })
+                paginateSelectedProductList()
+            })
+            $('#remove-all-select').on('click', function () {
+                $('.list-select-product').html('')
+                $('.product-item').prop('disabled', false)
+                productSelectedList = []
+                productSelectedListDetailId = []
+                setInitChoosedFalse()
+                loadHtmlProduct(productListInit)
+                paginateProductList()
+            })
+
+            $('#update-discount-btn').on('click', async function () {
+
+                const discountId = $('input[name="id"]').val();
+                console.log("Discount ID:", discountId);
+                const discountName = $('input[name="name"]').val().trim();
+                const discountCode = $('input[name="code"]').val() || generateRandomCode();
+                const description = $('textarea[name="description"]').val().trim();
+                const valueRaw = $('input[name="value"]').val();
+                const value = parseFloat(valueRaw);
+                const type = $('input[name="type"]:checked').val();
+                const startDateRaw = $('input[name="startDate"]').val();
+                const endDateRaw = $('input[name="endDate"]').val();
+                const startDate = startDateRaw ? startDateRaw + ':00' : null;
+                const endDate = endDateRaw ? endDateRaw + ':00' : null;
+
+                const productDetailIds = [];
+                $('.product-select-item').each((index, item) => {
+                    const $checkbox = $(item).find('.select-discount-checkbox');
+                    if ($checkbox.is(':checked')) {
+                        productDetailIds.push(parseInt($checkbox.val()));
+                    }
+                });
+
+                if (!discountName || !valueRaw || !startDateRaw || !endDateRaw) {
+                    Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin đợt giảm giá', 'error');
+                    return;
+                }
+                if (isNaN(value) || value <= 0) {
+                    Swal.fire('Lỗi', 'Giá trị giảm phải là số hợp lệ lớn hơn 0', 'error');
+                    return;
+                }
+                if (startDate >= endDate) {
+                    Swal.fire('Lỗi', 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc', 'error');
+                    return;
+                }
+                if (productDetailIds.length === 0) {
+                    Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
+                    return;
+                }
+
+                const dataSend = {
+                    id: discountId,
+                    code: discountCode,
+                    name: discountName,
+                    value: value,
+                    type: type,
+                    discountedAmount: value,
+                    startDate: startDate,
+                    endDate: endDate,
+                    description: description,
+                    productDetailIds: productDetailIds
+                };
+
+                // Gọi API update
+                fetch(`/api/private/product-discount/${discountId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataSend)
+                })
+                    .then(res => {
+                        if (res.ok) {
+                            Swal.fire('Thành công', 'Cập nhật đợt giảm giá thành công', 'success')
+                                .then(() => window.location.href = "/admin-only/product-discount")
+                        } else {
+                            return res.text().then(text => { throw new Error(text) });
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Lỗi', 'Có lỗi xảy ra khi cập nhật', 'error');
+                    });
+            });
+        });
+    </script>
+</div>
+</div>
+</div>
+</body>
+</html>
