@@ -33,6 +33,12 @@ public interface ProductService {
 
     Page<Product> getAllProduct(Pageable able);
 
+    boolean existsByName(String name);
+
+    Product findByCode(String maSanPham);
+
+    void updateProductStatusBasedOnQuantity(Product product);
+
     ProductDto getProductDtoByCode(String code);
 
     ProductDto findById(Long id);

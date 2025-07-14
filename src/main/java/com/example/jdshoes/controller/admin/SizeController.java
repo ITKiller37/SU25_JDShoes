@@ -100,10 +100,14 @@ public class SizeController {
         }
     }
 
-    @GetMapping("/size-delete/{id}")
-    public String delete(@PathVariable("id") Long id, Model model){
-        sizeService.delete(id);
-        model.addAttribute("successMessage", "Xóa kích cỡ thành công");
+    @GetMapping("/size-toggle-status/{id}")
+    public String toggleStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            sizeService.delete(id); // Gọi hàm delete để đổi trạng thái
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi trạng thái kích cỡ thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/admin/size-all";
     }
 }

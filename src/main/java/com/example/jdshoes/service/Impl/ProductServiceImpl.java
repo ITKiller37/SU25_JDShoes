@@ -24,6 +24,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,12 +132,6 @@ public class ProductServiceImpl implements ProductService {
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());
 
-//            // ✅ Gán imageUrl từ ảnh đầu tiên (nếu có)
-//            if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
-//                productDetailDto.setImageUrl(productDetail.getImages().get(0).getLink());
-//            } else {
-//                productDetailDto.setImageUrl("images/default.jpg"); // hoặc null nếu không muốn ảnh mặc định
-//            }
 
                 // Ánh xạ danh sách ảnh
                 if (productDetail.getImages() != null && !productDetail.getImages().isEmpty()) {
@@ -170,6 +166,34 @@ public class ProductServiceImpl implements ProductService {
         public Page<Product> getAllProduct (Pageable able){
             return productRepository.findAll(able);
         }
+
+    @Override
+    public boolean existsByName(String name) {
+        return productRepository.existsByName(name);
+    }
+
+    @Override
+    public Product findByCode(String maSanPham) {
+        return productRepository.findByCode(maSanPham);
+    }
+
+    @Override
+    public void updateProductStatusBasedOnQuantity(Product product) {
+        int totalQuantity = product.getProductDetails().stream()
+                .mapToInt(pd -> Optional.ofNullable(pd.getQuantity()).orElse(0))
+                .sum();
+
+        int newStatus = totalQuantity == 0 ? 2 : 1;
+
+        if (!Objects.equals(product.getStatus(), newStatus)) {
+            product.setStatus(newStatus);
+            try {
+                save(product);
+            } catch (IOException e) {
+                e.printStackTrace(); // hoặc log ra nếu bạn có logger
+            }
+        }
+    }
 
     @Override
     public ProductDto getProductDtoByCode(String code) {

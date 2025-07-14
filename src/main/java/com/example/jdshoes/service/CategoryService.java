@@ -27,4 +27,6 @@ public interface CategoryService {
     void delete(Long id);
 
     List<Category> getAll();
+
+    List<Category> getAllActive();
 }

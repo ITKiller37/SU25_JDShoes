@@ -143,7 +143,7 @@ public class ColorServiceImpl implements ColorService {
         existingColor.setName(color.getName().trim());
         existingColor.setDeleteFlag(false); // Giữ nguyên deleteFlag hoặc cập nhật nếu có từ request
 
-        return colorRepository.save(color);
+        return colorRepository.save(existingColor);
     }
 
     @Override
@@ -153,14 +153,19 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public void delete(Long id) {
-        Color existingColor = colorRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có id " + id) );
-        existingColor.setDeleteFlag(true);
+        Color existingColor = colorRepository.findById(id).orElseThrow(() -> new NotFoundException("Không tìm thấy màu có id " + id));
+        existingColor.setDeleteFlag(!existingColor.getDeleteFlag()); // Đảo ngược trạng thái
         colorRepository.save(existingColor);
     }
 
     @Override
     public List<Color> findAll() {
         return colorRepository.findAll();
+    }
+
+    @Override
+    public List<Color> getAllActive() {
+        return colorRepository.findAllByDeleteFlagFalse();
     }
 
     private Color convertToEntity(ColorDto colorDto) {

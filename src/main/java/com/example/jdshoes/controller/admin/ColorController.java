@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -24,7 +25,7 @@ public class ColorController {
 
     @GetMapping("/color-all")
     public String listColor(Model model, @RequestParam(name = "page", defaultValue = "0") int page,
-                           @RequestParam(name = "sort", defaultValue = "name,asc") String sortField) {
+                            @RequestParam(name = "sort", defaultValue = "name,asc") String sortField) {
         int pageSize = 8;
         String[] sortParams = sortField.split(",");
         String sortFieldName = sortParams[0];
@@ -99,9 +100,14 @@ public class ColorController {
         }
     }
 
-    @GetMapping("/color-delete/{id}")
-    public String delete(@PathVariable("id") Long id){
-        colorService.delete(id);
+    @GetMapping("/color-toggle-status/{id}")
+    public String toggleStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            colorService.delete(id); // Gọi hàm delete để đổi trạng thái
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi trạng thái màu thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/admin/color-all";
     }
 }

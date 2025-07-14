@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,16 +26,21 @@ public class ProductDiscount {
 
     @Column(nullable = false, unique = true)
     private String code;
+
+    @Nationalized
     private String name;
     private String type;
     private BigDecimal value;
     private boolean closed;
 
+    @Nationalized
     private String description;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private BigDecimal discountedAmount;
+
+    @Nationalized
     private String status;
 
     @OneToMany(mappedBy = "productDiscount", cascade = CascadeType.ALL, orphanRemoval = true)

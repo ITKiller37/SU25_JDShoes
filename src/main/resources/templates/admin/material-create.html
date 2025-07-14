@@ -1,44 +1,49 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/admin-layout.html}">
-
-
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-
+    <title>Thông tin chất liệu</title>
 </head>
 <body>
 <div layout:fragment="content">
-
     <h4>Thông tin chất liệu</h4>
-    <form th:object="${Material}" method="post" th:action="${action}" id="material-form">
+
+    <form th:object="${Material}" id="material-form" method="post" th:action="${action}">
         <div class="my-3">
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label>Mã chất liệu</label>
-                    <span class="red_require"> *</span>
-                    <input type="text" class="form-control" th:field="*{code}" placeholder="Nhập mã chất liệu">
-                    <span class="error"></span>
+                    <span class="text-danger"> *</span>
+                    <input type="text" class="form-control" th:field="*{code}" placeholder="Nhập mã chất liệu" id="code">
+                    <span class="error text-danger"></span>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Tên chất liệu</label>
-                    <span class="red_require"> *</span>
-                    <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên chất liệu">
-                    <span class="error"></span>
+                    <span class="text-danger"> *</span>
+                    <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên chất liệu" id="name">
+                    <span class="error text-danger"></span>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary m-1"><i class="fa ti-save"></i> Lưu lại
+            <button type="submit" class="btn btn-primary m-1" id="submitBtn">
+                <i class="fa ti-save"></i> Lưu lại
             </button>
-
-            <a href="/admin/material-all" class="btn btn-secondary m-1"><i class="fa fa-mail-reply (alias)"></i> <span>Hủy bỏ</span></a>
-
+            <a href="/admin/material-all" class="btn btn-secondary m-1">
+                <i class="fa fa-mail-reply"></i> <span>Hủy bỏ</span>
+            </a>
         </div>
     </form>
+
     <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
-    <script>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script th:inline="javascript">
         $(document).ready(function () {
+            // Validate form
             Validator({
                 form: '#material-form',
                 formGroupSelector: '.form-group',
@@ -46,11 +51,27 @@
                 rules: [
                     Validator.isRequired('#code', 'Vui lòng nhập mã chất liệu'),
                     Validator.isRequired('#name', 'Vui lòng nhập tên chất liệu'),
-                    Validator.maxLength('#name', 30),
-                    Validator.maxLength('#code', 20),
-                ]
+                    Validator.maxLength('#name', 30, 'Tên chất liệu tối đa 30 ký tự'),
+                    Validator.maxLength('#code', 20, 'Mã chất liệu tối đa 20 ký tự'),
+                ],
+                onSubmit: function (data) {
+                    // Xác nhận trước khi lưu
+                    Swal.fire({
+                        title: 'Xác nhận?',
+                        text: 'Bạn có chắc chắn muốn lưu chất liệu này?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        cancelButtonText: 'Hủy',
+                        confirmButtonText: 'Xác nhận',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('material-form').submit();
+                        }
+                    });
+                }
             });
-        })
+        });
     </script>
 </div>
 </body>

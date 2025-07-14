@@ -20,12 +20,16 @@ public class AddressShipping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Nationalized
     private String street;
 
+    @Nationalized
     private String ward;
 
+    @Nationalized
     private String district;
 
+    @Nationalized
     private String province;
 
     private Boolean isDefault = false;

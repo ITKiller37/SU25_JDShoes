@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -60,7 +61,7 @@ public class BrandController {
     public String addBrand(RedirectAttributes redirectAttributes, @Validated @ModelAttribute("Brand") Brand brand) {
         try {
             brandService.createBrand(brand);
-            redirectAttributes.addFlashAttribute("successMessage", "Thêm nhãn hàng mới thành công");
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm thương hiệu mới thành công");
 
         }catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -75,7 +76,7 @@ public class BrandController {
         if (brandService.existsById(id)) {
             try {
                 brandService.updateBrand(id, brand);
-                redirectAttributes.addFlashAttribute("successMessage", "Nhãn hàng đã được cập nhật thành công");
+                redirectAttributes.addFlashAttribute("successMessage", "Thương hiệu đã được cập nhật thành công");
 
             }catch (Exception e) {
                 redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -100,9 +101,14 @@ public class BrandController {
         }
     }
 
-    @GetMapping("/brand-delete/{id}")
-    public String delete(@PathVariable("id") Long id){
-        brandService.delete(id);
+    @GetMapping("/brand-toggle-status/{id}")
+    public String toggleStatus(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            brandService.delete(id); // Gọi hàm delete để đổi trạng thái
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi trạng thái thương hiệu thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/admin/brand-all";
     }
 
