@@ -19,7 +19,7 @@ public class ColorRestController {
         return colorService.getColorByProductId(productId);
     }
 
-    @GetMapping("/color/{productId}/product/{sizeId}/size")
+    @GetMapping("/colors/{productId}/product/{sizeId}/size")
     public List<Color> getColorByProductIdAndSizeId(@PathVariable Long productId, @PathVariable Long sizeId) throws NotFoundException {
         return colorService.getColorByProductIdAndSizeId(productId, sizeId);
     }

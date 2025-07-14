@@ -7,10 +7,14 @@ import org.springframework.data.repository.query.Param;
 
 public interface ProductDiscountRepository extends JpaRepository<ProductDiscount, Long> {
 
-    ProductDiscount findByProductDetail_Id(Long productDetailId);
 
-    @Query("SELECT pd FROM ProductDiscount pd WHERE pd.productDetail.id = :productDetailId " +
-            "AND CURRENT_TIMESTAMP BETWEEN pd.startDate AND pd.endDate " +
-            "AND pd.closed = false")
+
+    @Query("""
+    SELECT pd FROM ProductDiscount pd
+    JOIN pd.productDiscountDetails pdd
+    WHERE pdd.productDetail.id = :productDetailId
+    AND CURRENT_TIMESTAMP BETWEEN pd.startDate AND pd.endDate
+    AND pd.closed = false
+""")
     ProductDiscount findValidDiscountByProductDetailId(@Param("productDetailId") Long productDetailId);
 }

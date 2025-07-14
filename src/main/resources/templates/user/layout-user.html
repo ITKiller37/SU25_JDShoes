@@ -91,7 +91,7 @@
                             <a th:href="@{/user-login}" th:unless="${#authorization.expression('isAuthenticated()')}">Đăng nhập</a>
                             <a th:href="@{/register}" th:unless="${#authorization.expression('isAuthenticated()')}">Đăng ký</a>
                             <a th:href="@{/profile}" th:if="${#authorization.expression('isAuthenticated()')}">Thông tin</a>
-                            <a th:href="@{/admin/}" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')">Trang quản lý</a>
+                            <a th:href="@{/admin}" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')">Trang quản lý</a>
                             <a th:href="@{/cart-status}" th:if="${#authorization.expression('isAuthenticated()')}">Đơn hàng</a>
                             <a th:href="@{/user_logout}" th:if="${#authorization.expression('isAuthenticated()')}">Đăng xuất</a>
                         </div>

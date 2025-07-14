@@ -131,12 +131,12 @@ public class ShopProductController {
         return "user/product-detail";
     }
 
-//    @ResponseBody
-//    @GetMapping("/productDetails/{productId}/product")
-//    public List<ProductDetailDto> getProductDetailJson(@PathVariable Long productId) throws NotFoundException {
-//        List<ProductDetailDto> productDetails = productDetailService.getByProductId(productId);
-//        return productDetails;
-//    }
+    @ResponseBody
+    @GetMapping("/productDetails/{productId}/product")
+    public List<ProductDetailDto> getProductDetailJson(@PathVariable Long productId) throws NotFoundException {
+        List<ProductDetailDto> productDetails = productDetailService.getByProductId(productId);
+        return productDetails;
+    }
 
 }
 
