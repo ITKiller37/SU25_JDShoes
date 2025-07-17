@@ -2,7 +2,7 @@ package com.example.jdshoes.service.Impl;
 
 
 
-import com.example.jdshoes.dto.CustomerDto.CustomerDto;
+import com.example.jdshoes.dto.Customer.CustomerDto;
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.CustomerRepository;
