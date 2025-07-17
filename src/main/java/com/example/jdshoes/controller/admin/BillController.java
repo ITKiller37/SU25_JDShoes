@@ -1,8 +1,7 @@
 package com.example.jdshoes.controller.admin;
 
-import com.example.jdshoes.dto.Bill.BillDetailDtoInterface;
-import com.example.jdshoes.dto.Bill.BillDetailProduct;
-import com.example.jdshoes.dto.Bill.BillDtoInterface;
+import com.example.jdshoes.dto.Bill.*;
+import com.example.jdshoes.dto.BillReturn.SearchBillReturnDto;
 import com.example.jdshoes.entity.Bill;
 import com.example.jdshoes.entity.enumClass.BillStatus;
 import com.example.jdshoes.entity.enumClass.InvoiceType;
@@ -20,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -166,5 +162,23 @@ public class BillController {
         model.addAttribute("billdetail", billDetailDtoInterface);
         model.addAttribute("total", total);
         return "admin/bill-detail";
+    }
+
+    @ResponseBody
+    @GetMapping("/api/product/{billId}/bill")
+    public ResponseEntity<List<BillDetailProduct>> getAllProductByBillId(@PathVariable Long billId) {
+        return ResponseEntity.ok(billService.getBillDetailProduct(billId));
+    }
+
+    @ResponseBody
+    @GetMapping("/api/bill/validToReturn")
+    public Page<BillDto> getAllValidBillToReturn(Pageable pageable) {
+        return billService.getAllValidBillToReturn(pageable);
+    }
+
+    @ResponseBody
+    @GetMapping("/api/bill/validToReturn/search")
+    public Page<BillDto> getAllValidBillToReturnSearch(SearchBillDto searchBillDto, Pageable pageable) {
+        return billService.searchBillJson(searchBillDto, pageable);
     }
 }

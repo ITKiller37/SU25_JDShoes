@@ -1,8 +1,6 @@
 package com.example.jdshoes.service;
 
-import com.example.jdshoes.dto.Bill.BillDetailDtoInterface;
-import com.example.jdshoes.dto.Bill.BillDetailProduct;
-import com.example.jdshoes.dto.Bill.BillDtoInterface;
+import com.example.jdshoes.dto.Bill.*;
 import com.example.jdshoes.entity.Bill;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +34,14 @@ public interface BillService {
     BillDetailDtoInterface getBillDetail(Long maHoaDon);
 
     List<BillDetailProduct> getBillDetailProduct(Long maHoaDon);
+
+    // return
+    Page<BillDto> searchBillJson(SearchBillDto searchBillDto, Pageable pageable);
+
+    Page<BillDto> getAllValidBillToReturn( Pageable pageable);
+
+    List<BillDetailProduct> getBillDetailProductBill(Long maHoaDon);
+
 }
 
 

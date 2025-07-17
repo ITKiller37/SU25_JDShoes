@@ -25,6 +25,7 @@ public class BillDetail {
     @JoinColumn(name = "productDetailId")
     private ProductDetail productDetail;
 
+
     private BigDecimal detailPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,4 +33,6 @@ public class BillDetail {
     private Bill bill;
 
     private Integer exchangeQuantity;
+
+    private Integer returnQuantity;
 }

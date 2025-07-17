@@ -25,5 +25,7 @@ public class ProductDto {
     private BigDecimal priceMin;
     private boolean isDiscounted;
 
+    private String imageUrl;
+
     private List<ProductDetailDto> productDetailDtos;
 }

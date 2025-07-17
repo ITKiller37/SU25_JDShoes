@@ -3,7 +3,7 @@ package com.example.jdshoes.service.Impl;
 import com.example.jdshoes.dto.Cart.CartItemDto;
 import com.example.jdshoes.dto.CartDto.CartDto;
 import com.example.jdshoes.dto.CartDto.ProductCart;
-import com.example.jdshoes.dto.CustomerDto.CustomerDto;
+import com.example.jdshoes.dto.Customer.CustomerDto;
 import com.example.jdshoes.dto.Image.ImageDto;
 import com.example.jdshoes.dto.Order.OrderDetailDto;
 import com.example.jdshoes.dto.Order.OrderDto;
