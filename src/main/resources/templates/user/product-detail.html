@@ -81,27 +81,7 @@
             </div>
         </div>
     </div>
-    <!-- breadcrumb -->
-<!--    <div class="container">-->
-<!--        <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">-->
-<!--            <a th:href="@{/}" class="stext-109 cl8 hov-cl1 trans-04">-->
-<!--                Home-->
-<!--                <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>-->
-<!--            </a>-->
 
-<!--            <a th:href="@{/getproduct}" class="stext-109 cl8 hov-cl1 trans-04">-->
-<!--                Shop-->
-<!--                <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>-->
-<!--            </a>-->
-
-<!--            <span class="stext-109 cl4" th:text="${product.category.name}">-->
-
-<!--			</span>-->
-<!--        </div>-->
-<!--    </div>-->
-
-
-    <!-- Product Detail -->
     <section class="sec-product-detail bg0 p-t-65 p-b-60">
         <div class="container">
             <div class="row">
@@ -400,27 +380,34 @@
         }
 
         async function loadPrice() {
+            let sizeId = $("#sizeSelect").val() || sizes[0]?.id;
+            let colorId = $("#colorSelect").val() || colors[0]?.id;
+
+            if (!sizeId || !colorId) return;
+
             await $.ajax({
                 type: 'GET',
                 dataType: "json",
                 url: `/productDetails/${productId}/product`,
                 success: function (data) {
-                    const productDetail = data.find(item => item.size.id == $("#sizeSelect").val() && item.color.id == $("#colorSelect").val());
+                    const productDetail = data.find(item => item.size.id == sizeId && item.color.id == colorId);
+                    if (!productDetail) return;
+
                     loadRemainingQuantity(productDetail.quantity)
+
                     if(!productDetail.discountedPrice) {
-                        $("#price_product").text(formatNumber(parseFloat(productDetail.price)) + ' đ')
-                    }
-                    else {
-                        const oldPrice = formatNumber(parseFloat(productDetail.price))
-                        const discountedPrice = formatNumber(parseFloat(productDetail.discountedPrice))
+                        $("#price_product").html(formatNumber(parseFloat(productDetail.price)) + ' đ');
+                    } else {
+                        const oldPrice = formatNumber(parseFloat(productDetail.price));
+                        const discountedPrice = formatNumber(parseFloat(productDetail.discountedPrice));
                         $("#price_product").html(`
-                        <span style="font-size: 12px; text-decoration: line-through">${oldPrice} đ</span>
-                        <span class="mtext-106 cl2" id="price_product">${discountedPrice} đ</span>
-                        `)
+                    <span style="font-size: 12px; text-decoration: line-through">${oldPrice} đ</span>
+                    <span class="mtext-106 cl2" id="price_product">${discountedPrice} đ</span>
+                `);
                     }
                     $("#productDetailId").val(productDetail.id)
                 }
-            })
+            });
         }
 
         function loadRemainingQuantity(value) {

@@ -172,7 +172,10 @@
                                 </table><!-- end table -->
                             </div><!-- end table responsive -->
                         </div>
-
+                        <div class="mt-2">
+                            <h5 class="font-size-15 mb-1">Người thực hiện:</h5>
+                            <p th:text="${billReturnDetail.handledByCode + ' - ' + billReturnDetail.handledByName}">NV001 - Nguyễn Văn A</p>
+                        </div>
                         <div class="d-print-none mt-4">
                             <div class="float-end">
                                 <button th:link="'/admin/bill-return-detail-generate/'+${billReturnDetail.id}" id="print-btn" class="btn btn-success me-1"><i class="fa fa-print"></i></button>

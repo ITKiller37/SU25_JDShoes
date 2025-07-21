@@ -366,7 +366,7 @@
                     <span id="currentTime" class="text-gray-400"></span>
                 </div>
                 <div>
-                    <span class="text-fuchsia-500 font-bold text-xl">Trả hàng</span>
+                    <span class="text-fuchsia-500 font-bold text-xl">Đổi hàng</span>
                 </div>
                 <div class="selected-customer active mt-2 border border-blue-400 rounded-md"></div>
                 <div class=" mb-3">
@@ -444,7 +444,7 @@
 
                     <div id="khachCanTra">
                         <div class="col">
-                            <h6>Khách cần trả: </h6>
+                            <h6>Khách cần : </h6>
                         </div>
                         <div class="col">
                             <h6 id="require-money" class="text-blue-500 font-bold text-2xl">0</h6>
@@ -471,7 +471,7 @@
 
                 <button
                         class="text-white w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-bold rounded-lg text-2xl px-5 py-4 mt-3 text-center"
-                        id="submitBtn" type="button">TRẢ HÀNG
+                        id="submitBtn" type="button">ĐỔI HÀNG
                 </button>
             </div>
         </div>
@@ -481,6 +481,7 @@
         <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script th:inline="javascript">
             $(document).ready(() => {
 
@@ -807,8 +808,9 @@
                             if(!detailSelectedId.includes(detailId)) {
                                 detailSelectedId.push(detailId)
                             }else {
-                                // const selectedItem = $(`.product-selected-item[data-product-detail-id='${detailId}']`).find('.exchange-quantity')
-                                // selectedItem.val(parseInt(selectedItem.val()) + 1)
+                                const selectedItem = $(`.product-selected-item[data-product-detail-id='${detailId}']`).find('.exchange-quantity')
+                                selectedItem.val(parseInt(selectedItem.val()) + 1)
+                                selectedItem.trigger('change') // để tính lại tổng tiền
                             }
                             $('#overlay').hide()
                             $('#product-exchange-modal').addClass('hidden')
@@ -904,10 +906,7 @@
                             showReturn()
                             isExchange = false
                         }
-
                     })
-
-
                     calculateAllPriceExchange()
                     calculateLastReturnExchange()
                 }
@@ -1138,7 +1137,23 @@
             //    ============================== XỬ LÝ THANH TOÁN ===============================
 
 
-                $('#submitBtn').on('click', handleSubmit);
+                $('#submitBtn').on('click', function () {
+                    Swal.fire({
+                        title: 'Xác nhận',
+                        text: "Bạn có chắc muốn đổi hàng không?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Đồng ý',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleSubmit(); // gọi lại hàm gửi đổi hàng nếu đã xác nhận
+                        }
+                    });
+                });
+
 
                 async function handleSubmit() {
                     var dataSend = {
@@ -1149,48 +1164,64 @@
                         refundDtos: [],
                         returnDtos: []
                     }
+                    var totalRefund = 0;
+                    var totalReturn = 0;
                     var checkQuantity = false;
+
                     // Lặp các hàng trả
                     $('.product-select-item').each((index, item) => {
                         var $productItem = $(item);
 
-                        if($(item).find('.return-quantity').val() > 0) {
-                            checkQuantity = true
+                        var quantityRefund = parseInt($(item).find('.return-quantity').val());
+                        if (quantityRefund > 0) {
+                            checkQuantity = true;
                         }
 
                         const refund = {
                             billDetailId: $(item).attr('data-bill-detail-id'),
-
-                            quantityRefund: $(item).find('.return-quantity').val()
+                            quantityRefund: quantityRefund
                         }
 
-                        dataSend.refundDtos.push(refund)
+                        totalRefund += quantityRefund;
+                        dataSend.refundDtos.push(refund);
                     })
 
-                    if(checkQuantity == false) {
+                    if (checkQuantity == false) {
                         Swal.fire({
                             title: "Lỗi",
-                            text: "Vui lòng nhập hàng đổi trả",
+                            text: "Vui lòng nhập hàng cần đổi",
                             icon: "error"
                         });
                         return;
                     }
 
-                    //Lặp các hàng đổi
+                    // Lặp các hàng đổi
                     if (isExchange) {
                         $('.product-selected-item').each((index, item) => {
+                            var quantityReturn = parseInt($(item).find('.exchange-quantity').val());
                             const selectedItem = $(item)
                             var productDetailId = selectedItem.attr('data-product-detail-id')
-                            var quantity = selectedItem.find('.exchange-quantity').val()
+                            totalReturn += quantityReturn;
                             dataSend.returnDtos.push({
                                 productDetailId: productDetailId,
-                                quantityReturn: quantity
+                                quantityReturn: quantityReturn
                             })
                         })
                     }
 
+                    // ✅ So sánh số lượng hàng đổi và hàng trả
+                    if (totalRefund !== totalReturn) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: `Bạn phải chọn đúng ${totalRefund} sản phẩm để đổi (hiện tại đang chọn ${totalReturn})`,
+                            icon: "error"
+                        });
+                        return;
+                    }
+
                     await handleCallApi(dataSend)
                 }
+
 
                 async function handleCallApi(dataSend) {
                     $('#loading-overlay').show()
@@ -1219,113 +1250,6 @@
                     })
                 }
             })
-            //-------------------------- ========XỬ LÝ QUÉT MÃ========== ================================-----------------------------------------------------
-            var video = document.getElementById("qr-video");
-            var canvas = document.getElementById("qr-canvas");
-            var ctx = canvas.getContext("2d");
-            var enableCameraButton = document.getElementById("enable-camera-button");
-            var stream;
-
-            enableCameraButton.addEventListener("click", function () {
-                if (!stream) {
-                    $(".scan-container").removeClass('hidden')
-                    navigator.mediaDevices
-                        .getUserMedia({ video: true })
-                        .then(function (cameraStream) {
-                            stream = cameraStream;
-                            video.srcObject = stream;
-                            video.play();
-                            startScanning();
-                        })
-                        .catch(function (error) {
-                            Swal.fire({
-                                title: "Error",
-                                text: "Error accessing the camera:" + error,
-                                icon: "error"
-                            });
-                        });
-                } else {
-                    stream.getTracks().forEach(function (track) {
-                        track.stop();
-                    });
-                    video.srcObject = null;
-                    stream = null;
-                }
-            });
-
-            $('.close-modal-scan').click(function() {
-                $(".scan-container").addClass('hidden')
-                if (stream) {
-                    stream.getTracks().forEach(function (track) {
-                        track.stop();
-                    });
-                    video.srcObject = null;
-                    stream = null;
-                }
-            })
-
-            function startScanning() {
-                let scanInterval;
-
-                function scanBarcode() {
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    var code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                    if (code) {
-                        // Clear the interval when a code is found
-                        clearInterval(scanInterval);
-
-                        $.ajax({
-                            type: 'GET',
-                            dataType: 'json',
-                            url: `/api/products/getByBarcode?barcode=${code.data}`,
-                            success: function (data) {
-                                var productDetail = data.productDetailDtos[0];
-                                var result = handleAddToOrder(productDetail, productDetail.id, true, data);
-                                var text = ''
-                                if(result == 1) {
-                                    Swal.fire({
-                                        title: "Thông báo",
-                                        text: "Sản phẩm này đã hết",
-                                        icon: "error"
-                                    }).then((result) => {
-                                        if(result.isConfirmed) {
-                                            scanInterval = setInterval(scanBarcode, 60);
-                                        }
-                                    });
-                                }else {
-                                    Swal.fire({
-                                        title: "Thông báo",
-                                        text: "Thêm sản phẩm mới thành công",
-                                        icon: "success"
-                                    }).then((result) => {
-                                        if(result.isConfirmed) {
-                                            scanInterval = setInterval(scanBarcode, 60);
-                                        }
-                                    });
-                                }
-
-                            },
-                            error: function (xhr, status, error) {
-                                Swal.fire({
-                                    title: "Lỗi",
-                                    text: xhr.responseJSON.message,
-                                    icon: "error"
-                                }).then((result) => {
-                                    if(result.isConfirmed) {
-                                        scanInterval = setInterval(scanBarcode, 60);
-                                    }
-                                })
-                            }
-                        });
-                    }
-                }
-
-                // Start the initial scan interval
-                scanInterval = setInterval(scanBarcode, 60);
-            }
-
         </script>
     </div>
 </body>

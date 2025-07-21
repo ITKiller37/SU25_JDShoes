@@ -44,4 +44,9 @@ public class BillReturn {
     @OneToMany(mappedBy = "billReturn", cascade = CascadeType.ALL)
     private List<ReturnDetail> returnDetails;
 
+    // có cái này
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "billReturnAccountId")
+    private Account account;
+
 }

@@ -565,6 +565,7 @@
   `;
 
       $('.list-select-product').append(html);
+      handleInputPrice(); // 👉 Gắn lại xử lý tính toán giảm giá
       paginateSelectedProductList();
     }
 
@@ -660,7 +661,6 @@
     //     ============================================ HANDLE SUBMIT ==========================
     function handleSubmit() {
       $('#save-discount-btn').on('click', async function () {
-        // Lấy dữ liệu từ form
         const discountName = $('input[name="name"]').val().trim();
         const discountCode = generateRandomCode();
         const description = $('textarea[name="description"]').val().trim();
@@ -672,7 +672,7 @@
         const startDate = startDateRaw ? startDateRaw + ':00' : null;
         const endDate = endDateRaw ? endDateRaw + ':00' : null;
 
-        // Validate các trường bắt buộc
+        // Validate cơ bản
         if (!discountCode || !discountName || !valueRaw || !startDateRaw || !endDateRaw) {
           Swal.fire('Lỗi', 'Vui lòng nhập đầy đủ thông tin đợt giảm giá', 'error');
           return;
@@ -688,38 +688,74 @@
           return;
         }
 
-        // Lấy danh sách sản phẩm được chọn
         const productDetailIds = [];
+        let productDiscounts = [];
+
+        let hasInvalid = false;
+
+        let minDiscountedAmount = null;
+
         $('.product-select-item').each((index, item) => {
-          const $checkbox = $(item).find('.select-discount-checkbox');
+          const $item = $(item);
+          const $checkbox = $item.find('.select-discount-checkbox');
+
           if ($checkbox.is(':checked')) {
-            productDetailIds.push(parseInt($checkbox.val()));
+            const detailId = parseInt($checkbox.val());
+
+            // ✅ Tìm đúng thẻ chứa giá
+            const priceText = $item.find('.text-right.text-blue-700').text().replace(/[^\d]/g, '');
+            const originalPrice = parseFloat(priceText);
+
+            let discountedAmount = 0;
+            if (type === '%') {
+              discountedAmount = Math.round(originalPrice * (1 - value / 100));
+            } else {
+              discountedAmount = Math.max(0, originalPrice - value);
+            }
+
+            if (isNaN(originalPrice) || discountedAmount < 0 || discountedAmount > originalPrice) {
+              Swal.fire('Lỗi', `Giá giảm không hợp lệ cho sản phẩm có ID ${detailId}`, 'error');
+              hasInvalid = true;
+              return false;
+            }
+
+            productDetailIds.push(detailId);
+            productDiscounts.push({
+              productDetailId: detailId,
+              discountedAmount: discountedAmount,
+            });
+
+            if (minDiscountedAmount === null || discountedAmount < minDiscountedAmount) {
+              minDiscountedAmount = discountedAmount;
+            }
           }
         });
 
-        if (productDetailIds.length === 0) {
+
+        if (hasInvalid) return;
+
+        if (productDiscounts.length === 0) {
           Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
           return;
         }
 
-        // Chuẩn bị dữ liệu gửi đi
         const dataSend = {
           code: discountCode,
           name: discountName,
           value: value,
           type: type,
-          discountedAmount: value,
+          description: description,
+          discountedAmount: minDiscountedAmount, // ✅ Thêm dòng này
+          productDiscounts: productDiscounts,
           startDate: startDate,
           endDate: endDate,
-          description: description,
           productDetailIds: productDetailIds
         };
 
-        // Gửi dữ liệu qua AJAX
+        // Gửi dữ liệu
         await $.ajax({
           type: "POST",
           url: `/api/private/product-discount/multiple`,
-          // dataType: 'json',
           contentType: "application/json; charset=utf-8",
           data: JSON.stringify(dataSend),
           success: function () {

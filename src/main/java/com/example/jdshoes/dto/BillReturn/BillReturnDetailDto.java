@@ -22,4 +22,8 @@ public class BillReturnDetailDto {
     private List<ReturnProductDto> returnProductDtos;
     // Danh sách hàng trả
     private List<RefundProductDto> refundProductDtos;
+
+    private String handledByName; // hoặc dùng handledById nếu cần
+    private String handledByCode;
+
 }

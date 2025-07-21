@@ -77,4 +77,11 @@ public class Bill {
     @ManyToOne
     @JoinColumn(name = "discountId")
     private Discount discount;
+
+
+    // có cái này
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accountId")
+    private Account account;
+
 }

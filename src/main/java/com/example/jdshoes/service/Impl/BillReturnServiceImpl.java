@@ -14,6 +14,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 
@@ -32,14 +34,16 @@ public class BillReturnServiceImpl implements BillReturnService {
     private final ProductDiscountRepository productDiscountRepository;
     private final ProductDetailRepository productDetailRepository;
     private final ReturnDetailRepository returnDetailRepository;
+    private final AccountRepository accountRepository;
 
-    public BillReturnServiceImpl(BillReturnRepository billReturnRepository, BillRepository billRepository, BillDetailRepository billDetailRepository, ProductDetailRepository productDetailRepository, ProductDiscountRepository productDiscountRepository, ProductRepository productRepository, CustomerRepository customerRepository, ProductDetailRepository productDetailRepository1, ReturnDetailRepository returnDetailRepository) {
+    public BillReturnServiceImpl(BillReturnRepository billReturnRepository, BillRepository billRepository, BillDetailRepository billDetailRepository, ProductDetailRepository productDetailRepository, ProductDiscountRepository productDiscountRepository, ProductRepository productRepository, CustomerRepository customerRepository, ProductDetailRepository productDetailRepository1, ReturnDetailRepository returnDetailRepository, AccountRepository accountRepository) {
         this.billReturnRepository = billReturnRepository;
         this.billRepository = billRepository;
         this.billDetailRepository = billDetailRepository;
         this.productDiscountRepository = productDiscountRepository;
         this.productDetailRepository = productDetailRepository1;
         this.returnDetailRepository = returnDetailRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -57,6 +61,10 @@ public class BillReturnServiceImpl implements BillReturnService {
         int nextCode = (billReturnLast == null) ? 1 : Integer.parseInt(billReturnLast.getCode().substring(2)) + 1;
         String billReturnCode = "DT" + String.format("%03d", nextCode);
 
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Account account = accountRepository.findByEmail(email);
+//                .orElseThrow(() -> new NotFoundException("Không tìm thấy account với email: " + email));
+
         BillReturn billReturn = new BillReturn();
         billReturn.setCode(billReturnCode);
         billReturn.setReturnReason(billReturnCreateDto.getReason());
@@ -73,6 +81,7 @@ public class BillReturnServiceImpl implements BillReturnService {
         billRepository.save(bill);
 
         billReturn.setBill(bill);
+        billReturn.setAccount(account);
 
         BigDecimal totalRefund = BigDecimal.ZERO;
 
@@ -176,6 +185,18 @@ public class BillReturnServiceImpl implements BillReturnService {
 
         List<BillDetail> billDetails = bill.getBillDetail();
         List<RefundProductDto> refundProductDtos = new ArrayList<>();
+
+        Account handler = billReturn.getAccount();
+        if (handler != null) {
+            System.out.println(">>> Handler Account ID: " + handler.getId());
+            System.out.println(">>> Handler Code: " + handler.getCode());
+            System.out.println(">>> Handler Name: " + handler.getName());
+
+            billReturnDetailDto.setHandledByName(handler.getName());
+            billReturnDetailDto.setHandledByCode(handler.getCode());
+        } else {
+            System.out.println(">>> Bill.getAccount() == null");
+        }
 
         // Lấy hàng trả
         for (BillDetail billDetail : billDetails) {
