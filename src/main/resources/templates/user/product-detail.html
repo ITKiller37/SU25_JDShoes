@@ -33,6 +33,7 @@
     <!--===============================================================================================-->
     <link rel="stylesheet" type="text/css" th:href="@{/css/util.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
 </head>
@@ -55,6 +56,45 @@
         color: #fff !important;
         border: 2px solid #000 !important;
     }
+    #sizeGuideModal .modal-content {
+        width: 100%;
+        max-width: 100%;
+    }
+    #sizeGuideModal .modal-body {
+        width: 100%;
+    }
+
+    #sizeGuideModal .modal-dialog {
+        max-width: 90vw;
+        margin: 1.75rem auto;
+        transform: translateY(0%) !important;
+    }
+
+    /* Ghi đè header xuống dưới modal */
+    .header-v4,
+    .container-menu-desktop,
+    .wrap-menu-desktop,
+    .menu-desktop,
+    .top-bar {
+        z-index: 1000 !important;
+        position: relative !important;
+    }
+
+    /* Cho modal hiện trên cùng */
+    #sizeGuideModal {
+        z-index: 10550 !important;
+    }
+
+    #sizeGuideModal .modal-dialog {
+        z-index: 10560 !important;
+        position: relative;
+    }
+
+    .modal-backdrop.show {
+        z-index: 10500 !important;
+    }
+
+
 </style>
 <body>
 
@@ -168,7 +208,10 @@
                                     <span class="remaning-product" style="font-size: 12px"></span>
                                 </div>
                             </div>
-
+                            <a href="#" class="stext-102 cl2 hov-cl1 trans-04" data-toggle="modal" data-target="#sizeGuideModal">
+                                <i class="fas fa-ruler-horizontal"></i>
+                                Hướng dẫn chọn kích cỡ
+                            </a>
                             <!-- Đưa nút Thêm vào giỏ xuống dưới -->
                             <div class="flex-w flex-r-m p-b-10">
                                 <div class="size-204 flex-w flex-m respon6-next">
@@ -184,7 +227,65 @@
 
         </div>
 
-<!--daay cos au r-->
+        <div class="modal fade" id="sizeGuideModal" tabindex="-1" role="dialog" aria-labelledby="sizeGuideModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="max-width: 90vw;">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title" id="sizeGuideModalLabel">Hướng Dẫn Chọn Kích Cỡ Giày Nam</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 1;">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 class="mtext-101 cl2 p-b-10">Cách đo size chân</h6>
+                        <ol class="stext-102 cl6">
+                            <li>Đặt một tờ giấy xuống sàn, sát vào tường.</li>
+                            <li>Đặt chân trần lên tờ giấy, gót chân chạm nhẹ vào tường.</li>
+                            <li>Dùng bút đánh dấu điểm xa nhất của ngón chân dài nhất.</li>
+                            <li>Dùng thước đo khoảng cách từ mép giấy (chỗ gót chân) đến điểm vừa đánh dấu.</li>
+                        </ol>
+                        <p class="stext-102 cl6 p-b-20"><strong>Lưu ý:</strong> Nên đo cả hai bàn chân và chọn số đo của chân lớn hơn.</p>
+
+                        <h6 class="mtext-101 cl2 p-b-10">Bảng Quy Đổi Size</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th>Chiều dài chân (cm)</th>
+                                    <th>Size VN / EU</th>
+                                    <th>Size US</th>
+                                    <th>Size UK</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr><td>23.5</td><td>39</td><td>6</td><td>5</td></tr>
+                                <tr><td>24.1</td><td>39-40</td><td>6.5</td><td>5.5</td></tr>
+                                <tr><td>24.4</td><td>40</td><td>7</td><td>6</td></tr>
+                                <tr><td>24.8</td><td>40-41</td><td>7.5</td><td>6.5</td></tr>
+                                <tr><td>25.4</td><td>41</td><td>8</td><td>7</td></tr>
+                                <tr><td>25.7</td><td>41-42</td><td>8.5</td><td>7.5</td></tr>
+                                <tr><td>26.0</td><td>42</td><td>9</td><td>8</td></tr>
+                                <tr><td>26.7</td><td>42-43</td><td>9.5</td><td>8.5</td></tr>
+                                <tr><td>27.0</td><td>43</td><td>10</td><td>9</td></tr>
+                                <tr><td>27.3</td><td>43-44</td><td>10.5</td><td>9.5</td></tr>
+                                <tr><td>27.9</td><td>44</td><td>11</td><td>10</td></tr>
+                                <tr><td>28.3</td><td>44-45</td><td>11.5</td><td>10.5</td></tr>
+                                <tr><td>28.6</td><td>45</td><td>12</td><td>11</td></tr>
+                                <tr><td>29.4</td><td>46</td><td>13</td><td>12</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="stext-102 cl6 p-t-20"><strong>Ghi chú:</strong> Size có thể thay đổi tùy thương hiệu. Ưu tiên đo thực tế chiều dài chân để chọn đúng.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Đã hiểu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--daay cos au r-->
     </section>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" th:inline="javascript"></script>
