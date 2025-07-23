@@ -2,7 +2,6 @@ package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Category.CategoryDto;
 import com.example.jdshoes.entity.Category;
-import com.example.jdshoes.entity.Color;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.CategoryRepository;

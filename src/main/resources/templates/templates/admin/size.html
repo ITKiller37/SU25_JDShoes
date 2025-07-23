@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout.html}">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý kích cỡ</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <h4>Quản lý kích cỡ</h4>
+  <a href="/admin/size-create" class="btn btn-success my-3 float-right">
+    <i class="fa fa-plus-square"></i> <span>Thêm kích cỡ mới</span>
+  </a>
+
+  <div th:if="${successMessage}">
+    <input type="hidden" id="successMessage" th:value="${successMessage}" />
+  </div>
+
+  <table class="table my-3">
+    <thead class="thead-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Mã kích cỡ
+        <a th:href="@{/admin/size-all(page=0, sort='id,asc')}" class="sort-link">↑</a>
+        <a th:href="@{/admin/size-all(page=0, sort='id,desc')}" class="sort-link">↓</a>
+      </th>
+      <th scope="col">Tên kích cỡ</th>
+      <th scope="col">Trạng thái</th>
+      <th scope="col">Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item:${items}">
+      <th scope="row" th:text="${item.id}">1</th>
+      <td th:text="${item.code}">S001</td>
+      <td th:text="${item.name}">Kích cỡ demo</td>
+      <td>
+        <span th:class="${item.deleteFlag} ? 'badge bg-danger' : 'badge bg-success'"
+              th:text="${item.deleteFlag} ? 'Không hoạt động' : 'Hoạt động'">
+               </span>
+      </td>
+      <td>
+        <a th:href="@{'/admin/size-detail/' + ${item.id}}" class="text-primary me-2">
+          <i class="fa ti-pencil-alt"></i>
+        </a>
+        <a th:href="@{'/admin/size-toggle-status/' + ${item.id}}" class="toggle-status ms-2"
+           th:attr="data-status=${item.deleteFlag} ? 'Không hoạt động' : 'Hoạt động'">
+          <i class="fa fa-power-off"></i>
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Phân trang -->
+  <div class="clearfix float-right">
+    <ul class="pagination">
+      <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/admin/size-all(page=0, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-double-left"></i>
+        </a>
+      </li>
+      <li th:classappend="${items.hasPrevious() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/admin/size-all(page=${items.number - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-left"></i>
+        </a>
+      </li>
+      <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/admin/size-all(page=${items.number + 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-right"></i>
+        </a>
+      </li>
+      <li th:classappend="${items.hasNext() ? '' : 'disabled'}" class="page-item">
+        <a th:href="@{/admin/size-all(page=${items.totalPages - 1}, sort=${sortField + ',' + (sortDirection == 'asc' ? 'desc' : 'asc')})}"
+           class="page-link">
+          <i class="fas fa-angle-double-right"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script th:inline="javascript">
+    $(document).ready(function () {
+      // Xác nhận khi đổi trạng thái
+      $('.toggle-status').on('click', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var status = $(this).attr('data-status');
+        Swal.fire({
+          title: "Xác nhận?",
+          text: `Bạn chắc chắn muốn đổi trạng thái kích cỡ sang ${status === 'Hoạt động' ? 'Không hoạt động' : 'Hoạt động'}?`,
+          icon: "warning",
+          showCancelButton: true,
+          cancelButtonText: 'Hủy',
+          confirmButtonText: 'Xác nhận',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = url;
+          }
+        });
+      });
+
+      // Xác nhận khi xóa
+      $('.delete-btn').on('click', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('data-link');
+        Swal.fire({
+          title: "Xác nhận?",
+          text: "Bạn chắc chắn muốn xóa kích cỡ này?",
+          icon: "warning",
+          showCancelButton: true,
+          cancelButtonText: 'Hủy',
+          confirmButtonText: 'Xác nhận',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = url;
+          }
+        });
+      });
+
+      // Hiển thị thông báo thành công
+      var successMessage = $('#successMessage').val();
+      if (successMessage) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Thành công',
+          text: successMessage,
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
+    });
+  </script>
+</div>
+</body>
+</html>

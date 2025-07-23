@@ -2,15 +2,18 @@ package com.example.jdshoes.controller.user;
 
 import com.example.jdshoes.dto.Account.AccountDto;
 import com.example.jdshoes.entity.Account;
+import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.entity.Role;
 import com.example.jdshoes.entity.enumClass.RoleName;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.AccountRepository;
+import com.example.jdshoes.repository.AddressShippingRepository;
 import com.example.jdshoes.repository.CustomerRepository;
 import com.example.jdshoes.repository.RoleRepository;
 import com.example.jdshoes.service.AccountService;
 import com.example.jdshoes.service.VerificationCodeService;
+import com.example.jdshoes.utils.MailServices;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Controller
@@ -33,7 +37,13 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
+    private MailServices mailServices;
+
+    @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private AddressShippingRepository addressShippingRepository;
 
     @Autowired
     private VerificationCodeService verificationCodeService;
@@ -66,7 +76,14 @@ public class AuthController {
     }
 
     @PostMapping("/register-save")
-    public String saveregister(Model model, @Validated @ModelAttribute AccountDto accountDto, RedirectAttributes redirectAttributes) throws MessagingException {
+    public String saveregister(Model model, @Validated @ModelAttribute AccountDto accountDto,
+//                               MultipartFile chooseFile,
+                               @RequestParam String tinh, @RequestParam String huyen, @RequestParam String xa, @RequestParam String tenduong,
+                               RedirectAttributes redirectAttributes) throws MessagingException, IOException {
+//        String avatar = null;
+//        if(!chooseFile.isEmpty()){
+//            avatar = "uploads/"+FileUploadUtil.saveFile("uploads",chooseFile.getOriginalFilename(),chooseFile);
+//        }
 
         Account accountByEmail= accountService.findByEmail(accountDto.getEmail());
 
@@ -81,59 +98,76 @@ public class AuthController {
             return "redirect:/register";
         }
 
-            Account account = new Account();
-            account.setEmail(accountDto.getEmail());
-            Account account1 = accountRepository.findTopByOrderByIdDesc();
-            Long nextCode = (account1 == null) ? 1 : account1.getId() + 1;
-            String accCode = "TK" + String.format("%04d", nextCode);
-            account.setCode(accCode);
+        Account account = new Account();
+        account.setEmail(accountDto.getEmail());
+        Account account1 = accountRepository.findTopByOrderByIdDesc();
+        Long nextCode = (account1 == null) ? 1 : account1.getId() + 1;
+        String accCode = "TK" + String.format("%04d", nextCode);
+        account.setCode(accCode);
+//        account.setAvatar(avatar);
+        String encoded = passwordEncoder.encode(accountDto.getPassword());
+        account.setPassword(encoded);
+        account.setName(accountDto.getName());
+        account.setBirthDay(accountDto.getBod());
+        account.setGender(accountDto.getGender());
+        account.setNonLocked(true);
+        Role role = roleRepository.findByRoleName(RoleName.ROLE_USER);
+        account.setRole(role);
+        Customer customer = null;
 
-            String encoded = passwordEncoder.encode(accountDto.getPassword());
-            account.setPassword(encoded);
-            account.setNonLocked(true);
-            Role role = roleRepository.findByRoleName(RoleName.ROLE_USER);
-            account.setRole(role);
-            Customer customer = null;
-
-            //Nếu số điện thoại đã tồn tại
-            if(customerRepository.existsByPhoneNumber(accountDto.getPhoneNumber())) {
-                customer = customerRepository.findByPhoneNumber(accountDto.getPhoneNumber());
-                customer.setName(accountDto.getName());
-            }
-            else {
-                customer = new Customer();
-                customer.setName(accountDto.getName());
-                customer.setPhoneNumber(accountDto.getPhoneNumber());
-                Customer customerCurrent = customerRepository.findTopByOrderByIdDesc();
-                Long nextCodeAcc = (customerCurrent == null) ? 1 : customerCurrent.getId() + 1;
-                String productCode = "KH" + String.format("%04d", nextCodeAcc);
-                customer.setCode(productCode);
-
-            }
-            account.setCustomer(customer);
-            account.setCreateDate(LocalDateTime.now());
-            customerRepository.save(customer);
-            accountService.save(account);
-            redirectAttributes.addFlashAttribute("success", "Đăng ký tài khoản thành công");
-            return "redirect:/user-login";
+        //Nếu số điện thoại đã tồn tại
+        if(customerRepository.existsByPhoneNumber(accountDto.getPhoneNumber())) {
+            customer = customerRepository.findByPhoneNumber(accountDto.getPhoneNumber());
+            customer.setName(accountDto.getName());
         }
-
-        @PostMapping("/reset-page")
-        public String viewResetPassPage(@RequestParam String email, RedirectAttributes redirectAttributes) throws MessagingException {
-            try {
-                verificationCodeService.createVerificationCode(email);
-            }
-            catch (ShoesApiException exception) {
-                redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
-                return "redirect:/forgot-pass";
-            }
-            return "redirect:/reset-pass";
+        else {
+            customer = new Customer();
+            customer.setName(accountDto.getName());
+            customer.setPhoneNumber(accountDto.getPhoneNumber());
+            Customer customerCurrent = customerRepository.findTopByOrderByIdDesc();
+            Long nextCodeAcc = (customerCurrent == null) ? 1 : customerCurrent.getId() + 1;
+            String productCode = "KH" + String.format("%04d", nextCodeAcc);
+            customer.setCode(productCode);
+            customer.setEmail(accountDto.getEmail());
+            customer.setDeleted(false);
+            customer.setGender(accountDto.getGender());
+            customer.setBirthDay(accountDto.getBod());
         }
+        account.setCustomer(customer);
+        account.setCreateDate(LocalDateTime.now());
 
-        @GetMapping("/reset-pass")
-        public String viewResetPassPage() {
-            return "user/reset-pass";
+        customerRepository.save(customer);
+        accountService.save(account);
+        redirectAttributes.addFlashAttribute("success", "Đăng ký tài khoản thành công");
+        mailServices.sendEmail(accountDto.getEmail(),"Đăng ký tài khoản thành công",mailServices.buildEmailTemplate(account.getName(), accountDto.getEmail(), accountDto.getPassword()), false, true);
+
+        AddressShipping addressShipping = new AddressShipping();
+        addressShipping.setStreet(tenduong);
+        addressShipping.setWard(xa);
+        addressShipping.setDistrict(huyen);
+        addressShipping.setProvince(tinh);
+        addressShipping.setAddress(tenduong+", "+xa+", "+huyen+", "+tinh);
+        addressShipping.setCustomer(account.getCustomer());
+        addressShippingRepository.save(addressShipping);
+        return "redirect:/user-login";
+    }
+
+    @PostMapping("/reset-page")
+    public String viewResetPassPage(@RequestParam String email, RedirectAttributes redirectAttributes) throws MessagingException {
+        try {
+            verificationCodeService.createVerificationCode(email);
         }
+        catch (ShoesApiException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+            return "redirect:/forgot-pass";
+        }
+        return "redirect:/reset-pass";
+    }
+
+    @GetMapping("/reset-pass")
+    public String viewResetPassPage() {
+        return "user/reset-pass";
+    }
 
 
     @PostMapping("/reset-password")
@@ -154,4 +188,7 @@ public class AuthController {
             return "redirect:/reset-pass";
         }
     }
+
+
+
 }

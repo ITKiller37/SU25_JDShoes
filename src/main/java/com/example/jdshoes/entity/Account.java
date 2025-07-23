@@ -40,6 +40,8 @@ public class Account implements Serializable {
     private LocalDateTime updateDate;
     private boolean isNonLocked;
 
+//    private String avatar;
+
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = true)

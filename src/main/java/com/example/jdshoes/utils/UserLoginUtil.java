@@ -14,8 +14,6 @@ public class UserLoginUtil {
     @Autowired
     private AccountRepository accountRepository;
 
-
-
     public Account getCurrentLogin(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

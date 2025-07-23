@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div>
+        <h4 style="display: block; text-align: center">Thêm nhân viên</h4>
+
+    </div>
+    <script src="/admin/js/address.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script>
+        window.onload = function() {
+            loadAddress();
+        }
+    </script>
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <form onsubmit="return checkForm()" class="col-sm-8" method="post" th:object="${account}">
+            <label class="lb-form">Họ tên</label>
+            <input id="tenkhachhang" name="name" type="text" class="form-control">
+            <label class="lb-form">Email</label>
+            <input id="email" th:field="*{email}" type="text" class="form-control">
+            <th:block th:if="${error}">
+                <p th:text="${error}" style="color: red"></p>
+            </th:block>
+            <label class="lb-form">Số điện thoại</label>
+            <input name="phone" type="text" class="form-control">
+            <label class="lb-form">Ngày sinh</label>
+            <input th:field="*{birthDay}" type="date" class="form-control">
+            <th:block th:if="${errorBirth}">
+                <p th:text="${errorBirth}" style="color: red"></p>
+            </th:block>
+            <label class="lb-form">Giới tính</label>
+            <select th:field="*{gender}" type="date" class="form-control">
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+            </select>
+            <div class="row">
+                <div class="col-sm-4">
+                    <label class="">Chọn tỉnh</label>
+                    <select name="tinh" onchange="loadHuyen(this.options[this.selectedIndex].getAttribute('name-add'));" class="form-control" id="tinh"></select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="">Chọn huyện</label>
+                    <select name="huyen"  onchange="loadXa(this.options[this.selectedIndex].getAttribute('name-add'));" class="form-control" id="huyen"></select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="">Chọn xã</label>
+                    <select name="xa" class="form-control" id="xa"></select>
+                </div>
+                <div class="col-sm-12">
+                    <label class="">Tên đường, số nhà</label>
+                    <input name="tenduong" class="form-control" id="addchitiet" placeholder="tên đường, số nhà của bạn">
+                </div>
+            </div>
+            <br>
+            <button th:text="${param.id == null?'Thêm tài khoản':'Cập nhật tài khoản'}" class="btn btn-primary form-control"></button>
+        </form>
+
+
+        <script>
+            function checkForm(){
+                var tenkhachhang = document.getElementById("tenkhachhang").value
+                var email = document.getElementById("email").value
+
+                if(tenkhachhang == ""){
+                    toastr.error("Tên nhân viên không được để trống")
+                    return false;
+                }
+                if(email == ""){
+                    toastr.error("Email không được để trống")
+                    return false;
+                }
+                return true;
+            }
+        </script>
+    </div>
+</div>
+
+</body>
+</html>

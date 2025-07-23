@@ -7,7 +7,6 @@ import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
 import com.example.jdshoes.entity.ProductDiscount;
 import jakarta.validation.Valid;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 
 public interface ProductDiscountService {

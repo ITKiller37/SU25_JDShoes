@@ -4,7 +4,6 @@ import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
 import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
 import com.example.jdshoes.entity.Product;
-import com.example.jdshoes.entity.ProductDiscount;
 import com.example.jdshoes.repository.ProductDiscountRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductDiscountService;
@@ -13,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
