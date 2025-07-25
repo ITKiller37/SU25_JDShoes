@@ -128,7 +128,7 @@ public class DiscountController {
         return "redirect:/admin-only/discounts"; // Điều hướng lại trang danh sách
     }
 
-    @Scheduled(fixedRate = 3000) // 30 giây một lần
+    @Scheduled(fixedRate = 3000000) // 30 giây một lần
     public void updateDiscountStatusAutomatically() {
         List<Discount> discounts = discountRepository.findAll();
 

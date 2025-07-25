@@ -24,7 +24,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query(value = "SELECT LIMIT 5 c.code, c.name, COUNT(c.id) AS totalPurchases, sum(b.amount) as revenue\n" +
             "           FROM Customer c\n" +
             "           JOIN bill b on b.customer_id = c.id\n" +
-            "           JOIN bill_detail bd on b.id = bd.bill_id\n" +
+            "           JOIN billDetail bd on b.id = bd.bill_id\n" +
             "           GROUP BY c.id, c.name, c.code \n" +
             "           ORDER BY totalPurchases DESC", nativeQuery = true)
     List<TopCustomerBuy> findTopCustomersByPurchases();
@@ -34,6 +34,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Customer findByPhoneNumber(String phoneNumber);
 
     Customer findByAccount_Id(Long id);
+
     Customer findByAccount_Email(String email);
 
     @Query("select c from Customer c where c.name = ?1 and c.phoneNumber = ?2 and c.email = ?3 and (c.deleted is null or c.deleted = false)")

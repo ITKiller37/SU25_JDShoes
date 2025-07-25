@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/admin-layout.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="main-wrapper" layout:fragment="content">
+        <h4>Thống kê doanh thu</h4>
+        <div class="row mt-4">
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card board1 fill">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <div>
+                                <h3 class="card_widget_header" th:text="${#numbers.formatDecimal(revenueAll, 0, 'POINT', 0, 'COMMA')}"></h3>
+                                <h6 class="text-muted">Tổng doanh thu</h6> </div>
+                            <div class="ml-auto mt-md-3 mt-lg-0"> <span class="opacity-7 text-muted"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="#009688" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign">
+									<line x1="12" y1="1" x2="12" y2="23"></line>
+									<path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+									</svg></span> </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card board1 fill">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <div>
+                                <h3 class="card_widget_header" th:text="${#numbers.formatDecimal(revenueToday, 0, 'POINT', 0, 'COMMA')}">2</h3>
+                                <h6 class="text-muted">Doanh thu hôm nay</h6> </div>
+                            <div class="ml-auto mt-md-3 mt-lg-0">
+
+                                <svg th:if="${percentageYesterday >= 0}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="green" d="M14 2.75a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-.69l-4.47 4.47a.75.75 0 0 1-1.06 0L8.5 6.56l-4.22 4.22a.75.75 0 1 1-1.06-1.06l4.75-4.75a.75.75 0 0 1 1.06 0l2.47 2.47l3.94-3.94h-.69a.75.75 0 0 1-.75-.75ZM3.75 14a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 .75-.75Zm4.75-2.25a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM11.75 13a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75Zm4.75-3.25a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0v-7.5Z"/></svg>
+
+                                <svg th:if="${percentageYesterday < 0}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 14 14"><path fill="none" stroke="red" stroke-linecap="round" stroke-linejoin="round" d="m1.24.5l11.5 5.23m-2.15.81l2.15-.81l-.8-2.16M1.25 6h1.5a.5.5 0 0 1 .5.5v7H.75v-7a.5.5 0 0 1 .5-.5v0Zm5 1.5h1.5a.5.5 0 0 1 .5.5v5.5h-2.5V8a.5.5 0 0 1 .5-.5v0Zm5 1.5h1.5a.5.5 0 0 1 .5.5v4h-2.5v-4a.5.5 0 0 1 .5-.5Z"/></svg>
+
+                                <span class="ml-3" th:classappend="${percentageYesterday >= 0 ? 'raise' : 'decrease'}" th:if="${percentageYesterday != 99}" th:text="${#numbers.formatDecimal(percentageYesterday, 0, 2)} + '%'"></span>
+                                <span class="ml-3" th:classappend="${percentageYesterday >= 0 ? 'raise' : 'decrease'}" th:if="${percentageYesterday == 99}">99+%</span>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card board1 fill">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <div>
+                                <h3 class="card_widget_header" th:text="${#numbers.formatDecimal(revenueWeek, 0, 'POINT', 0, 'COMMA')}">1.400.000 đ</h3>
+                                <h6 class="text-muted">Doanh thu tuần này</h6> </div>
+                            <div class="ml-auto mt-md-3 mt-lg-0">
+                                <span class="opacity-7 text-muted">
+                                <svg th:if="${percentageLastWeek >= 0}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="green" d="M14 2.75a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-.69l-4.47 4.47a.75.75 0 0 1-1.06 0L8.5 6.56l-4.22 4.22a.75.75 0 1 1-1.06-1.06l4.75-4.75a.75.75 0 0 1 1.06 0l2.47 2.47l3.94-3.94h-.69a.75.75 0 0 1-.75-.75ZM3.75 14a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 .75-.75Zm4.75-2.25a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM11.75 13a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75Zm4.75-3.25a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0v-7.5Z"/></svg>
+
+                                <svg th:if="${percentageLastWeek < 0}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 14 14"><path fill="none" stroke="red" stroke-linecap="round" stroke-linejoin="round" d="m1.24.5l11.5 5.23m-2.15.81l2.15-.81l-.8-2.16M1.25 6h1.5a.5.5 0 0 1 .5.5v7H.75v-7a.5.5 0 0 1 .5-.5v0Zm5 1.5h1.5a.5.5 0 0 1 .5.5v5.5h-2.5V8a.5.5 0 0 1 .5-.5v0Zm5 1.5h1.5a.5.5 0 0 1 .5.5v4h-2.5v-4a.5.5 0 0 1 .5-.5Z"/></svg></span>
+                                <span class="ml-3" th:classappend="${percentageLastWeek >= 0 ? 'raise' : 'decrease'}" th:if="${percentageLastWeek != 99}" th:text="${#numbers.formatDecimal(percentageLastWeek, 0, 2)} + '%'"></span>
+                                <span class="ml-3" th:classappend="${percentageLastWeek >= 0 ? 'raise' : 'decrease'}" th:if="${percentageLastWeek == 99}">99+%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card board1 fill">
+                    <div class="card-body">
+                        <div class="dash-widget-header">
+                            <div>
+                                <h3 class="card_widget_header" th:text="${#numbers.formatDecimal(revenueMonth, 0, 'POINT', 0, 'COMMA')}">10</h3>
+                                <h6 class="text-muted">Doanh thu tháng này</h6> </div>
+                            <div class="ml-auto mt-md-3 mt-lg-0"> <span class="opacity-7 text-muted"> <svg th:if="${percentageLastMonth >= 0}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="green" d="M14 2.75a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-.69l-4.47 4.47a.75.75 0 0 1-1.06 0L8.5 6.56l-4.22 4.22a.75.75 0 1 1-1.06-1.06l4.75-4.75a.75.75 0 0 1 1.06 0l2.47 2.47l3.94-3.94h-.69a.75.75 0 0 1-.75-.75ZM3.75 14a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 .75-.75Zm4.75-2.25a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM11.75 13a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75Zm4.75-3.25a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0v-7.5Z"/></svg>
+
+                                <svg th:if="${percentageLastMonth < 0}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 14 14"><path fill="none" stroke="red" stroke-linecap="round" stroke-linejoin="round" d="m1.24.5l11.5 5.23m-2.15.81l2.15-.81l-.8-2.16M1.25 6h1.5a.5.5 0 0 1 .5.5v7H.75v-7a.5.5 0 0 1 .5-.5v0Zm5 1.5h1.5a.5.5 0 0 1 .5.5v5.5h-2.5V8a.5.5 0 0 1 .5-.5v0Zm5 1.5h1.5a.5.5 0 0 1 .5.5v4h-2.5v-4a.5.5 0 0 1 .5-.5Z"/></svg> </span>
+
+                                <span class="ml-3" th:classappend="${percentageLastMonth >= 0 ? 'raise' : 'decrease'}" th:if="${percentageLastMonth != 99}" th:text="${#numbers.formatDecimal(percentageLastMonth, 0, 2)} + '%'"></span>
+                                <span class="ml-3" th:classappend="${percentageLastMonth >= 0 ? 'raise' : 'decrease'}" th:if="${percentageLastMonth == 99}">99+%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div style="margin-top: 50px">
+            <h5 style="display: block; margin-bottom: 40px">So sánh doanh thu</h5>
+            <ul class="nav nav-tabs mb-3" id="ex1" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="ex1-tab-1" data-bs-toggle="tab" href="#ex1-tabs-1"
+                       role="tab" aria-controls="ex1-tabs-1" aria-selected="true" >Theo ngày</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="ex1-tab-2" data-bs-toggle="tab" href="#ex1-tabs-2"
+                       role="tab" aria-controls="ex1-tabs-2" aria-selected="false" >Theo tháng</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="ex1-tab-3" data-bs-toggle="tab" href="#ex1-tabs-3"
+                       role="tab" aria-controls="ex1-tabs-3" aria-selected="false" >Theo năm</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="ex1-content">
+                <div class="tab-pane fade show active"
+                     id="ex1-tabs-1" role="tabpanel" aria-labelledby="ex1-tab-1">
+                    <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+                        <h3>So sánh doanh thu theo ngày</h3>
+
+                        <label for="date1">Chọn ngày 1:</label>
+                        <input type="date" id="date1" class="form-control-sm">
+
+                        <br><br>
+
+                        <label for="date2">Chọn ngày 2:</label>
+                        <input type="date" id="date2" class="form-control-sm">
+
+                        <br><br>
+
+                        <button onclick="compareRevenue()">So sánh</button>
+
+                        <div id="revenueCompare" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="ex1-tabs-2" role="tabpanel" aria-labelledby="ex1-tab-2">
+                    <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+                        <h3>So sánh doanh thu theo tháng</h3>
+
+                        <label for="date1">Chọn tháng 1:</label>
+                        <input type="month" id="month1" class="form-control-sm">
+
+                        <br><br>
+
+                        <label for="date2">Chọn tháng 2:</label>
+                        <input type="month" id="month2" class="form-control-sm">
+
+                        <br><br>
+
+                        <button onclick="compareRevenueMonth()">So sánh</button>
+
+                        <div id="revenueCompareMonth" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="ex1-tabs-3" role="tabpanel" aria-labelledby="ex1-tab-3">
+                    <div style="font-family: Arial, sans-serif; max-width: 500px; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+                        <h3>So sánh doanh thu theo năm</h3>
+
+                        <label for="date1">Chọn năm 1:</label>
+                        <select type="y" id="year1" class="form-control-sm"></select>
+
+                        <br><br>
+
+                        <label for="date2">Chọn năm 2:</label>
+                        <select type="month" id="year2" class="form-control-sm"></select>
+
+                        <br><br>
+
+                        <button onclick="compareRevenueYear()">So sánh</button>
+
+                        <div id="revenueCompareYear" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="mt-4 col-md-12">
+                <h5>Theo khoảng thời gian</h5>
+                <div class="d-flex align-items-center mt-3">
+                    <div class="mr-2">
+                        <label class="form-label">Loại thời gian</label>
+                        <select class="form-select" id="time-category">
+                            <option value="1">Theo khoảng ngày</option>
+                            <option value="2">Theo tháng</option>
+                        </select>
+                    </div>
+
+                    <div class="by-date mr-2">
+                        <label class="form-label">Ngày bắt đầu</label>
+                        <input type="date" name="" id="dateStart" class="form-control" >
+                    </div>
+
+                    <div class="by-date mr-2">
+                        <label class="form-label">Ngày kết thúc</label>
+                        <input type="date" name="" id="dateEnd" class="form-control">
+                    </div>
+
+                    <div class="by-month mr-2">
+                        <label class="form-label">Tháng bắt đầu</label>
+                        <input type="month" name="" id="monthStart" class="form-control" >
+                    </div>
+
+                    <div class="by-month mr-2">
+                        <label class="form-label">Tháng kết thúc</label>
+                        <input type="month" name="" id="monthEnd" class="form-control">
+                    </div>
+                    <div class="mt-4">
+                        <label class="form-label"></label>
+                        <button id="apply-statistic" class="btn btn-primary">Áp dụng</button>
+                    </div>
+                    <div class="mt-4">
+                        <div class="form-label"></div>
+                        <button type="button" id="export" class="btn bg-transparent">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 48 48"><g fill="none" stroke="green" stroke-linecap="round" stroke-width="4"><path stroke-linejoin="round" d="M8 15V6a2 2 0 0 1 2-2h28a2 2 0 0 1 2 2v36a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-9"/><path d="M31 15h3m-6 8h6m-6 8h6"/><path stroke-linejoin="round" d="M4 15h18v18H4zm6 6l6 6m0-6l-6 6"/></g></svg>
+                        </button>
+                    </div>
+                </div>
+                <div style="width: 100%; height: 400px">
+                    <canvas id="revenueInTime"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+        <script>
+            // Đặt mặc định: hôm nay và 7 ngày trước
+            const today = new Date();
+            const date2 = today.toISOString().split('T')[0];
+            const date1 = new Date(today);
+            date1.setDate(today.getDate() - 7);
+            const date1Str = date1.toISOString().split('T')[0];
+
+            document.getElementById('date1').value = date1Str;
+            document.getElementById('date2').value = date2;
+
+            // Giả sử bạn lấy dữ liệu doanh thu từ đâu đó, mình mock sẵn ở đây
+            function getMockRevenue(date) {
+                // Giả lập doanh thu để test, bạn thay bằng AJAX gọi thật
+                const random = Math.floor(Math.random() * 10000000) + 1000000;
+                return random;
+            }
+
+            async function compareRevenue() {
+                const d1 = document.getElementById('date1').value;
+                const d2 = document.getElementById('date2').value;
+
+                if (!d1 || !d2) {
+                    alert("Vui lòng chọn đủ 2 ngày.");
+                    return;
+                }
+
+                const url = `/api/get-statistic-date?date1=${d1}&date2=${d2}`;
+                const response = await fetch(url, {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+                console.log(data)
+
+                const rev1 = data.amount1 ?? 0;
+                const rev2 = data.amount2 ?? 0;
+
+                const diff = rev2 - rev1;
+                const percent = rev1 === 0 ? 0 : ((Math.abs(diff) / rev1) * 100).toFixed(1);
+                const trend = diff >= 0 ? '↑' : '↓';
+                const color = diff >= 0 ? 'green' : 'red';
+
+                document.getElementById("revenueCompare").innerHTML = `
+                <h4>Kết quả so sánh</h4>
+                <p><strong>${d1}:</strong> <span style="color: green;">${rev1.toLocaleString()}₫</span></p>
+                <p><strong>${d2}:</strong> <span style="color: ${color};">${rev2.toLocaleString()}₫</span></p>
+                <p>
+                    <strong>Chênh lệch:</strong>
+                    <span style="color: ${color};">${trend} ${Math.abs(diff).toLocaleString()}₫</span>
+                    (${diff >= 0 ? 'Tăng' : 'Giảm'} ${percent}%)
+                </p>`;
+            }
+        </script>
+
+        <script>
+            async function compareRevenueMonth() {
+                const d1 = document.getElementById('month1').value;
+                const d2 = document.getElementById('month2').value;
+                console.log(d1)
+                console.log(d2)
+                if (!d1 || !d2) {
+                    alert("Vui lòng chọn đủ 2 tháng.");
+                    return;
+                }
+                var month1 = d1.split("-")[1]
+                var year1 = d1.split("-")[0]
+                var month2 = d2.split("-")[1]
+                var year2 = d2.split("-")[0]
+                const url = `/api/get-statistic-month?month1=${month1}&month2=${month2}&year1=${year1}&year2=${year2}`;
+                const response = await fetch(url, {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+
+                const rev1 = data.amount1 ?? 0;
+                const rev2 = data.amount2 ?? 0;
+
+                const diff = rev2 - rev1;
+                const percent = rev1 === 0 ? 0 : ((Math.abs(diff) / rev1) * 100).toFixed(1);
+                const trend = diff >= 0 ? '↑' : '↓';
+                const color = diff >= 0 ? 'green' : 'red';
+
+                document.getElementById("revenueCompareMonth").innerHTML = `
+                <h4>Kết quả so sánh</h4>
+                <p><strong>${d1}:</strong> <span style="color: green;">${rev1.toLocaleString()}₫</span></p>
+                <p><strong>${d2}:</strong> <span style="color: ${color};">${rev2.toLocaleString()}₫</span></p>
+                <p>
+                    <strong>Chênh lệch:</strong>
+                    <span style="color: ${color};">${trend} ${Math.abs(diff).toLocaleString()}₫</span>
+                    (${diff >= 0 ? 'Tăng' : 'Giảm'} ${percent}%)
+                </p>`;
+            }
+        </script>
+
+        <script>
+            async function compareRevenueYear() {
+                const d1 = document.getElementById('year1').value;
+                const d2 = document.getElementById('year2').value;
+                if (d1 == d2) {
+                    alert("Vui lòng chọn 2 năm khác nhau");
+                    return;
+                }
+                const url = `/api/get-statistic-year?year1=${d1}&year2=${d2}`;
+                const response = await fetch(url, {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+
+                const rev1 = data.amount1 ?? 0;
+                const rev2 = data.amount2 ?? 0;
+
+                const diff = rev2 - rev1;
+                const percent = rev1 === 0 ? 0 : ((Math.abs(diff) / rev1) * 100).toFixed(1);
+                const trend = diff >= 0 ? '↑' : '↓';
+                const color = diff >= 0 ? 'green' : 'red';
+
+                document.getElementById("revenueCompareYear").innerHTML = `
+                <h4>Kết quả so sánh</h4>
+                <p><strong>${d1}:</strong> <span style="color: green;">${rev1.toLocaleString()}₫</span></p>
+                <p><strong>${d2}:</strong> <span style="color: ${color};">${rev2.toLocaleString()}₫</span></p>
+                <p>
+                    <strong>Chênh lệch:</strong>
+                    <span style="color: ${color};">${trend} ${Math.abs(diff).toLocaleString()}₫</span>
+                    (${diff >= 0 ? 'Tăng' : 'Giảm'} ${percent}%)
+                </p>`;
+            }
+        </script>
+
+        <script>
+            // Get today's date
+            var currentDate = new Date();
+
+            // Set the "dateEnd" input value to today's date
+            var dateEndInput = document.getElementById("dateEnd");
+            dateEndInput.value = formatDate(currentDate);
+
+            // Calculate the date 30 days ago
+            var dateStart = new Date(currentDate);
+            dateStart.setDate(currentDate.getDate() - 30);
+
+            // Set the "dateStart" input value to 30 days ago
+            var dateStartInput = document.getElementById("dateStart");
+            dateStartInput.value = formatDate(dateStart);
+
+            // Set the "monthStart" input value to the current month
+            var monthStartInput = document.getElementById("monthStart");
+            monthStartInput.value = formatMonth(currentDate, 'month');
+
+            // Calculate the date with the current month plus 12
+            var monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 12);
+
+            // Set the "monthEnd" input value to the date with the current month plus 12
+            var monthEndInput = document.getElementById("monthEnd");
+            monthEndInput.value = formatMonth(monthEnd, 'month');
+
+            // Function to format the date as "YYYY-MM"
+            function formatMonth(date, format) {
+                var year = date.getFullYear();
+                var month = String(date.getMonth() + 1).padStart(2, '0');
+                if (format === 'month') {
+                    return year + '-' + month;
+                } else {
+                    var day = String(date.getDate()).padStart(2, '0');
+                    return year + '-' + month + '-' + day;
+                }
+            }
+
+            // Function to format the date as "YYYY-MM-DD"
+            function formatDate(date) {
+                var year = date.getFullYear();
+                var month = String(date.getMonth() + 1).padStart(2, '0');
+                var day = String(date.getDate()).padStart(2, '0');
+                return year + '-' + month + '-' + day;
+            }
+
+            $('#time-category').on('change', function () {
+                var value = $(this).val()
+
+                if(value == 1) {
+                    $('.by-date').show()
+                    $('.by-month').hide()
+                }
+
+                if(value == 2) {
+                    $('.by-date').hide()
+                    $('.by-month').show()
+                }
+            })
+
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var $revenueDayInMonth = $('#revenueDayInMonth');
+                var $revenueMonthInYear = $('#revenueMonthInYear')
+                var $revenueInTime = $('#revenueInTime')
+                $('#month').on('change', function () {
+                    callApiGetInMonth($(this).val(), $('#year').val())
+                })
+
+                $('#year').on('change', function () {
+                    callApiGetInMonth($("#month").val(), $(this).val())
+                })
+
+                $('#monthYear').on('change', function () {
+                    callApiGetInYear($(this).val())
+                })
+
+                $('.by-date').show()
+                $('.by-month').hide()
+
+                const plugin = {
+                    id: 'customCanvasBackgroundColor',
+                    beforeDraw: (chart, args, options) => {
+                        const {ctx} = chart;
+                        ctx.save();
+                        ctx.globalCompositeOperation = 'destination-over';
+                        ctx.fillStyle = options.color || '#99ffff';
+                        ctx.fillRect(0, 0, chart.width, chart.height);
+                        ctx.restore();
+                    }
+                };
+
+
+                callApiGetInMonth(11, 2023)
+                callApiGetInYear(2023)
+
+                function callApiGetInMonth(month, year) {
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: `/api/get-statistic-revenue-day-in-month?month=${month}&year=${year}`,
+                        success: function (data) {
+                            var lableList = []
+                            var dataList = []
+                            data.forEach(item => {
+                                lableList.push(item.date)
+                                dataList.push(item.revenue)
+                            })
+
+                            loadChart(lableList, dataList)
+                        }
+                    })
+                }
+
+                function callApiGetInYear(year) {
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: `/api/get-statistic-revenue-month-in-year?year=${year}`,
+                        success: function (data) {
+                            var lableList = []
+                            var dataList = []
+                            data.forEach(item => {
+                                lableList.push(item.month)
+                                dataList.push(item.revenue)
+                            })
+
+                            loadChartYear(lableList, dataList)
+                        }
+                    })
+                }
+
+               function loadChart(labelList, dataList) {
+                    const label = `Doanh thu`
+                   let chartStatus = Chart.getChart("revenueDayInMonth"); // <canvas> id
+                   if (chartStatus != undefined) {
+                       chartStatus.destroy();
+                   }
+                    var chart = new Chart($revenueDayInMonth, {
+                        type: 'line',
+                        data: {
+                            labels: labelList,  // Các tháng của năm
+                            datasets: [
+                                {
+                                    label: label,
+                                    data: dataList,
+
+                                    borderColor: 'rgb(0,143,255)',
+                                    tension: 0.1
+                                },
+                            ]
+                        },
+
+                        options: {
+
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: `Doanh thu tháng ${$('#month').val()}-${$('#year').val()}`
+                                },
+                                customCanvasBackgroundColor: {
+                                    color: '#fff',
+                                }
+                            }
+                        },
+
+                        plugins: [plugin],
+                    });
+                }
+                function loadChartYear(labelList, dataList) {
+                    let chartStatus = Chart.getChart("revenueMonthInYear"); // <canvas> id
+                    if (chartStatus != undefined) {
+                        chartStatus.destroy();
+                    }
+                    var chart = new Chart($revenueMonthInYear, {
+                        type: 'line',
+                        data: {
+                            labels: labelList,  // Các tháng của năm
+                            datasets: [
+                                {
+                                    label: 'Doanh thu',
+                                    data: dataList,
+
+                                    borderColor: 'rgb(0,143,255)',
+                                    tension: 0.1
+                                },
+                            ]
+                        },
+
+                        options: {
+
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: `Doanh thu năm ${$('#monthYear').val()}`
+                                },
+                                customCanvasBackgroundColor: {
+                                    color: '#fff',
+                                }
+                            }
+                        },
+
+                        plugins: [plugin],
+                    });
+                }
+            });
+
+            callApiStatisInTime($('#dateStart').val(), $('#dateEnd').val())
+
+
+            $('#apply-statistic').on('click', function () {
+                var selectValue = $('#time-category').val()
+                if(selectValue == 1) {
+                    handleStatisTicFromDate()
+                }else  {
+                    handlehandleStatisTicFromMonth()
+                }
+            })
+
+            function handleStatisTicFromDate() {
+                const startDate = $('#dateStart').val()
+                const toDate = $('#dateEnd').val()
+                if(!startDate) {
+                    Toastify({
+                        text: "Vui lòng nhâp ngày bắt đầu",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                    return
+                }
+
+                if(toDate == "") {
+                    Toastify({
+                        text: "Vui lòng nhâp ngày kết thúc",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                    return;
+                }
+
+                if(startDate >= toDate) {
+                    Toastify({
+                        text: "Ngày kết thúc phải lớn hơn ngày bắt đầu",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                    return;
+                }
+
+                const timeDifference = new Date(toDate).getTime() - new Date(startDate).getTime();
+
+// Calculate the difference in days
+                const dayDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+// Check if the difference is within the allowed range (60 days)
+                if (dayDifference > 60) {
+                    Toastify({
+                        text: "Khoảng cách giữa ngày bắt đầu và ngày kết thúc không được vượt quá 60 ngày",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                    return;
+                }
+
+                callApiStatisInTime(startDate, toDate)
+            }
+            function handlehandleStatisTicFromMonth() {
+                const startMonth = $('#monthStart').val();
+                const toMonth = $('#monthEnd').val();
+                if(!startMonth) {
+                    Toastify({
+                        text: "Vui lòng nhâp ngày bắt đầu",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                    return
+                }
+
+                if(!toMonth) {
+                    Toastify({
+                        text: "Vui lòng nhâp ngày bắt đầu",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                    return
+                }
+
+                const startDate = new Date(startMonth + '-01');
+                const toDate = new Date(toMonth + '-01');
+
+                const monthDifference = (toDate.getFullYear() - startDate.getFullYear()) * 12 + (toDate.getMonth() - startDate.getMonth());
+
+                if (toDate <= startDate) {
+                    // Valid
+                    Toastify({
+                        text: "Tháng kết thúc phải lớn hơn tháng bắt đầu",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                } else if(monthDifference > 60) {
+                    Toastify({
+                        text: "Khoảng cách giữa các tháng không lớn hơn 5 năm (60 tháng)",
+                        className: "error",
+                        style: {
+                            background: "red",
+                            color: "white"
+                        }
+                    }).showToast();
+                } else {
+                    callApiStatisticInMonth(startMonth, toMonth)
+                }
+
+            }
+
+            function callApiStatisInTime(startDate, toDate) {
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: `/api/get-statistic-revenue-day-from-time?fromDate=${startDate}&toDate=${toDate}`,
+                    success: function (data) {
+                        var lableList = []
+                        var dataList = []
+                        data.forEach(item => {
+                            lableList.push(item.date)
+                            dataList.push(item.revenue)
+                        })
+                        loadChartInTime(lableList, dataList)
+                    }
+                })
+            }
+
+            function callApiStatisticInMonth(startMonth, toMonth) {
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: `/api/get-statistic-revenue-month-from-time?fromMonth=${startMonth}&toMonth=${toMonth}`,
+                    success: function (data) {
+                        var lableList = []
+                        var dataList = []
+                        data.forEach(item => {
+                            lableList.push(item.month)
+                            dataList.push(item.revenue)
+                        })
+                        loadChartInTime(lableList, dataList)
+                    }
+                })
+
+            }
+
+            function loadChartInTime(labelList, dataList) {
+                let chartStatus = Chart.getChart("revenueInTime"); // <canvas> id
+                if (chartStatus != undefined) {
+                    chartStatus.destroy();
+                }
+                var chart = new Chart($('#revenueInTime'), {
+                    type: 'scatter',
+                    data: {
+                        labels: labelList,  // Các tháng của năm
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Doanh thu',
+                                data: dataList,
+
+                                borderColor: 'rgb(54, 162, 235)',
+                                backgroundColor: '#ff6384',
+                            },
+
+                            // {
+                            //     type: 'line',
+                            //     label: 'Doanh thu',
+                            //     data: dataList,
+                            //     borderColor: '#ff6384'
+                            // }
+                        ]
+                    },
+
+                    options: {
+
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `Biểu đồ doanh thu`
+                            },
+                            customCanvasBackgroundColor: {
+                                color: '#fff',
+                            }
+                        }
+                    },
+                    plugins: [plugin],
+                });
+            }
+
+            $('#export').on('click', exportToExcel)
+
+            async function exportToExcel() {
+                if($('#time-category').val() == 1) {
+                    /* fetch JSON data and parse */
+                    const url = `/api/get-statistic-revenue-day-from-time?fromDate=${$('#dateStart').val()}&toDate=${$('#dateEnd').val()}`;
+                    const raw_data = await (await fetch(url)).json();
+                    /* generate worksheet and workbook */
+                    const worksheet = XLSX.utils.json_to_sheet(raw_data);
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "SanPham");
+                    const heading =[
+                        ["Ngày", "Doanh thu"]
+                    ]
+                    /* fix headers */
+                    XLSX.utils.sheet_add_aoa(worksheet,heading , {origin: "A1"});
+                    /* create an XLSX file and try to save to Presidents.xlsx */
+                    XLSX.writeFile(workbook, `thong-ke-doanh-thu_${$('#dateStart').val()}-${$('#dateEnd').val()}.xlsx`, {compression: true});
+                }
+                else {
+
+                }
+            }
+
+
+
+            function formatToYYYYMMDD(date) {
+                var yyyy = date.getFullYear().toString();
+                var mm = (date.getMonth() + 1).toString().padStart(2, '0');
+                var dd = date.getDate().toString().padStart(2, '0');
+                return yyyy + '-' + mm + '-' + dd;
+            }
+            function formatNumber(number) {
+                return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            function removeAnyNonDigit(value) {
+                return value.replace(/\D/g, '');
+            }
+
+            const plugin = {
+                id: 'customCanvasBackgroundColor',
+                beforeDraw: (chart, args, options) => {
+                    const {ctx} = chart;
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.fillStyle = options.color || '#99ffff';
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            };
+
+            var year = new Date().getFullYear();
+            var main = '';
+            for(i=year; i> (year - 20); i--){
+                main += `<option value="${i}">${i}</option>`
+            }
+            document.getElementById("year1").innerHTML = main
+            document.getElementById("year2").innerHTML = main
+        </script>
+    </div>
+</body>
+</html>

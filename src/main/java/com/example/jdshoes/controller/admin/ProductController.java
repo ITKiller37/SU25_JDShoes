@@ -5,7 +5,6 @@ import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.entity.*;
 import com.example.jdshoes.service.*;
 import com.example.jdshoes.utils.FileUploadUtil;
-
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Controller

@@ -22,6 +22,7 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String code;
+
     @Nationalized
     private String name;
     private String phoneNumber;

@@ -42,3 +42,4 @@ public class ReturnDetail {
 //    @JoinColumn(name = "bill_detail_id")
 //    private BillDetail billDetail;
 }
+
