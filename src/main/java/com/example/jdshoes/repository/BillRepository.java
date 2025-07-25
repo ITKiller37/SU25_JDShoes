@@ -9,6 +9,7 @@ import com.example.jdshoes.entity.enumClass.InvoiceType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BillRepository extends JpaRepository<Bill, Long> {
+public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecificationExecutor<Bill> {
 
     @Query(value = "SELECT DISTINCT b.id AS maHoaDon, b.code AS maDinhDanh, " +
             "COALESCE(b.customerName, a.name, 'Khách lẻ') AS hoVaTen, " +
@@ -99,5 +100,34 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
             "JOIN Size s ON pd.sizeId = s.id " +
             "WHERE b.id = :maHoaDon", nativeQuery = true)
     List<BillDetailProduct> getBillDetailProduct(Long maHoaDon);
+
+
+    @Query(value = "select * from Bill b where DATEDIFF(DAY, b.createDate, GETDATE()) <= 7 and b.status='HOAN_THANH'", nativeQuery = true)
+    Page<Bill> findValidBillToReturn(Pageable pageable);
+
+    @Query(value = """
+    SELECT pd.id,
+           bd.id AS billDetailId,
+           p.id AS productId,
+           p.name AS tenSanPham,
+           c.name AS tenMau,
+           s.name AS kichCo,
+           bd.detail_price AS giaTien,
+           bd.quantity AS soLuong,
+           bd.detail_price * bd.quantity AS tongTien,
+           (
+               SELECT TOP 1 i.link
+               FROM image i
+               WHERE i.product_id = p.id
+           ) AS imageUrl
+    FROM Bill b
+    JOIN BillDetail bd ON b.id = bd.billId
+    JOIN ProductDetail pd ON bd.productDetailId = pd.id
+    JOIN Product p ON pd.productId = p.id
+    JOIN Color c ON pd.colorId = c.id
+    JOIN Size s ON pd.sizeId = s.id
+    WHERE b.id = :maHoaDon
+    """, nativeQuery = true)
+    List<BillDetailProduct> getBillDetailProductBill(@Param("maHoaDon") Long maHoaDon);
 
 }

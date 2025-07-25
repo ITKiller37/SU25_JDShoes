@@ -35,6 +35,7 @@ public class ProductDetailDto {
     private Color color;
     private BigDecimal discountedPrice;
 
+
 //    phải coa cái này nữa
 
     private BigDecimal discountedAmount;
