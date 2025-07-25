@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{user/layout-user.html}">
+<head>
+  <meta charset="UTF-8">
+  <title>Kết quả thanh toán</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"/>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="d-flex flex-column w-100" style="background-color: rgb(249, 249, 249); height: 100vh;">
+    <div class="container mt-4">
+      <div class="d-flex justify-content-center bg-white" style="box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;">
+        <div class="page-right">
+          <h2 class="text-center font-weight-bold" style="font-size: 30px">KẾT QUẢ THANH TOÁN</h2>
+          <div class="mt-5">
+            <div class="text-center mb-4">
+              <span th:if="${paymentSuccess}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 15 15">
+                  <path fill="green" fill-rule="evenodd" d="M0 7.5a7.5 7.5 0 1 1 15 0a7.5 7.5 0 0 1-15 0Zm7.072 3.21l4.318-5.398l-.78-.624l-3.682 4.601L4.32 7.116l-.64.768l3.392 2.827Z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              <span th:if="${!paymentSuccess}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
+                  <path fill="red" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.54 15.46l-1.41 1.41L12 15.41l-3.13 3.13-1.41-1.41L10.59 14l-3.13-3.13 1.41-1.41L12 12.59l3.13-3.13 1.41 1.41L13.41 14l3.13 3.13z"/>
+                </svg>
+              </span>
+              <br>
+              <span class="text-center font-weight-bold" th:classappend="${paymentSuccess} ? 'text-success' : 'text-danger'" th:text="${status}"></span>
+            </div>
+            <table class="table table-borderless" th:if="${paymentSuccess}">
+              <tr>
+                <th>Mã giao dịch:</th>
+                <td class="text-success font-weight-bold" th:text="${billCode}"></td>
+              </tr>
+              <tr>
+                <th>Số tiền thanh toán:</th>
+                <td class="font-weight-bold" th:text="${#numbers.formatDecimal(result.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+              </tr>
+              <tr>
+                <th>Ngân hàng:</th>
+                <td th:text="${result.bankCode}"></td>
+              </tr>
+              <tr>
+                <th>Ngày giao dịch:</th>
+                <td th:text="${#temporals.format(#temporals.createDateTime(result.datePay, 'yyyyMMddHHmmss'), 'dd-MM-yyyy HH:mm:ss')}"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script th:inline="javascript">
+      $(document).ready(function () {
+        var paymentSuccess = /*[[${paymentSuccess}]]*/ false;
+
+        if (paymentSuccess) {
+          sessionStorage.removeItem("orderTemp");
+          sessionStorage.removeItem("orderId");
+          Swal.fire({
+            title: 'Đặt hàng',
+            text: 'Đơn hàng của bạn đã được đặt thành công!',
+            icon: 'success',
+            showCancelButton: true,
+            confirmButtonText: 'Tiếp tục mua sắm',
+            cancelButtonText: 'Quay lại giỏ hàng',
+            allowOutsideClick: true,
+            allowEscapeKey: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = '/getproduct';
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+              window.location.href = '/shoping-cart';
+            }
+          });
+        } else {
+          sessionStorage.removeItem("orderTemp");
+          sessionStorage.removeItem("orderId");
+          Swal.fire({
+            title: 'Thanh toán thất bại',
+            text: /*[[${status}]]*/ 'Giao dịch không thành công',
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: 'Tiếp tục mua sắm',
+            cancelButtonText: 'Quay lại giỏ hàng',
+            allowOutsideClick: true,
+            allowEscapeKey: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = '/getproduct';
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+              window.location.href = '/shoping-cart';
+            }
+          });
+        }
+      });
+  </script>
+</div>
+</body>
+</html>

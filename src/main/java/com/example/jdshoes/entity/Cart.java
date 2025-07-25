@@ -21,7 +21,7 @@ public class Cart implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long sessionId;
+    private String sessionId;
 
     private LocalDateTime createDate;
 

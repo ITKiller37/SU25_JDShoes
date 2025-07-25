@@ -108,6 +108,12 @@ public class AdminCustomerController {
                                   @RequestParam String xa,
                                   @RequestParam String tenduong) {
 
+        // Kiểm tra trùng số điện thoại
+        if (customerRepository.existsByPhoneNumber(customer.getPhoneNumber())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Số điện thoại đã được sử dụng");
+            return "redirect:/admin/add-customer";
+        }
+
         AddressShipping addressShipping = new AddressShipping();
         addressShipping.setStreet(tenduong);
         addressShipping.setWard(xa);

@@ -16,4 +16,5 @@ public interface AddressShippingService {
     void deleteAddressShipping(Long id);
     void setDefaultAddress(Long addressId, Long customerId);
 
+    AddressShippingDto getDefaultAddressByCustomerId(Long id);
 }

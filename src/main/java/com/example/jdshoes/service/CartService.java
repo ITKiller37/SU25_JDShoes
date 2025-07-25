@@ -4,18 +4,22 @@ import com.example.jdshoes.dto.Cart.CartItemDto;
 import com.example.jdshoes.dto.CartDto.CartDto;
 import com.example.jdshoes.dto.Order.OrderDto;
 import com.example.jdshoes.exception.NotFoundException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface CartService {
-    List<CartItemDto> getCartByCustomerId(Long customerId);
-    void addToCart(CartItemDto cartItemDto) throws NotFoundException;
-    void updateCartItem(CartItemDto cartItemDto) throws NotFoundException;
-    void removeFromCart(Long cartDetailId) throws NotFoundException;
-    void clearCart(Long customerId) throws NotFoundException;
-    void orderUser(OrderDto orderDto);
+
+    CartDto addToCart(CartItemDto cartItemDto) throws NotFoundException;
+    CartDto updateCartItem(CartItemDto cartItemDto) throws NotFoundException;
+    CartDto removeFromCart(Long cartDetailId) throws NotFoundException;
+    CartDto clearCart() throws NotFoundException;
+    Map<String, Object> orderUser(OrderDto orderDto);
     OrderDto orderAtCounter(OrderDto orderDto);
-    List<CartDto> getAllCartByAccountId();
+    CartDto getCartByAccountId();
+
+    void completeOrderAfterPayment(OrderDto orderDto, String orderId);
 }

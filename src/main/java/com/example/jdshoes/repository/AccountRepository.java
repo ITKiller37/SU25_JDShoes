@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,4 +38,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query("select a from Account a where a.customer.id = ?1")
     Account findByCustomer(Long id);
+
+    @Query("SELECT a FROM Account a LEFT JOIN FETCH a.customer WHERE a.id = :id")
+    Optional<Account> findByIdWithCustomer(@Param("id") Long id);
 }

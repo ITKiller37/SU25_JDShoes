@@ -2,9 +2,11 @@ package com.example.jdshoes.controller.api;
 
 
 import com.example.jdshoes.dto.CustomerDto.CustomerDto;
+import com.example.jdshoes.dto.CustomerDto.CustomerDtoApi;
 import com.example.jdshoes.service.CustomerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,6 +37,16 @@ public class CustomerRestController {
     @PostMapping("/api/customer")
     public CustomerDto createCustomer(@RequestBody CustomerDto customerDto) {
         return customerService.createCustomerAdmin(customerDto);
+    }
+
+    @GetMapping("/api/customer/{customerId}")
+    public ResponseEntity<CustomerDtoApi> getCustomerById(@PathVariable Long customerId) {
+        try {
+            CustomerDtoApi customerDtoApi = customerService.getCustomerById(customerId);
+            return ResponseEntity.ok(customerDtoApi);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(null);
+        }
     }
 
 

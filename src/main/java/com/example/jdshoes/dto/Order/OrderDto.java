@@ -32,5 +32,6 @@ public class OrderDto {
     private BigDecimal shippingFee;
     private String shippingName;
     private String shippingPhone;
+    private String shippingEmail;
     private String shippingNote;
 }

@@ -3,6 +3,7 @@ package com.example.jdshoes.config;
 import com.example.jdshoes.entity.Account;
 import com.example.jdshoes.exception.UserNotActivatedException;
 import com.example.jdshoes.repository.AccountRepository;
+import com.example.jdshoes.sercurity.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/shoping-cart/**", "/cart-status/**", "/profile")
+                        .requestMatchers("/api/check-login", "/api/addToCart",
+                                "/api/deleteCart/**", "/api/updateCart",
+                                "/api/getCart", "/api/complete-order",
+                                "/shoping-cart/**", "/checkout").permitAll()
+                        .requestMatchers("/profile")
                         .authenticated()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "EMPLOYEE")
                         .requestMatchers("/admin-only/**").hasAnyRole("ADMIN")
@@ -63,6 +69,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Transactional(readOnly = true)
     public UserDetailsService userDetailsService() {
         return username -> {
             System.out.println("username login: "+username);
@@ -70,24 +77,11 @@ public class SecurityConfig {
             if (user.isEmpty()) {
                 throw new UsernameNotFoundException("User " + username + " was not found in the database");
             }
-            if (user.get().isNonLocked() == false) {
+            if (!user.get().isNonLocked()) {
                 throw new UserNotActivatedException(user.get().getEmail(), user.get().getEmail());
             }
-            List<String> roles = new ArrayList<>();
-            roles.add(user.get().getRole().getName().toString());
 
-            List<GrantedAuthority> grantList = new ArrayList<GrantedAuthority>();
-            if (roles != null) {
-                for (String role : roles) {
-                    GrantedAuthority authority = new SimpleGrantedAuthority(role);
-                    grantList.add(authority);
-                }
-            }
-
-            String password = user.get().getPassword();
-            UserDetails userDetails = (UserDetails) new User(username, //
-                    password, grantList);
-            return userDetails;
+            return new CustomUserDetails(user.get());
         };
     }
 

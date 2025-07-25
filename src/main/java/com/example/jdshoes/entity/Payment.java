@@ -24,6 +24,8 @@ public class Payment {
     private String orderStatus;
     private LocalDateTime paymentDate;
     private Integer statusExchange;
+    @Column(name = "vnp_txn_ref", unique = true)
+    private String vnpTxnRef;
 
     @OneToOne
     @JoinColumn(name = "billId")

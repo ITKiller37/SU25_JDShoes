@@ -8,6 +8,7 @@ import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.enumClass.BillStatus;
 import com.example.jdshoes.entity.enumClass.InvoiceType;
 import com.example.jdshoes.exception.NotFoundException;
+import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.BillRepository;
 import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.service.BillService;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -189,19 +191,47 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public Bill updateStatus(String trangThaiDonHang, Long billId) {
-        // Nếu hủy thì cộng lại số lượng tồn
-        if(trangThaiDonHang.equals("HUY")) {
+        Bill bill = billRepository.findById(billId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy bill có mã" + billId));
+
+        BillStatus oldStatus = bill.getStatus();
+        BillStatus newStatus = BillStatus.valueOf(trangThaiDonHang);
+
+        // Nếu hủy đơn
+        if(newStatus == BillStatus.HUY) {
+            // Chỉ cộng lại số lượng nếu đơn đã từng được xác nhận (đã trừ số lượng)
+            if(oldStatus != BillStatus.CHO_XAC_NHAN) {
+                List<BillDetailProduct> billDetailProducts = billRepository.getBillDetailProduct(billId);
+                billDetailProducts.forEach(item -> {
+                    ProductDetail productDetail = productDetailRepository.findById(item.getId())
+                            .orElseThrow(() -> new NotFoundException("Không tìm thấy thuộc tính " + item.getId()));
+                    productDetail.setQuantity(productDetail.getQuantity() + item.getSoLuong());
+                    productDetailRepository.save(productDetail);
+                });
+            }
+        }
+        // Nếu chuyển sang trạng thái DA_XAC_NHAN (từ trạng thái ban đầu)
+        else if(newStatus == BillStatus.DA_XAC_NHAN && oldStatus == BillStatus.CHO_XAC_NHAN) {
             List<BillDetailProduct> billDetailProducts = billRepository.getBillDetailProduct(billId);
-            billDetailProducts.forEach(item -> {
-                ProductDetail productDetail = productDetailRepository.findById(item.getId()).orElseThrow(() -> new NotFoundException("Không tìm thấy thuộc tính " + item.getId()));
-                int quantityBefore = productDetail.getQuantity();
-                productDetail.setQuantity(quantityBefore + item.getSoLuong());
+            for (BillDetailProduct item : billDetailProducts) {
+                ProductDetail productDetail = productDetailRepository.findById(item.getId())
+                        .orElseThrow(() -> new NotFoundException("Không tìm thấy thuộc tính " + item.getId()));
+
+                if(productDetail.getQuantity() < item.getSoLuong()) {
+                    throw new ShoesApiException(HttpStatus.BAD_REQUEST,
+                            String.format("Sản phẩm %s - %s - %s chỉ còn %d sản phẩm, không đủ để xác nhận đơn hàng",
+                                    productDetail.getProduct().getName(),
+                                    productDetail.getSize().getName(),
+                                    productDetail.getColor().getName(),
+                                    productDetail.getQuantity()));
+                }
+
+                productDetail.setQuantity(productDetail.getQuantity() - item.getSoLuong());
                 productDetailRepository.save(productDetail);
-            });
+            }
         }
 
-        Bill bill = billRepository.findById(billId).orElseThrow(() -> new NotFoundException("Không tìm thấy bill có mã" + billId));
-        bill.setStatus(BillStatus.valueOf(trangThaiDonHang));
+        bill.setStatus(newStatus);
         bill.setUpdateDate(LocalDateTime.now());
         return billRepository.save(bill);
     }

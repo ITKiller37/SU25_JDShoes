@@ -101,6 +101,15 @@ public class AddressShippingServiceImpl implements AddressShippingService {
         addressShippingRepository.save(address);
     }
 
+    @Override
+    public AddressShippingDto getDefaultAddressByCustomerId(Long id) {
+        AddressShipping address = addressShippingRepository.findByCustomerIdAndIsDefaultTrue(id)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy địa chỉ mặc định cho khách hàng"));
+        AddressShippingDto dto = new AddressShippingDto();
+        dto.setId(address.getId());
+        dto.setAddress(address.getStreet() + ", " + address.getWard() + ", " + address.getDistrict() + ", " + address.getProvince());
+        return dto;
+    }
 
 
 }

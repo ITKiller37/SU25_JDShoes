@@ -4,7 +4,8 @@
 
 <head>
     <meta charset="UTF-8"/>
-    <title>Title</title>
+    <title>Chi tiết hóa đơn</title>
+
 </head>
 
 <body>
@@ -16,78 +17,102 @@
                     <div class="card-body">
                         <div class="invoice-title">
                             <div class="float-end mr-4">
-                                <!-- Add class 'active' to progress -->
+                                <!-- Thanh tiến trình -->
                                 <div class="track"
                                      th:if="${billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG && billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).HUY}">
                                     <div class="step" th:classappend="${
                                     billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN ||
-                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_GIAO_HANG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DA_XAC_NHAN ||
                                     billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_LAY_HANG ||
-                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH  ? 'active' : ''}
-                                    ">
-                                            <span class="icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                     viewBox="0 0 256 256">
-                                                    <path fill="currentColor"
-                                                          d="M232 136.66A104.12 104.12 0 1 1 119.34 24a8 8 0 0 1 1.32 16A88.12 88.12 0 1 0 216 135.34a8 8 0 0 1 16 1.32ZM120 72v56a8 8 0 0 0 8 8h56a8 8 0 0 0 0-16h-48V72a8 8 0 0 0-16 0Zm40-24a12 12 0 1 0-12-12a12 12 0 0 0 12 12Zm36 24a12 12 0 1 0-12-12a12 12 0 0 0 12 12Zm24 36a12 12 0 1 0-12-12a12 12 0 0 0 12 12Z"/>
-                                                </svg>
-                                            </span>
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THANH_CONG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH ? 'active' : ''}">
+                                        <span class="icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256">
+                                                <path fill="currentColor"
+                                                      d="M232 136.66A104.12 104.12 0 1 1 119.34 24a8 8 0 0 1 1.32 16A88.12 88.12 0 1 0 216 135.34a8 8 0 0 1 16 1.32ZM120 72v56a8 8 0 0 0 8 8h56a8 8 0 0 0 0-16h-48V72a8 8 0 0 0-16 0Zm40-24a12 12 0 1 0-12-12a12 12 0 0 0 12 12Zm36 24a12 12 0 1 0-12-12a12 12 0 0 0 12 12Zm24 36a12 12 0 1 0-12-12a12 12 0 0 0 12 12Z"/>
+                                            </svg>
+                                        </span>
                                         <span class="text">Chờ xác nhận</span>
                                     </div>
                                     <div class="step" th:classappend="${
-
-                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_GIAO_HANG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DA_XAC_NHAN ||
                                     billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_LAY_HANG ||
-                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH ? 'active' : ''}
-                                    ">
-                                            <span class="icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                     viewBox="0 0 24 24">
-                                                    <g fill="none" stroke-width="1.5">
-                                                        <path fill="currentColor"
-                                                              d="m2.695 7.185l9 4l.61-1.37l-9-4l-.61 1.37ZM12.75 21.5v-11h-1.5v11h1.5Zm-.445-10.315l9-4l-.61-1.37l-9 4l.61 1.37Z"/>
-                                                        <path stroke="currentColor" stroke-linecap="round"
-                                                              stroke-linejoin="round"
-                                                              d="M3 17.11V6.89a.6.6 0 0 1 .356-.548l8.4-3.734a.6.6 0 0 1 .488 0l8.4 3.734A.6.6 0 0 1 21 6.89v10.22a.6.6 0 0 1-.356.548l-8.4 3.734a.6.6 0 0 1-.488 0l-8.4-3.734A.6.6 0 0 1 3 17.11Z"/>
-                                                        <path stroke="currentColor" stroke-linecap="round"
-                                                              stroke-linejoin="round"
-                                                              d="m7.5 4.5l8.644 3.842a.6.6 0 0 1 .356.548v3.61"/>
-                                                    </g>
-                                                </svg>
-                                            </span>
-                                        <span class="text"> Chờ lấy hàng</span>
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THANH_CONG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH ? 'active' : ''}">
+                                        <span class="icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <path fill="currentColor" d="M18 10h-1.26A8 8 0 1 0 9 16h9a5 5 0 0 0 0-10Zm-8 6a6 6 0 1 1 6-6h2a3 3 0 1 1 0 6h-8Zm11-3a1 1 0 1 1-2 0a1 1 0 0 1 2 0Zm-3-1a1 1 0 1 1-2 0a1 1 0 0 1 2 0Zm-3-1a1 1 0 1 1-2 0a1 1 0 0 1 2 0Z"/>
+                                            </svg>
+                                        </span>
+                                        <span class="text">Đã xác nhận</span>
                                     </div>
                                     <div class="step" th:classappend="${
-                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_GIAO_HANG ||
-                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH  ? 'active' : ''}
-                                    ">
-                                        <span class="icon"> <i class="fa fa-truck"></i> </span>
-                                        <span class="text"> Chờ giao hàng </span>
-                                    </div>
-                                    <div class="step" th:classappend="${
-
-                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH  ? 'active' : ''}
-                                    ">
-                                            <span class="icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                     viewBox="0 0 24 24">
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_LAY_HANG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THANH_CONG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH ? 'active' : ''}">
+                                        <span class="icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <g fill="none" stroke-width="1.5">
                                                     <path fill="currentColor"
-                                                          d="M19 13c.7 0 1.37.13 2 .35V12l-1-5H4l-1 5v2h1v6h9.09c-.05-.33-.09-.66-.09-1c0-1.23.37-2.36 1-3.31V14h1.69c.95-.63 2.08-1 3.31-1m-7 5H6v-4h6v4m-6.96-6l.6-3h12.72l.6 3H5.04M20 6H4V4h16v2m2.5 11.25L17.75 22L15 19l1.16-1.16l1.59 1.59l3.59-3.59l1.16 1.41"/>
-                                                </svg>
-                                            </span>
+                                                          d="m2.695 7.185l9 4l.61-1.37l-9-4l-.61 1.37ZM12.75 21.5v-11h-1.5v11h1.5Zm-.445-10.315l9-4l-.61-1.37l-9 4l.61 1.37Z"/>
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M3 17.11V6.89a.6.6 0 0 1 .356-.548l8.4-3.734a.6.6 0 0 1 .488 0l8.4 3.734A.6.6 0 0 1 21 6.89v10.22a.6.6 0 0 1-.356.548l-8.4 3.734a.6.6 0 0 1-.488 0l-8.4-3.734A.6.6 0 0 1 3 17.11Z"/>
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                          d="m7.5 4.5l8.644 3.842a.6.6 0 0 1 .356.548v3.61"/>
+                                                </g>
+                                            </svg>
+                                        </span>
+                                        <span class="text">Chờ lấy hàng</span>
+                                    </div>
+                                    <div class="step" th:classappend="${
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THANH_CONG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH ? 'active' : ''}">
+                                        <span class="icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                      d="M20 8h-3V6.22c0-1.39-1.06-2.53-2.45-2.66c-1.75-.16-3.29.96-3.65 2.62l-.03.13l-.37 2.9H4l-1 5v6h10v-2h8v2h2v-6l-1-5h-2Zm-7.5-1.72c0-.66.54-1.2 1.2-1.2s1.2.54 1.2 1.2v.07l-.12.93h-2.16l-.12-.93v-.07ZM4.96 12l.6-3h12.88l.6 3H4.96ZM12 18H6v-4h6v4Zm10 0h-8v-4h8v4Z"/>
+                                            </svg>
+                                        </span>
+                                        <span class="text">Đang giao hàng</span>
+                                    </div>
+                                    <div class="step" th:classappend="${
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THANH_CONG ||
+                                    billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH ? 'active' : ''}">
+                                        <span class="icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2Zm-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9Z"/>
+                                            </svg>
+                                        </span>
+                                        <span class="text">Giao hàng thành công</span>
+                                    </div>
+                                    <div class="step" th:classappend="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH ? 'active' : ''}">
+                                        <span class="icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                      d="M19 13c.7 0 1.37.13 2 .35V12l-1-5H4l-1 5v2h1v6h9.09c-.05-.33-.09-.66-.09-1c0-1.23.37-2.36 1-3.31V14h1.69c.95-.63 2.08-1 3.31-1m-7 5H6v-4h6v4m-6.96-6l.6-3h12.72l.6 3H5.04M20 6H4V4h16v2m2.5 11.25L17.75 22L15 19l1.16-1.16l1.59 1.59l3.59-3.59l1.16 1.41"/>
+                                            </svg>
+                                        </span>
                                         <span class="text">Hoàn thành</span>
                                     </div>
                                 </div>
-                                <div
-                                        th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HUY}">
+                                <div th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).HUY}">
                                     <div class="text-danger font-weight-bold border rounded p-2 border-danger">
                                         ĐÃ HỦY
                                     </div>
                                 </div>
-                                <div
-                                        th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG}">
+                                <div th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG}">
                                     <div class="text-danger font-weight-bold border rounded p-2 border-danger">
                                         HOÀN TRẢ
+                                    </div>
+                                </div>
+                                <div th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THAT_BAI}">
+                                    <div class="status-failed" style=" background-color: #fff; color: #dc3545; font-weight: bold;border: 1px solid #dc3545; border-radius: 5px; padding: 0.5rem 1rem; display: inline-block; margin-top: 5px; box-shadow: none;">
+                                        GIAO HÀNG THẤT BẠI
                                     </div>
                                 </div>
                             </div>
@@ -132,7 +157,6 @@
                                     </p>
                                 </div>
                             </div>
-                            <!-- end col -->
                             <div class="col-sm-6">
                                 <div class="text-muted text-sm-end">
                                     <div class="mt-4">
@@ -144,16 +168,15 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- end col -->
                         </div>
-                        <!-- end row -->
+
                         <div class="py-2 mb-4">
                             <div>
                                 <h5>Voucher:</h5>
                             </div>
                             <div th:if="${billdetail.voucherName != null}">
-                                    <span style="color: red; font-size: 16px" th:text="${billdetail.voucherName}">
-                                    </span>
+                                <span style="color: red; font-size: 16px" th:text="${billdetail.voucherName}">
+                                </span>
                             </div>
                             <div th:if="${billdetail.voucherName == null}">
                                 <span class="text-muted">Không sử dụng</span>
@@ -164,9 +187,9 @@
                             <div>
                                 Loại đơn :
                                 <h5 style="color: rgb(21, 219, 153)">
-                                        <span
-                                                th:if="${billdetail.loaiHoaDon == T(com.example.jdshoes.entity.enumClass.InvoiceType).OFFLINE}">Tại
-                                            quầy</span>
+                                    <span
+                                            th:if="${billdetail.loaiHoaDon == T(com.example.jdshoes.entity.enumClass.InvoiceType).OFFLINE}">Tại
+                                        quầy</span>
                                     <span
                                             th:if="${billdetail.loaiHoaDon == T(com.example.jdshoes.entity.enumClass.InvoiceType).ONLINE}">Online</span>
                                 </h5>
@@ -253,9 +276,7 @@
                                     </tr>
                                     </tbody>
                                 </table>
-                                <!-- end table -->
                             </div>
-                            <!-- end table responsive -->
                             <div class="d-print-none mt-4">
                                 <div class="float-end">
                                     <a th:href="@{'/admin/export-pdf/'+${billdetail.maDonHang}}"
@@ -274,42 +295,56 @@
                                 <input type="hidden" name="trangThaiDonHang" value="HUY"/>
                                 <button type="button" class="cancel-btn btn btn-danger rounded"
                                         style="float: right; margin-bottom: 10px"
-                                        th:if="${billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG &&
-                            billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN
-                            || billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_LAY_HANG}">
-                                    <i class="far fa-times-circle"></i>&nbsp;Hủy đơn này
+                                        th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN ||
+                                               billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DA_XAC_NHAN ||
+                                               billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_LAY_HANG}">
+                                    <i class="far fa-times-circle"></i> Hủy đơn này
                                 </button>
                             </form>
 
                             <form th:action="@{'/admin/update-bill-status2/' + ${billdetail.maDonHang}}"
                                   method="get">
                                 <div th:data-status="${billdetail.trangThaiDonHang}" class="btn-update-status mt-2"
-                                     style="max-width: 180px"
+                                     style="max-width: 220px"
                                      th:if="${billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG &&
-                                billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).HUY &&
-                                billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH}">
-                                        <span class="btn btn-secondary text-wrap rounded"
-                                              th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN}">
-                                            <i class="far fa-check-square text-wrap"></i>&nbsp; Xác nhận duyệt đơn hàng</span>
+                                            billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).HUY &&
+                                            billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH &&
+                                            billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THAT_BAI}">
+                                    <span class="btn btn-secondary text-wrap rounded"
+                                          th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN}">
+                                        <i class="far fa-check-square"></i> Xác nhận duyệt đơn hàng
+                                    </span>
                                     <span class="btn btn-primary text-wrap rounded"
+                                          th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DA_XAC_NHAN}">
+                                        <i class="far fa-check-square"></i> Xác nhận chuẩn bị hàng
+                                    </span>
+                                    <span class="btn btn-info text-wrap rounded"
                                           th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_LAY_HANG}">
-                                            <i class="far fa-check-square text-wrap"></i>&nbsp; Xác nhận chuyển cho shipper</span>
-                                    <span class="btn btn-success  text-wrap rounded"
-                                          th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_GIAO_HANG}">
-                                            <i class="far fa-check-square"></i>&nbsp; Xác nhận đã giao hàng</span>
+                                        <i class="far fa-check-square"></i> Xác nhận chuyển cho shipper
+                                    </span>
+                                    <span class="btn btn-warning text-wrap rounded"
+                                          th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG}">
+                                        <i class="far fa-check-square"></i> Xác nhận giao hàng thành công
+                                    </span>
+                                    <span class="btn btn-danger text-wrap rounded"
+                                          th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG}">
+                                        <i class="far fa-times-circle"></i> Xác nhận giao hàng thất bại
+                                    </span>
+                                    <span class="btn btn-success text-wrap rounded"
+                                          th:if="${billdetail.trangThaiDonHang == T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THANH_CONG}">
+                                        <i class="far fa-check-square"></i> Xác nhận hoàn thành
+                                    </span>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- end col -->
         </div>
     </div>
     <script th:inline="javascript">
         // Đảm bảo DOM đã sẵn sàng
         document.addEventListener('DOMContentLoaded', function() {
-            // Sử dụng jQuery.noConflict() nếu cần
             var $j = jQuery.noConflict();
 
             $j(".cancel-btn").on("click", function (e) {
@@ -329,30 +364,36 @@
                 });
             });
 
-            $j(".btn-update-status").on("click", function (e) {
+            $j(".btn-update-status .btn").on("click", function (e) {
                 e.preventDefault();
-                var currentStatus = $j(this).attr("data-status");
+                var currentStatus = $j(this).closest(".btn-update-status").attr("data-status");
+                var buttonText = $j(this).text().trim();
                 var nextStatus;
-                var statusMessage;
 
-                switch (currentStatus) {
-                    case "CHO_XAC_NHAN":
+                switch (buttonText) {
+                    case "Xác nhận duyệt đơn hàng":
+                        nextStatus = "DA_XAC_NHAN";
+                        break;
+                    case "Xác nhận chuẩn bị hàng":
                         nextStatus = "CHO_LAY_HANG";
-                        statusMessage = "Chờ lấy hàng";
                         break;
-                    case "CHO_LAY_HANG":
-                        nextStatus = "CHO_GIAO_HANG";
-                        statusMessage = "Chờ giao hàng";
+                    case "Xác nhận chuyển cho shipper":
+                        nextStatus = "DANG_GIAO_HANG";
                         break;
-                    case "CHO_GIAO_HANG":
+                    case "Xác nhận giao hàng thành công":
+                        nextStatus = "GIAO_HANG_THANH_CONG";
+                        break;
+                    case "Xác nhận giao hàng thất bại":
+                        nextStatus = "GIAO_HANG_THAT_BAI";
+                        break;
+                    case "Xác nhận hoàn thành":
                         nextStatus = "HOAN_THANH";
-                        statusMessage = "Hoàn thành";
                         break;
                 }
 
                 Swal.fire({
                     title: "Xác nhận?",
-                    text: "Xác nhận chuyển sang " + statusMessage,
+                    text: "Xác nhận chuyển sang trạng thái: " + buttonText.replace("Xác nhận ", ""),
                     icon: "warning",
                     showCancelButton: true,
                     cancelButtonText: "Hủy",
@@ -370,5 +411,4 @@
     </script>
 </div>
 </body>
-
 </html>

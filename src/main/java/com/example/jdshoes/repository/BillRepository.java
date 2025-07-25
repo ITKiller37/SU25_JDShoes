@@ -100,4 +100,5 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
             "WHERE b.id = :maHoaDon", nativeQuery = true)
     List<BillDetailProduct> getBillDetailProduct(Long maHoaDon);
 
+    Bill findByCode(String s);
 }

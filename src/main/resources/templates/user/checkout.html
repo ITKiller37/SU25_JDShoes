@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{user/layout-user.html}">
+<head>
+  <meta charset="UTF-8">
+  <title>Thanh toán</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"/>
+  <style>
+    .cart-items {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      margin-right: 15px;
+      border-radius: 5px;
+    }
+
+    .cart-item-details {
+      flex-grow: 1;
+    }
+
+    .cart-item-details h6 {
+      margin: 0 0 5px 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .cart-item-details .quantity,
+    .cart-item-details .total {
+      font-size: 12px;
+      color: #666;
+      margin: 2px 0;
+    }
+
+    .cart-item-details .total {
+      font-weight: bold;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div id="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Modal Voucher -->
+  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" style="z-index: 3000">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Chọn mã giảm giá</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body" style="overflow-y:auto; max-height: 400px">
+          <th:block th:each="voucher : ${discountCodes}">
+            <div th:data-voucher-id="${voucher.id}" class="d-flex border border-primary rounded align-items-center cursor-pointer voucher-item mb-2">
+              <div class="col-sm-3 d-flex justify-content-center align-items-center" style="background-color: rgb(219 234 254); height: 80px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12.79 21L3 11.21v2c0 .53.21 1.04.59 1.41l7.79 7.79c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.79 21z"></path><path fill="currentColor" d="M11.38 17.41c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.63.58A2.04 2.04 0 0 0 11.21 0H5C3.9 0 3 .9 3 2v6.21c0 .53.21 1.04.59 1.41l7.79 7.79zM7.25 3a1.25 1.25 0 1 1 0 2.5a1.25 1.25 0 0 1 0-2.5z"></path></svg>
+              </div>
+              <div class="col-sm-9">
+                <div class="w-full">
+                  <p class="font-weight-bold amount-dis">
+                    Giảm <span th:if="${voucher.type == 2}" th:text="${#numbers.formatDecimal(voucher.discountAmount, 0, 'POINT', 0, 'COMMA') + ' VND'}"></span>
+                    <span th:if="${voucher.type == 1}" th:text="${voucher.percentage} + '%'"></span>
+                  </p>
+                  <div>
+                    <span class="mr-4 amount-mini" th:text="${'Cho đơn từ ' + #numbers.formatDecimal(voucher.minimumAmount, 0, 'POINT', 0, 'COMMA') + ' VND'}"></span>
+                    <span class="amount-max" th:if="${voucher.type == 1}" th:text="'Giảm tối đa ' + ${#numbers.formatDecimal(voucher.maximumAmount, 0, 'POINT', 0, 'COMMA') + ' VND'}"></span>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <span class="mr-2 text-sm text-gray-600"
+                          th:text="${'HSD: ' + #temporals.format(voucher.endDate, 'dd/MM/yyyy HH:mm')}"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </th:block>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Terms -->
+  <div class="modal fade" style="z-index: 3000" id="exampleModalCenter2" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content" style="max-width: 100%">
+        <div class="modal-header">
+          <h5 class="modal-title" style="font-size: 24px; font-weight: bold">Điều khoản</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>1. Người mua đã thanh toán bằng phương thức thanh toán hợp lệ nhưng không nhận được sản phẩm, sản phẩm bị lỗi hoặc bị hư hại, sai sản phẩm, không ưng ý.</p>
+          <p>2. Có thể gửi yêu cầu trả hàng/hoàn tiền trong vòng 7 ngày kể từ lúc đơn hàng được cập nhật giao hàng thành công.</p>
+          <p>3. Tất cả các yêu cầu trả hàng/hoàn tiền phải được thực hiện trên web hoặc liên hệ trực tiếp tới cửa hàng.</p>
+          <p>4. Phí gửi hàng lại do người mua trả.</p>
+          <p>5. Mỗi hóa đơn chỉ được đổi trả 1 lần.</p>
+          <p>6. Chỉ hỗ trợ đổi size, đổi màu, đổi sản phẩm bằng hoặc hơn giá.</p>
+          <p>7. Người mua đóng gói và gửi trả sản phẩm bao gồm toàn bộ phụ kiện đi kèm, hóa đơn, tem phiếu bảo hành (nếu có) và sản phẩm phải trong tình trạng nguyên vẹn như khi nhận hàng.</p>
+          <p>8. Người mua bắt buộc phải quay video hoặc chụp lại ảnh sản phẩm ngay khi nhận được và trong lúc đóng gói hàng trả về để làm bằng chứng đối chiếu/khiếu nại về sau.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="container">
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+      <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+        Trang chủ
+        <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+      </a>
+      <a href="/shoping-cart" class="stext-109 cl8 hov-cl1 trans-04">
+        Giỏ hàng
+        <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+      </a>
+      <span class="stext-109 cl4">Thanh toán</span>
+    </div>
+  </div>
+
+  <!-- Checkout -->
+  <div class="bg0 p-t-75 p-b-85">
+    <div class="container">
+      <div class="row">
+        <!-- Left: Customer Information -->
+        <div class="col-lg-6 col-md-12 m-b-50">
+          <div class="bor10 p-lr-40 p-t-30 p-b-40">
+            <h4 class="mtext-109 cl2 p-b-30">Thông tin đơn hàng</h4>
+            <div class="p-t-15">
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Tên người nhận <span class="text-red-500">*</span></label>
+                  <input type="text" id="shipping-name" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" placeholder="Tên người nhận" required>
+                  <span class="error-text text-red-500" style="display: none; font-size: 12px;">Vui lòng nhập tên người nhận</span>
+                </div>
+                <div class="col-md-6 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Số điện thoại <span class="text-red-500">*</span></label>
+                  <input type="text" id="shipping-phone" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" placeholder="Số điện thoại" required>
+                  <span class="error-text text-red-500" style="display: none; font-size: 12px;">Vui lòng nhập số điện thoại hợp lệ</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Tỉnh/Thành phố <span class="text-red-500">*</span></label>
+                  <select id="shipping-province" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" required>
+                    <option value="">Chọn tỉnh/thành</option>
+                  </select>
+                  <span class="error-text text-red-500" style="display: none; font-size: 12px;">Vui lòng chọn tỉnh/thành</span>
+                </div>
+                <div class="col-md-6 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Quận/Huyện <span class="text-red-500">*</span></label>
+                  <select id="shipping-district" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" disabled required>
+                    <option value="">Chọn quận/huyện</option>
+                  </select>
+                  <span class="error-text text-red-500" style="display: none; font-size: 12px;">Vui lòng chọn quận/huyện</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Phường/Xã <span class="text-red-500">*</span></label>
+                  <select id="shipping-ward" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" disabled required>
+                    <option value="">Chọn phường/xã</option>
+                  </select>
+                  <span class="error-text text-red-500" style="display: none; font-size: 12px;">Vui lòng chọn phường/xã</span>
+                </div>
+                <div class="col-md-6 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Địa chỉ cụ thể <span class="text-red-500">*</span></label>
+                  <input type="text" id="shipping-address" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" placeholder="Số nhà, tên đường..." required>
+                  <span class="error-text text-red-500" style="display: none; font-size: 12px;">Vui lòng nhập địa chỉ cụ thể</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Email <span class="text-red-500">*</span></label>
+                  <input type="email" id="shipping-email" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" placeholder="Email" required>
+                  <span class="error-text text-red-500" style="display: none; font-size: 12px;">Vui lòng nhập email hợp lệ</span>
+                </div>
+                <div class="col-md-6 form-group"></div>
+              </div>
+              <div class="row">
+                <div class="col-12 form-group">
+                  <label class="stext-111 cl8 p-b-5" style="font-weight: bold; padding-bottom: 5px;">Ghi chú</label>
+                  <textarea id="shipping-note" class="stext-111 cl8 plh3 size-111 p-lr-15 bor8 bg0" rows="2" placeholder="Ghi chú cho shipper..."></textarea>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 form-group">
+                  <div class="flex items-center justify-between p-3 bg-blue-50 rounded-md">
+                    <label class="stext-111 cl8" style="font-weight: bold; padding-bottom: 5px;">Phí vận chuyển:</label>
+                    <span id="shipping-fee" class="mtext-110 cl2 text-blue-600">0 ₫</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Order Summary -->
+        <div class="col-lg-6 col-md-12 m-b-50">
+          <div class="bor10 p-lr-40 p-t-30 p-b-40">
+            <h4 class="mtext-109 cl2 p-b-30">Đơn hàng</h4>
+            <div class="cart-items">
+              <th:block th:each="item : ${cart.items}">
+                <div class="cart-item">
+                  <input type="hidden" th:value="${item.id}" class="cartId">
+                  <input type="hidden" th:value="${item.productDetail.id}" class="detailId">
+                  <img th:src="@{'/' + ${item.productDetail.images[0].link}}" alt="Product Image" />
+                  <div class="cart-item-details">
+                    <h6 th:text="${item.product.name + ' - ' + item.productDetail.sizeName + ' - ' + item.productDetail.colorName}"></h6>
+                    <div class="quantity" th:text="'Số lượng: ' + ${item.quantity}"></div>
+                    <div class="unit-price" th:text="'Đơn giá: ' + ${#numbers.formatDecimal(item.productDetail.price, 0, 'POINT', 0, 'COMMA')} + ' đ'"></div>
+                    <div class="total total-money">Thành tiền: 0 đ</div>
+                  </div>
+                </div>
+              </th:block>
+            </div>
+            <span class="d-inline-block p-t-18 p-b-15 p-l-2 btn-choose-voucher" data-toggle="modal" data-target="#exampleModalCenter">
+              <span class="font-weight-bold">
+                <i class="fa fa-tags" aria-hidden="true"></i>
+                Chọn mã giảm giá
+              </span>
+            </span>
+            <div id="selected-voucher" class="p-l-2" data-selected=""></div>
+            <div class="flex-w flex-t bor12 p-b-13 p-t-15">
+              <div class="size-208">
+                <span class="stext-110 cl2">Tạm tính:</span>
+              </div>
+              <div class="size-209">
+                <span class="mtext-110 cl2" id="sub-total"></span>
+              </div>
+            </div>
+            <div class="flex-w flex-t bor12 p-t-15 p-b-30">
+              <div class="size-208 w-full-ssm">
+                <span class="stext-110 cl2">Giảm giá:</span>
+              </div>
+              <div class="size-209">
+                <span class="mtext-110 cl2" id="voucher-pic">0 VND</span>
+              </div>
+            </div>
+            <div class="flex-w flex-t bor12 p-t-15 p-b-30">
+              <div class="size-208 w-full-ssm">
+                <span class="stext-110 cl2">Phí vận chuyển:</span>
+              </div>
+              <div class="size-209">
+                <span class="mtext-110 cl2" id="shipping-fee-display">0 ₫</span>
+              </div>
+            </div>
+            <div class="flex-w flex-t p-t-27 p-b-33">
+              <div class="size-208">
+                <span class="mtext-101 cl2">Tổng cộng:</span>
+              </div>
+              <div class="size-209 p-t-1">
+                <span class="mtext-110 cl2" id="all-total"></span>
+              </div>
+            </div>
+            <div class="flex-w flex-t p-t-27 p-b-33">
+              <div class="size-208">
+                <span class="mtext-101 cl2">Phương thức thanh toán:</span>
+              </div>
+              <div class="size-209 p-t-1">
+                <div class="form-group">
+                  <input type="radio" class="custom-radio" value="3" name="paymentMethod" id="payment-online" checked>
+                  <label for="payment-online">Chuyển khoản</label>
+                </div>
+                <div class="form-group">
+                  <input type="radio" class="custom-radio" value="1" name="paymentMethod" id="payment-offline">
+                  <label for="payment-offline">Tiền mặt</label>
+                </div>
+              </div>
+            </div>
+            <label class="checkbox d-flex">
+              <input type="checkbox" class="mr-2" id="term">
+              Tôi đồng ý với <a style="color: blue" data-toggle="modal" data-target="#exampleModalCenter2">điều khoản</a> của cửa hàng
+            </label>
+            <button type="button" id="submitBtn" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer" disabled>
+              Đặt hàng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to top -->
+  <div class="btn-back-to-top" id="myBtn">
+    <span class="symbol-btn-back-to-top">
+      <i class="zmdi zmdi-chevron-up"></i>
+    </span>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script th:inline="javascript">
+    $(document).ready(function () {
+      var voucherList = /*[[${discountCodes}]]*/ [];
+      var voucherChoosed;
+      var province = [];
+      var district = [];
+      var ward = [];
+      var addressSelected = {
+        street: '',
+        ward: '',
+        district: '',
+        province: ''
+      };
+      var userInfo = null;
+
+      // Hàm lấy và lưu giỏ hàng khách vãng lai
+      function getGuestCart() {
+        return JSON.parse(localStorage.getItem('guestCart')) || [];
+      }
+
+      function saveGuestCart(cart) {
+        localStorage.setItem('guestCart', JSON.stringify(cart));
+      }
+
+      function updateCartNotification(count) {
+        $(".js-show-cart").attr("data-notify", count);
+        localStorage.setItem("cartQuantity", count.toString());
+      }
+
+      // Kiểm tra trạng thái đăng nhập
+      $.ajax({
+        type: 'GET',
+        url: '/api/check-login',
+        dataType: 'json',
+        success: function (response) {
+          if (response.loggedIn) {
+            // Khách đã đăng nhập
+            loadCartFromServer();
+            $.ajax({
+              type: 'GET',
+              dataType: "json",
+              url: '/api/user-info',
+              success: function (data) {
+                userInfo = data;
+                $('#shipping-name').val(data.customer.name || '');
+                $('#shipping-phone').val(data.customer.phoneNumber || '');
+                $('#shipping-email').val(data.customer.email || data.account.email || '');
+                if (data.defaultAddress) {
+                  var addressParts = data.defaultAddress.address.split(', ');
+                  addressSelected.street = addressParts[0];
+                  addressSelected.ward = addressParts[1];
+                  addressSelected.district = addressParts[2];
+                  addressSelected.province = addressParts[3];
+                  $('#shipping-address').val(addressSelected.street);
+                  loadProvinceAndSelect();
+                } else {
+                  loadProvinces();
+                }
+              },
+              error: function (xhr) {
+                let errorMessage = xhr.responseJSON?.message || "Không thể tải thông tin tài khoản";
+                if (xhr.status === 400 && errorMessage === "Tài khoản không có thông tin khách hàng") {
+                  errorMessage = "Tài khoản của bạn chưa được liên kết với thông tin khách hàng. Vui lòng liên hệ quản trị viên.";
+                }
+                Swal.fire("Lỗi", errorMessage, "error");
+                loadProvinces();
+              }
+            });
+          } else {
+            // Khách vãng lai
+            loadCartFromLocalStorage();
+            $('#shipping-name').val('');
+            $('#shipping-phone').val('');
+            $('#shipping-email').val('');
+            $('#shipping-address').val('');
+            $('#shipping-province').val('');
+            $('#shipping-district').val('').prop('disabled', true);
+            $('#shipping-ward').val('').prop('disabled', true);
+            addressSelected = { street: '', ward: '', district: '', province: '' };
+            loadProvinces();
+          }
+        },
+        error: function () {
+          // Nếu lỗi, mặc định là khách vãng lai
+          loadCartFromLocalStorage();
+          $('#shipping-name').val('');
+          $('#shipping-phone').val('');
+          $('#shipping-email').val('');
+          $('#shipping-address').val('');
+          $('#shipping-province').val('');
+          $('#shipping-district').val('').prop('disabled', true);
+          $('#shipping-ward').val('').prop('disabled', true);
+          addressSelected = { street: '', ward: '', district: '', province: '' };
+          loadProvinces();
+        }
+      });
+
+      // Load giỏ hàng từ server
+      function loadCartFromServer() {
+        $.ajax({
+          type: 'GET',
+          url: '/api/getCart',
+          dataType: 'json',
+          success: function (data) {
+            renderCart(data.items);
+            updateCartNotification(data.items.length);
+          },
+          error: function () {
+            Swal.fire("Lỗi", "Không thể tải giỏ hàng", "error");
+            renderCart([]);
+          }
+        });
+      }
+
+      // Load giỏ hàng từ localStorage
+      function loadCartFromLocalStorage() {
+        const guestCart = getGuestCart();
+        if (guestCart.length > 0) {
+          $.ajax({
+            type: 'POST',
+            url: '/api/getCartFromLocalStorage',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(guestCart),
+            dataType: 'json',
+            success: function (data) {
+              renderCart(data.items);
+              updateCartNotification(data.items.length);
+            },
+            error: function () {
+              Swal.fire("Lỗi", "Không thể tải thông tin sản phẩm", "error");
+              renderCart([]);
+            }
+          });
+        } else {
+          renderCart([]);
+        }
+      }
+
+      // Render giỏ hàng
+      function renderCart(items) {
+        const cartItemsContainer = $('.cart-items');
+        cartItemsContainer.empty();
+
+        if (items.length === 0) {
+          cartItemsContainer.append(`
+                <div class="d-flex flex-column align-items-center">
+                    <img src="https://i.imgur.com/dCdflKN.png" width="130" height="130" class="img-fluid mb-4 mr-3">
+                    <h3><strong>Giỏ hàng hiện tại trống</strong></h3>
+                    <a href="/getproduct" class="btn btn-primary cart-btn-transform m-3" data-abc="true">Tiếp tục mua sắm</a>
+                </div>
+            `);
+          $('#sub-total').text('0 ₫');
+          $('#all-total').text('0 ₫');
+          return;
+        }
+
+        items.forEach(item => {
+          const price = item.productDetail.discountedAmount || item.productDetail.price;
+          cartItemsContainer.append(`
+                <div class="cart-item">
+                    <input type="hidden" value="${item.id || item.productDetailId}" class="cartId">
+                    <input type="hidden" value="${item.productDetail.id}" class="detailId">
+                    <img src="/${item.productDetail.images[0].link}" alt="Product Image" />
+                    <div class="cart-item-details">
+                        <h6>${item.product.name} - ${item.productDetail.sizeName} - ${item.productDetail.colorName}</h6>
+                        <div class="quantity">Số lượng: ${item.quantity}</div>
+                        <div class="unit-price">Đơn giá: ${formatNumber(price)} đ</div>
+                        <div class="total total-money">Thành tiền: 0 đ</div>
+                    </div>
+                </div>
+            `);
+        });
+
+        calculateTotal();
+      }
+
+      // Kiểm tra tên nhập vào
+      $('#shipping-name').on('input', function () {
+        var enteredName = $(this).val().trim().toLowerCase();
+        if (userInfo && userInfo.customer) {
+          var customerName = userInfo.customer.name ? userInfo.customer.name.toLowerCase() : '';
+          if (enteredName === customerName) {
+            $('#shipping-phone').val(userInfo.customer.phoneNumber || '');
+            $('#shipping-email').val(userInfo.customer.email || userInfo.account.email || '');
+            if (userInfo.defaultAddress) {
+              $('#shipping-address').val(addressSelected.street);
+              loadProvinceAndSelect();
+            } else {
+              $('#shipping-address').val('');
+              $('#shipping-province').val('');
+              $('#shipping-district').val('').prop('disabled', true);
+              $('#shipping-ward').val('').prop('disabled', true);
+              addressSelected = { street: '', ward: '', district: '', province: '' };
+              loadProvinces();
+            }
+          } else {
+            $('#shipping-phone').val('');
+            $('#shipping-email').val('');
+            $('#shipping-address').val('');
+            $('#shipping-province').val('');
+            $('#shipping-district').val('').prop('disabled', true);
+            $('#shipping-ward').val('').prop('disabled', true);
+            addressSelected = { street: '', ward: '', district: '', province: '' };
+            loadProvinces();
+          }
+        }
+      });
+
+      // Initial calculation
+      if ($('.cart-item').length > 0) {
+        calculateTotal();
+      } else {
+        $('#sub-total').text('0 ₫');
+        $('#all-total').text('0 ₫');
+        console.warn('No cart items found');
+      }
+
+      function loadProvinceAndSelect() {
+        $.ajax({
+          type: 'GET',
+          url: 'https://online-gateway.ghn.vn/shiip/public-api/master-data/province',
+          headers: {
+            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+            'Content-Type': 'application/json'
+          },
+          success: function (response) {
+            if (response.code === 200) {
+              province = response.data;
+              $('#shipping-province').empty().append('<option value="">Chọn tỉnh/thành</option>');
+              province.forEach(p => {
+                $('#shipping-province').append(
+                        `<option value="${p.ProvinceID}">${p.ProvinceName}</option>`
+                );
+              });
+
+              if (addressSelected.province) {
+                const provinceOption = province.find(p =>
+                        p.ProvinceName.toLowerCase() === addressSelected.province.toLowerCase()
+                );
+                if (provinceOption) {
+                  $('#shipping-province').val(provinceOption.ProvinceID);
+                  loadDistricts(provinceOption.ProvinceID, function () {
+                    if (addressSelected.district) {
+                      const districtOption = district.find(d =>
+                              d.DistrictName.toLowerCase() === addressSelected.district.toLowerCase()
+                      );
+                      if (districtOption) {
+                        $('#shipping-district').val(districtOption.DistrictID);
+                        loadWards(districtOption.DistrictID, function () {
+                          if (addressSelected.ward) {
+                            const wardOption = ward.find(w =>
+                                    w.WardName.toLowerCase() === addressSelected.ward.toLowerCase()
+                            );
+                            if (wardOption) {
+                              $('#shipping-ward').val(wardOption.WardCode);
+                              if ($('#shipping-address').val()) {
+                                calculateShippingFee();
+                              }
+                            }
+                          }
+                        });
+                      }
+                    }
+                  });
+                }
+              }
+            }
+          },
+          error: function () {
+            Swal.fire("Lỗi", "Không thể tải danh sách tỉnh/thành.", "error");
+          }
+        });
+      }
+
+      function loadProvinces() {
+        $.ajax({
+          url: 'https://online-gateway.ghn.vn/shiip/public-api/master-data/province',
+          method: 'GET',
+          headers: {
+            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+            'Content-Type': 'application/json'
+          },
+          success: function (response) {
+            if (response.code === 200) {
+              province = response.data;
+              $('#shipping-province').empty().append('<option value="">Chọn tỉnh/thành</option>');
+              province.forEach(p => {
+                $('#shipping-province').append(
+                        `<option value="${p.ProvinceID}">${p.ProvinceName}</option>`
+                );
+              });
+            }
+          },
+          error: function (xhr) {
+            console.error("Lỗi khi tải tỉnh/thành:", xhr.responseJSON);
+          }
+        });
+
+        $('#shipping-province').change(function () {
+          const provinceId = $(this).val();
+          if (provinceId) {
+            loadDistricts(provinceId);
+          } else {
+            $('#shipping-district').val('').prop('disabled', true);
+            $('#shipping-ward').val('').prop('disabled', true);
+            $('#shipping-fee').text('0 ₫');
+            $('#shipping-fee-display').text('0 ₫');
+            calculateTotal();
+          }
+        });
+
+        $('#shipping-district').change(function () {
+          const districtId = $(this).val();
+          if (districtId) {
+            loadWards(districtId);
+          } else {
+            $('#shipping-ward').val('').prop('disabled', true);
+            $('#shipping-fee').text('0 ₫');
+            $('#shipping-fee-display').text('0 ₫');
+            calculateTotal();
+          }
+        });
+      }
+
+      function loadDistricts(provinceId, callback) {
+        $.ajax({
+          url: `https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${provinceId}`,
+          method: 'GET',
+          headers: {
+            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+            'Content-Type': 'application/json'
+          },
+          success: function (response) {
+            if (response.code === 200) {
+              district = response.data;
+              $('#shipping-district').empty().append('<option value="">Chọn quận/huyện</option>');
+              district.forEach(d => {
+                $('#shipping-district').append(
+                        `<option value="${d.DistrictID}">${d.DistrictName}</option>`
+                );
+              });
+              $('#shipping-district').prop('disabled', false);
+              $('#shipping-fee').text('0 ₫');
+              $('#shipping-fee-display').text('0 ₫');
+              calculateTotal();
+              if (callback) callback();
+            }
+          },
+          error: function (xhr) {
+            console.error("Lỗi khi tải quận/huyện:", xhr.responseJSON);
+            if (callback) callback();
+          }
+        });
+      }
+
+      function loadWards(districtId, callback) {
+        $.ajax({
+          url: `https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=${districtId}`,
+          method: 'GET',
+          headers: {
+            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+            'Content-Type': 'application/json'
+          },
+          success: function (response) {
+            if (response.code === 200) {
+              ward = response.data;
+              $('#shipping-ward').empty().append('<option value="">Chọn phường/xã</option>');
+              ward.forEach(w => {
+                $('#shipping-ward').append(
+                        `<option value="${w.WardCode}">${w.WardName}</option>`
+                );
+              });
+              $('#shipping-ward').prop('disabled', false);
+              $('#shipping-fee').text('0 ₫');
+              $('#shipping-fee-display').text('0 ₫');
+              calculateTotal();
+              if (callback) callback();
+            }
+          },
+          error: function (xhr) {
+            console.error("Lỗi khi tải phường/xã:", xhr.responseJSON);
+            $('#shipping-ward').prop('disabled', true);
+            if (callback) callback();
+          }
+        });
+      }
+
+      $('#shipping-ward').change(function () {
+        if ($('#shipping-province').val() &&
+                $('#shipping-district').val() &&
+                $('#shipping-ward').val() &&
+                $('#shipping-address').val()) {
+          calculateShippingFee();
+        } else {
+          $('#shipping-fee').text('0 ₫');
+          $('#shipping-fee-display').text('0 ₫');
+          calculateTotal();
+        }
+      });
+
+      $('#shipping-address').on('input', function() {
+        if ($('#shipping-province').val() &&
+                $('#shipping-district').val() &&
+                $('#shipping-ward').val() &&
+                $(this).val().trim()) {
+          calculateShippingFee();
+        } else {
+          $('#shipping-fee').text('0 ₫');
+          $('#shipping-fee-display').text('0 ₫');
+          calculateTotal();
+        }
+      });
+
+      function getAvailableServices(from_district, to_district, callback) {
+        $.ajax({
+          url: 'https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services',
+          method: 'GET',
+          headers: {
+            'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+            'Content-Type': 'application/json'
+          },
+          data: {
+            shop_id: 5871267,
+            from_district: from_district,
+            to_district: to_district
+          },
+          success: function (response) {
+            callback(response.data);
+          },
+          error: function (xhr) {
+            console.error("Lỗi khi lấy dịch vụ vận chuyển:", xhr.responseJSON);
+            callback(null);
+          }
+        });
+      }
+
+      function calculateShippingFee() {
+        const provinceId = $('#shipping-province').val();
+        const districtId = $('#shipping-district').val();
+        const wardCode = $('#shipping-ward').val();
+        const address = $('#shipping-address').val();
+
+        if (!provinceId || !districtId || !wardCode || !address) {
+          $('#shipping-fee').text('0 ₫');
+          $('#shipping-fee-display').text('0 ₫');
+          calculateTotal();
+          return;
+        }
+        $('#shipping-fee').text('Đang tính...');
+        $('#shipping-fee-display').text('Đang tính...');
+
+        getAvailableServices(1490, parseInt(districtId), function (services) {
+          if (services && services.length > 0) {
+            const service_id = services[0].service_id;
+            $.ajax({
+              url: 'https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee',
+              method: 'POST',
+              headers: {
+                'Token': '6c4c54e4-5802-11f0-955f-6e01a39a71db',
+                'Content-Type': 'application/json',
+                'ShopId': '5871267'
+              },
+              data: JSON.stringify({
+                "from_district_id": 1490,
+                "service_id": service_id,
+                "to_district_id": parseInt(districtId),
+                "to_ward_code": wardCode,
+                "weight": 200,
+                "length": 10,
+                "width": 10,
+                "height": 10
+              }),
+              success: function (response) {
+                if (response.code === 200) {
+                  const fee = response.data.total;
+                  $('#shipping-fee').text(formatNumber(fee) + ' ₫');
+                  $('#shipping-fee-display').text(formatNumber(fee) + ' ₫');
+                  calculateTotal();
+                } else {
+                  $('#shipping-fee').text('0 ₫');
+                  $('#shipping-fee-display').text('0 ₫');
+                  console.error("Lỗi GHN:", response.message);
+                  calculateTotal();
+                }
+              },
+              error: function (xhr) {
+                console.error("Lỗi khi tính phí ship:", xhr.responseJSON);
+                $('#shipping-fee').text('0 ₫');
+                $('#shipping-fee-display').text('0 ₫');
+                calculateTotal();
+              }
+            });
+          } else {
+            $('#shipping-fee').text('0 ₫');
+            $('#shipping-fee-display').text('0 ₫');
+            Toastify({
+              text: "Không có dịch vụ vận chuyển nào khả dụng cho khu vực này",
+              className: "error",
+              style: { background: "red" }
+            }).showToast();
+            calculateTotal();
+          }
+        });
+      }
+
+      function updateSubtotal(row) {
+        var quantity = parseInt(row.find(".quantity").text().replace('Số lượng: ', '')) || 0;
+        var unitPrice = parseFloat(removeAnyNonDigit(row.find('.unit-price').text().replace('Đơn giá: ', '').replace(' đ', ''))) || 0;
+        var subtotal = quantity * unitPrice;
+        row.find('.total-money').text('Thành tiền: ' + formatNumber(subtotal) + ' đ');
+        return subtotal;
+      }
+
+      function calculateVoucherPrice() {
+        if (voucherChoosed) {
+          if (voucherChoosed.percentage) {
+            var totalMoney = parseFloat(removeAnyNonDigit($('#sub-total').text())) || 0;
+            var value = totalMoney * voucherChoosed.percentage / 100;
+            var voucherPriceLast = value > voucherChoosed.maximumAmount ? voucherChoosed.maximumAmount : Math.round(value);
+            $("#voucher-pic").text(formatNumber(voucherPriceLast) + ' VND');
+          } else if (voucherChoosed.discountAmount) {
+            $("#voucher-pic").text(formatNumber(voucherChoosed.discountAmount) + ' VND');
+          }
+        } else {
+          $("#voucher-pic").text('0 VND');
+        }
+      }
+
+      function calculateTotal() {
+        var total = 0;
+        $('.cart-item').each(function () {
+          var subtotal = updateSubtotal($(this));
+          total += subtotal;
+        });
+        console.log('Total cart items:', total);
+
+        $('#sub-total').text(formatNumber(total) + ' ₫');
+
+        const shippingFeeText = $('#shipping-fee').text().replace(/[^0-9]/g, '') || '0';
+        const shippingFee = parseFloat(shippingFeeText) || 0;
+        console.log('Shipping Fee:', shippingFee);
+
+        calculateVoucherPrice();
+        const voucherDiscount = parseFloat(removeAnyNonDigit($("#voucher-pic").text())) || 0;
+        console.log('Voucher Discount:', voucherDiscount);
+
+        const finalTotal = total + shippingFee - voucherDiscount;
+        $('#all-total').text(formatNumber(finalTotal) + ' ₫');
+        console.log('Final Total:', finalTotal);
+      }
+
+      // Voucher selection
+      $(".voucher-item").on('click', function () {
+        var voucherId = $(this).attr('data-voucher-id');
+        voucherChoosed = voucherList.find(item => item.id == voucherId);
+        var amountDis = $(this).find('.amount-dis').text();
+        var amountMin = $(this).find('.amount-mini').text();
+        var amountMax = $(this).find('.amount-max').text();
+        if (parseFloat(voucherChoosed.minimumAmountInCart) > parseFloat(removeAnyNonDigit($('#sub-total').text()))) {
+          Swal.fire("Lỗi", "Giá trị đơn hàng không đủ để áp dụng voucher này", "error");
+          return;
+        }
+        var html = `
+        <div class="d-flex align-items-center border border-primary rounded" style="width: 300px">
+            <div class="col-sm-3 d-flex justify-content-center align-items-center mr-2" style="background-color: rgb(219 234 254); height: 80px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12.79 21L3 11.21v2c0 .53.21 1.04.59 1.41l7.79 7.79c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.79 21z"></path><path fill="currentColor" d="M11.38 17.41c.78.78 2.05.78 2.83 0l6.21-6.21c.78-.78.78-2.05 0-2.83L12.63.58A2.04 2.04 0 0 0 11.21 0H5C3.9 0 3 .9 3 2v6.21c0 .53.21 1.04.59 1.41l7.79 7.79zM7.25 3a1.25 1.25 0 1 1 0 2.5a1.25 1.25 0 0 1 0-2.5z"></path></svg>
+            </div>
+            <div>
+                <h5 class="font-weight-bold">${amountDis}</h5>
+                <p>${amountMin}</p>
+                <span>${amountMax}</span>
+            </div>
+            <span id="remove-voucher" class="cursor-pointer ml-5">×</span>
+        </div>`;
+        $('#selected-voucher').html(html);
+        $('#selected-voucher').attr('data-selected', voucherId);
+        $("#remove-voucher").on('click', function () {
+          $('#selected-voucher').attr('data-selected', "");
+          $('#selected-voucher').html('');
+          voucherChoosed = null;
+          calculateVoucherPrice();
+          calculateTotal();
+        });
+        $('#exampleModalCenter').modal('hide');
+        calculateVoucherPrice();
+        calculateTotal();
+      });
+
+      // Enable/disable submit button
+      $('#term').change(function () {
+        $('#submitBtn').prop('disabled', !$(this).prop('checked'));
+      });
+
+      // Form validation
+      function validateForm() {
+        let isValid = true;
+        $(".error-text").hide();
+
+        const name = $("#shipping-name").val().trim();
+        if (!name) {
+          $("#shipping-name").next(".error-text").text("Vui lòng nhập tên người nhận").show();
+          isValid = false;
+        }
+
+        const phone = $("#shipping-phone").val().trim();
+        if (!phone || !/^\d{10,11}$/.test(phone)) {
+          $("#shipping-phone").next(".error-text").text("Vui lòng nhập số điện thoại hợp lệ").show();
+          isValid = false;
+        }
+
+        const province = $("#shipping-province").val();
+        if (!province) {
+          $("#shipping-province").next(".error-text").text("Vui lòng chọn tỉnh/thành").show();
+          isValid = false;
+        }
+
+        const district = $("#shipping-district").val();
+        if (!district) {
+          $("#shipping-district").next(".error-text").text("Vui lòng chọn quận/huyện").show();
+          isValid = false;
+        }
+
+        const ward = $("#shipping-ward").val();
+        if (!ward) {
+          $("#shipping-ward").next(".error-text").text("Vui lòng chọn phường/xã").show();
+          isValid = false;
+        }
+
+        const address = $("#shipping-address").val().trim();
+        if (!address) {
+          $("#shipping-address").next(".error-text").text("Vui lòng nhập địa chỉ cụ thể").show();
+          isValid = false;
+        }
+
+        const email = $("#shipping-email").val().trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          $("#shipping-email").next(".error-text").text("Vui lòng nhập email hợp lệ").show();
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      // Submit đơn hàng
+      $("#submitBtn").on('click', async function () {
+        if (!validateForm()) {
+          return;
+        }
+
+        // Lấy thông tin từ form
+        var voucherId = $("#selected-voucher").attr('data-selected');
+        var orderDetails = [];
+        var promotion = parseFloat(removeAnyNonDigit($('#voucher-pic').text())) || 0;
+
+        // Lấy thông tin sản phẩm trong giỏ hàng
+        $(".cart-item").each(function () {
+          orderDetails.push({
+            productDetailId: $(this).find(".detailId").val(),
+            quantity: parseInt($(this).find(".quantity").text().replace('Số lượng: ', ''))
+          });
+        });
+
+        if (orderDetails.length <= 0) {
+          Swal.fire("Lỗi", "Giỏ hàng trống", "error");
+          return;
+        }
+
+        // Lấy thông tin vận chuyển
+        const shippingFee = parseFloat($('#shipping-fee').text().replace(/[^0-9]/g, '') || 0);
+        const shippingName = $('#shipping-name').val();
+        const shippingPhone = $('#shipping-phone').val();
+        const shippingProvince = $('#shipping-province option:selected').text();
+        const shippingDistrict = $('#shipping-district option:selected').text();
+        const shippingWard = $('#shipping-ward option:selected').text();
+        const shippingAddress = $('#shipping-address').val();
+        const fullAddress = `${shippingAddress}, ${shippingWard}, ${shippingDistrict}, ${shippingProvince}`;
+
+        // Kiểm tra trạng thái đăng nhập
+        const response = await $.ajax({
+          type: 'GET',
+          url: '/api/check-login',
+          dataType: 'json'
+        }).catch(function (error) {
+          Swal.fire("Lỗi", "Không thể kiểm tra trạng thái đăng nhập", "error");
+          return null;
+        });
+
+        if (!response) return;
+
+        const dataSend = {
+          paymentMethodId: $('input[name="paymentMethod"]:checked').val(),
+          billingAddress: fullAddress,
+          customerName: shippingName,
+          customerPhone: shippingPhone,
+          customerEmail: $("#shipping-email").val().trim(),
+          note: $("#shipping-note").val().trim(),
+          promotionPrice: promotion,
+          voucherId: voucherId || null,
+          orderDetailDtos: orderDetails,
+          isShipping: true,
+          shippingFee: shippingFee,
+          shippingFullAddress: fullAddress,
+          shippingName: shippingName,
+          shippingPhone: shippingPhone,
+          shippingNote: $("#shipping-note").val().trim()
+        };
+
+        if (response.loggedIn && userInfo && userInfo.customer) {
+          dataSend.customer = { id: userInfo.customer.id };
+        }
+
+        $('#loading-overlay').show();
+
+        try {
+          // Gọi API tạo đơn hàng
+          const orderResponse = await $.ajax({
+            type: 'POST',
+            url: '/api/orderUser',
+            data: JSON.stringify(dataSend),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json'
+          });
+
+          console.log("Order Response:", orderResponse);
+
+          // Kiểm tra response
+          if (!orderResponse || orderResponse.status !== "SUCCESS") {
+            throw new Error(orderResponse.message || 'Không nhận được phản hồi hợp lệ từ hệ thống');
+          }
+
+          // Xóa giỏ hàng sau khi đặt hàng thành công
+          if (!response.loggedIn) {
+            saveGuestCart([]); // Xóa giỏ hàng trong localStorage
+            updateCartNotification(0);
+          }
+
+          // Xử lý theo phương thức thanh toán
+          if (dataSend.paymentMethodId == "3") { // Thanh toán online (VNPay)
+            const amount = removeAnyNonDigit($('#all-total').text());
+            const orderId = orderResponse.orderId;
+
+            const paymentResponse = await $.ajax({
+              type: 'POST',
+              url: `/api/payment?amount=${amount}&orderId=${orderId}`,
+              dataType: 'json'
+            });
+
+            if (!paymentResponse || !paymentResponse.paymentUrl) {
+              throw new Error('Không nhận được URL thanh toán');
+            }
+
+            window.location.href = paymentResponse.paymentUrl;
+          } else { // Thanh toán tiền mặt
+            $('#loading-overlay').hide();
+            Swal.fire({
+              title: 'Đặt hàng thành công',
+              text: `Đơn hàng của bạn đã được tạo. Mã đơn hàng: ${orderResponse.billCode}. Vui lòng thanh toán khi nhận hàng`,
+              icon: 'success',
+              showCancelButton: true,
+              confirmButtonText: 'Tiếp tục mua sắm',
+              cancelButtonText: 'Về giỏ hàng'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = '/getproduct';
+              } else {
+                window.location.href = '/shoping-cart';
+              }
+            });
+          }
+        } catch (error) {
+          $('#loading-overlay').hide();
+          console.error('Error during order submission:', error);
+
+          let errorMessage = "Đã xảy ra lỗi khi đặt hàng";
+          if (error.responseJSON && error.responseJSON.message) {
+            errorMessage = error.responseJSON.message;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+
+          Swal.fire({
+            title: 'Lỗi',
+            text: errorMessage,
+            icon: 'error'
+          });
+        }
+      });
+
+      function removeAnyNonDigit(value) {
+        return value.replace(/\D/g, '');
+      }
+
+      function formatNumber(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+    });
+  </script>
+</div>
+</body>
+</html>
