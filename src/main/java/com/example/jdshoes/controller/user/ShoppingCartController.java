@@ -4,7 +4,7 @@ import com.example.jdshoes.dto.Account.AccountDto;
 import com.example.jdshoes.dto.AddressShipping.AddressShippingDto;
 import com.example.jdshoes.dto.Cart.CartItemDto;
 import com.example.jdshoes.dto.CartDto.CartDto;
-import com.example.jdshoes.dto.CustomerDto.CustomerDto;
+import com.example.jdshoes.dto.Customer.CustomerDto;
 import com.example.jdshoes.dto.Discount.DiscountDto;
 import com.example.jdshoes.dto.Order.OrderDto;
 import com.example.jdshoes.entity.Account;

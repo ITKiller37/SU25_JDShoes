@@ -1,8 +1,8 @@
 package com.example.jdshoes.controller.api;
 
-import com.example.jdshoes.dto.CustomerDto.AddressDto;
-import com.example.jdshoes.dto.CustomerDto.CustomerDto;
-import com.example.jdshoes.dto.CustomerDto.CustomerDtoApi;
+import com.example.jdshoes.dto.Customer.AddressDto;
+import com.example.jdshoes.dto.Customer.CustomerDto;
+import com.example.jdshoes.dto.Customer.CustomerDtoApi;
 import com.example.jdshoes.entity.Account;
 import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
