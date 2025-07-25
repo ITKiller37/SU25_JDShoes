@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @Transactional
 public interface AddressShippingRepository extends JpaRepository<AddressShipping, Long> {
@@ -23,4 +24,5 @@ public interface AddressShippingRepository extends JpaRepository<AddressShipping
     @Query("UPDATE AddressShipping a SET a.isDefault = false WHERE a.customer.id = ?1")
     void updateAllIsDefaultFalseByCustomer(Long customerId);
 
+    Optional<AddressShipping> findByCustomerIdAndIsDefaultTrue(Long id);
 }

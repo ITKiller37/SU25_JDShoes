@@ -1,5 +1,7 @@
 package com.example.jdshoes.dto.Cart;
 
+import com.example.jdshoes.dto.CartDto.ProductCart;
+import com.example.jdshoes.dto.Product.ProductDetailDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CartItemDto {
-    private Long id;
-    private Long customerId;
-    private Long productDetailId;
-    private int quantity;
-    private LocalDateTime createDate;
-    private LocalDateTime updatedDate;
+    private Long id; // ID của CartDetail
+    private Long productDetailId; // ID của ProductDetail
+    private int quantity; // Số lượng
 }

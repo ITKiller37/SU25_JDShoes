@@ -51,7 +51,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="menu-icon fas fa-file-invoice-dollar"></i>Quản lý hóa đơn</a>
                     <ul class="sub-menu children dropdown-menu">
                         <li><i class="fas fa-file-invoice"></i><a th:href="@{/admin/bill-list}">Hóa đơn</a></li>
-                        <li sec:authorize="hasRole('ADMIN')"><i class="fas fa-exchange-alt"></i><a th:href="@{/admin-only/bill-return}">Đổi trả</a></li>
+                        <li sec:authorize="hasRole('ADMIN')"><i class="fas fa-exchange-alt"></i><a th:href="@{/admin-only/bill-return}">Đổi hàng</a></li>
                     </ul>
                 </li>
                 <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">

@@ -1,8 +1,10 @@
 package com.example.jdshoes.service.Impl;
 
 
-
+import com.example.jdshoes.dto.Customer.AddressDto;
 import com.example.jdshoes.dto.Customer.CustomerDto;
+import com.example.jdshoes.dto.Customer.CustomerDtoApi;
+
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.CustomerRepository;
@@ -11,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -54,6 +59,36 @@ public class CustomerServiceImpl implements CustomerService {
     public Page<CustomerDto> searchCustomerAdmin(String keyword, Pageable pageable) {
         Page<Customer> customerPage = customerRepository.searchCustomerKeyword(keyword, pageable);
         return customerPage.map(this::convertToDto);
+    }
+
+    @Override
+    public CustomerDtoApi getCustomerById(Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
+
+        CustomerDtoApi customerDtoApi = new CustomerDtoApi();
+        customerDtoApi.setCode(customer.getCode());
+        customerDtoApi.setName(customer.getName());
+        customerDtoApi.setPhoneNumber(customer.getPhoneNumber());
+        customerDtoApi.setEmail(customer.getEmail());
+        customerDtoApi.setGender(customer.getGender());
+        customerDtoApi.setBirthDay(customer.getBirthDay());
+
+        // Ánh xạ danh sách địa chỉ
+        List<AddressDto> addressDtos = customer.getAddressShippings().stream()
+                .map(address -> {
+                    AddressDto addressDto = new AddressDto();
+                    addressDto.setStreet(address.getStreet());
+                    addressDto.setWard(address.getWard());
+                    addressDto.setDistrict(address.getDistrict());
+                    addressDto.setProvince(address.getProvince());
+                    addressDto.setDefault(address.getIsDefault());
+                    return addressDto;
+                })
+                .collect(Collectors.toList());
+        customerDtoApi.setAddress(addressDtos);
+
+        return customerDtoApi;
     }
 
     private CustomerDto convertToDto(Customer customer) {

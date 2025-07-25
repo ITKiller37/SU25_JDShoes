@@ -2,9 +2,15 @@ package com.example.jdshoes.controller.api;
 
 import com.example.jdshoes.dto.Image.ImageDto;
 import com.example.jdshoes.dto.Product.ProductDetailDto;
+import com.example.jdshoes.dto.Product.ProductDetailResponse;
 import com.example.jdshoes.entity.Image;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
+import com.example.jdshoes.entity.ProductDiscount;
+import com.example.jdshoes.exception.NotFoundException;
+import com.example.jdshoes.repository.ProductDetailRepository;
+import com.example.jdshoes.repository.ProductDiscountRepository;
+import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ImageService;
 import com.example.jdshoes.service.ProductDetailService;
 import com.example.jdshoes.service.ProductService;
@@ -25,10 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/product-details")
@@ -45,6 +49,15 @@ public class ProductDetailRestController {
 
     @Value("${upload.directory}")
     private String uploadDirectory;
+
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
+
+    @Autowired
+    private ProductDiscountRepository productDiscountRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @GetMapping("/{id}")
     public ProductDetailDto getProductDetailById(@PathVariable Long id) {
@@ -189,5 +202,32 @@ public class ProductDetailRestController {
             System.err.println("Unexpected error updating product detail: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/{productDetailId}/stock")
+    public ResponseEntity<Map<String, Integer>> getProductDetailStock(@PathVariable Long productDetailId) {
+        ProductDetail productDetail = productDetailRepository.findById(productDetailId)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với ID: " + productDetailId));
+        Map<String, Integer> response = new HashMap<>();
+        response.put("quantity", productDetail.getQuantity());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/pd/{id}")
+    public ProductDetailResponse getProductDetail(@PathVariable Long id) {
+        ProductDetail productDetail = productDetailRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm với ID: " + id));
+        Product product = productRepository.findByProductDetailId(id);
+        ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(id);
+        BigDecimal price = productDiscount != null ? productDiscount.getDiscountedAmount() : productDetail.getPrice();
+
+        ProductDetailResponse response = new ProductDetailResponse();
+        response.setId(productDetail.getId());
+        response.setProductName(product.getName());
+        response.setSizeName(productDetail.getSize().getName());
+        response.setColorName(productDetail.getColor().getName());
+        response.setPrice(price);
+        response.setImages(productDetail.getImages().stream().map(Image::getLink).collect(Collectors.toList()));
+        return response;
     }
 }
