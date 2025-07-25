@@ -20,16 +20,14 @@ public class ReturnDetail {
     private Long id;
 
     //Số lượng đổi
-    @Column(name = "quantity_return")
     private Integer quantityReturn;
 
     //Giá đổi
-    @Column(name = "moment_price_refund")
     private Double momentPriceRefund;
 
     @ManyToOne
     @JoinColumn(name = "return_id")
-    private BillReturn billReturn;
+    private  com.example.jdshoes.entity.BillReturn billReturn;
 
 //    @ManyToOne
 //    @JoinColumn(name = "old_product_detail_id")
@@ -44,3 +42,4 @@ public class ReturnDetail {
 //    @JoinColumn(name = "bill_detail_id")
 //    private BillDetail billDetail;
 }
+

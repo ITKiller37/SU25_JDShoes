@@ -1,12 +1,12 @@
 package com.example.jdshoes.entity;
-
+import com.example.jdshoes.entity.Bill;
+import com.example.jdshoes.entity.ReturnDetail;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Nationalized;
 
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,23 +25,16 @@ public class BillReturn {
     private String code;
 
     @Nationalized
-    @Column(name = "return_reason")
     private String returnReason;
 
-    @Column(name = "return_date")
     private LocalDateTime returnDate;
 
-    @Column(name = "percent_fee_exchange")
     private Integer percentFeeExchange;
+    private BigDecimal returnMoney;
 
-    @Column(name = "return_money")
-    private Double returnMoney;
-
-    @Column(name = "is_cancel")
     private boolean isCancel;
 
     // 0:Chờ xác nhận 1: Chờ giao hàng 2: Đang giao hàng 3: Hoàn thành 4: Hủy
-    @Column(name = "return_status")
     private int returnStatus;
 
     @OneToOne
@@ -51,4 +44,10 @@ public class BillReturn {
     @OneToMany(mappedBy = "billReturn", cascade = CascadeType.ALL)
     private List<ReturnDetail> returnDetails;
 
+    // có cái này
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "billReturnAccountId")
+    private Account account;
+
 }
+

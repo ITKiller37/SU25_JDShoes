@@ -24,6 +24,10 @@ public class ProductDto {
     private LocalDateTime updatedDate;
     private BigDecimal priceMin;
     private boolean isDiscounted;
+    private BigDecimal discountedPrice;
+
+
+    private String imageUrl;
 
     private List<ProductDetailDto> productDetailDtos;
 }
