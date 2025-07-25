@@ -61,7 +61,7 @@ public class AddressShippingServiceImpl implements AddressShippingService {
         }
 
         AddressShipping addressShippingNew = addressShippingRepository.save(addressShipping);
-        return new AddressShippingDto(addressShippingNew.getId(), addressShippingNew.getAddress());
+        return new AddressShippingDto(addressShippingNew.getId(), addressShippingNew.getAddress(), addressShippingNew.getIsDefault());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class AddressShippingServiceImpl implements AddressShippingService {
         addressShipping.setCustomer(customer);
 
         AddressShipping addressShippingNew = addressShippingRepository.save(addressShipping);
-        return new AddressShippingDto(addressShippingNew.getId(), addressShippingNew.getAddress());
+        return new AddressShippingDto(addressShippingNew.getId(), addressShippingNew.getAddress(), addressShippingNew.getIsDefault());
     }
 
     @Override

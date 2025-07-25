@@ -51,6 +51,10 @@ public class SecurityConfig {
                         .requestMatchers("/admin-only/**").hasAnyRole("ADMIN")
                         .anyRequest().permitAll()
                 )
+                .headers(headers -> headers
+                        .defaultsDisabled() // tắt mặc định
+                        .frameOptions((frameOptions) -> frameOptions.sameOrigin())
+                )
                 .formLogin(form -> form
                         .loginPage("/user-login")
                         .successHandler(customLoginSuccessHandler)

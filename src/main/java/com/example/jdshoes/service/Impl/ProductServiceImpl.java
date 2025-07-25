@@ -119,6 +119,9 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductDetailDto> productDetailDtoList = new ArrayList<>();
         BigDecimal priceMin = new BigDecimal("100000000");
+
+        String representativeImageUrl = null;
+
         for (ProductDetail productDetail : product.getProductDetails()) {
             if (productDetail.getPrice().compareTo(priceMin) < 0) {
                 priceMin = productDetail.getPrice();
@@ -143,6 +146,12 @@ public class ProductServiceImpl implements ProductService {
                             })
                             .collect(Collectors.toList());
                     productDetailDto.setImages(imageDtos);
+
+                    // ✅ Gán ảnh đại diện (nếu chưa có)
+                    if (representativeImageUrl == null) {
+                        representativeImageUrl = imageDtos.get(0).getLink();
+                    }
+
                 } else {
                     productDetailDto.setImages(new ArrayList<>()); // Đặt danh sách rỗng nếu không có ảnh
 
@@ -152,8 +161,8 @@ public class ProductServiceImpl implements ProductService {
             }
             productDto.setPriceMin(priceMin);
             productDto.setProductDetailDtos(productDetailDtoList);
+            productDto.setImageUrl(representativeImageUrl);
             return productDto;
-
     }
         @Override
         public List<ProductDto> getAllProductNoPaginationApi (SearchProductDto searchRequest){

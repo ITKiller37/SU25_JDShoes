@@ -1,9 +1,9 @@
 package com.example.jdshoes.service.Impl;
 
-import com.example.jdshoes.dto.Bill.BillDetailDtoInterface;
-import com.example.jdshoes.dto.Bill.BillDetailProduct;
-import com.example.jdshoes.dto.Bill.BillDtoInterface;
+import com.example.jdshoes.dto.Bill.*;
+import com.example.jdshoes.dto.Customer.CustomerDto;
 import com.example.jdshoes.entity.Bill;
+import com.example.jdshoes.entity.BillDetail;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.enumClass.BillStatus;
 import com.example.jdshoes.entity.enumClass.InvoiceType;
@@ -11,6 +11,7 @@ import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.BillRepository;
 import com.example.jdshoes.repository.ProductDetailRepository;
+import com.example.jdshoes.repository.Specification.BillSpecification;
 import com.example.jdshoes.service.BillService;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -244,5 +246,50 @@ public class BillServiceImpl implements BillService {
     @Override
     public List<BillDetailProduct> getBillDetailProduct(Long maHoaDon) {
         return billRepository.getBillDetailProduct(maHoaDon);
+    }
+
+    @Override
+    public Page<BillDto> searchBillJson(SearchBillDto searchBillDto, Pageable pageable) {
+        Specification<Bill> spec = new BillSpecification(searchBillDto);
+        Page<Bill> bills = billRepository.findAll(spec, pageable);
+        return bills.map(this::convertToDto);
+    }
+
+    private BillDto convertToDto(Bill bill) {
+        BillDto billDto = new BillDto();
+        billDto.setId(bill.getId());
+        billDto.setCode(bill.getCode());
+        billDto.setCreateDate(bill.getCreateDate());
+        billDto.setStatus(bill.getStatus());
+        billDto.setUpdateDate(bill.getUpdateDate());
+
+        CustomerDto customer = new CustomerDto();
+        if (bill.getCustomer() != null) {
+            customer.setName(bill.getCustomer().getName());
+            customer.setId(bill.getCustomer().getId());
+            customer.setCode(bill.getCustomer().getCode());
+            // Dòng setCode bị trùng, có thể bỏ 1 dòng nếu không cần
+        }
+        billDto.setCustomer(customer);
+
+        BigDecimal total = BigDecimal.ZERO;
+        for (BillDetail billDetail : bill.getBillDetail()) {
+            BigDecimal lineTotal = billDetail.getDetailPrice()
+                    .multiply(BigDecimal.valueOf(billDetail.getQuantity()));
+            total = total.add(lineTotal);
+        }
+
+        billDto.setTotalAmount(total); // Lưu ý: field totalAmount nên là BigDecimal
+        return billDto;
+    }
+
+    @Override
+    public Page<BillDto> getAllValidBillToReturn(Pageable pageable) {
+        return billRepository.findValidBillToReturn(pageable).map(this::convertToDto);
+    }
+
+    @Override
+    public List<BillDetailProduct> getBillDetailProductBill(Long maHoaDon) {
+        return billRepository.getBillDetailProductBill(maHoaDon);
     }
 }

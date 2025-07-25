@@ -1,6 +1,6 @@
 package com.example.jdshoes.dto.Bill;
 
-import com.example.jdshoes.dto.CustomerDto.CustomerDto;
+import com.example.jdshoes.dto.Customer.CustomerDto;
 import com.example.jdshoes.entity.enumClass.BillStatus;
 import com.example.jdshoes.entity.enumClass.InvoiceType;
 import lombok.AllArgsConstructor;
@@ -33,6 +33,8 @@ public class BillDto {
     private String customerPhoneNumber;
     private String customerAddress;
     private CustomerDto customer;
+
+    private BigDecimal totalAmount;
 
 
 }

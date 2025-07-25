@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,7 +130,11 @@ public class AccountServiceImpl implements AccountService {
         }
         customer.setPhoneNumber(accountDto.getPhoneNumber());
         customer.setName(accountDto.getName());
+        account.setGender(accountDto.getGender());
+        account.setBirthDay(accountDto.getBod());
+        account.setName(accountDto.getName());
         customerRepository.save(customer);
+        accountRepository.save(account);
         return convertToDto(accountRepository.save(account));
     }
 
@@ -160,6 +165,9 @@ public class AccountServiceImpl implements AccountService {
         accountDto.setEmail(account.getEmail());
         accountDto.setName(account.getCustomer().getName());
         accountDto.setPhoneNumber(account.getCustomer().getPhoneNumber());
+        accountDto.setBod(new Date(account.getBirthDay().getTime()));
+        accountDto.setGender(account.getGender());
+
         List<AddressShippingDto> addressShippingDtos = new ArrayList<>();
         List<AddressShipping> addressShippingList = addressShippingRepository.findAllByCustomer_Account_Id(account.getId());
         for (AddressShipping addressShipping:
@@ -167,6 +175,7 @@ public class AccountServiceImpl implements AccountService {
             AddressShippingDto addressShippingDto = new AddressShippingDto();
             addressShippingDto.setId(addressShipping.getId());
             addressShippingDto.setAddress(addressShipping.getAddress());
+            addressShippingDto.setIsDefault(addressShipping.getIsDefault());
             addressShippingDtos.add(addressShippingDto);
         }
         accountDto.setAddressShippingList(addressShippingDtos);

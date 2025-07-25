@@ -1,8 +1,8 @@
 package com.example.jdshoes.controller.api;
 
+import com.example.jdshoes.dto.Customer.CustomerDto;
+import com.example.jdshoes.dto.Customer.CustomerDtoApi;
 
-import com.example.jdshoes.dto.CustomerDto.CustomerDto;
-import com.example.jdshoes.dto.CustomerDto.CustomerDtoApi;
 import com.example.jdshoes.service.CustomerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

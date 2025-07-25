@@ -12,7 +12,6 @@ import com.example.jdshoes.repository.RoleRepository;
 import com.example.jdshoes.service.AccountService;
 import com.example.jdshoes.utils.MailServices;
 import com.example.jdshoes.utils.RandomUtils;
-import com.example.jdshoes.utils.VNCharacterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -132,7 +131,7 @@ public class AccountMngController {
             account.setNonLocked(ex.isNonLocked());
         }
         accountRepository.save(account);
-        String content = VNCharacterUtils.buildAccountInfoEmail(account.getEmail(), passDecode);
+        String content = mailServices.buildEmailTemplate(account.getName(), account.getEmail(),passDecode);
         mailServices.sendEmail(account.getEmail(), "Thông tin tài khoản",
                 content,
                 false, true);

@@ -180,6 +180,15 @@
                                 <span class="stext-105 cl3" th:text="${#numbers.formatDecimal(product.priceMin, 0, 'POINT', 0, 'COMMA') + ' VND'}">
 
 								</span>
+<!--                                <span th:if="${product.discountedPrice != null}"-->
+<!--                                      th:text="${#numbers.formatDecimal(product.discountedPrice, 0, 'POINT', '.', ',')} + 'đ'"-->
+<!--                                      class="text-red-500 font-bold">-->
+<!--                                        </span>-->
+
+<!--                                <span th:if="${product.discountedPrice == null}"-->
+<!--                                      th:text="${#numbers.formatDecimal(product.priceMin, 0, 'POINT', '.', ',')} + 'đ'"-->
+<!--                                      class="text-black font-bold">-->
+<!--                                </span>-->
                             </div>
 
                         </div>

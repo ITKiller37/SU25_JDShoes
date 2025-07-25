@@ -11,4 +11,6 @@ public class AddressShippingDto {
     private Long id;
     private String address;
 
+    private Boolean isDefault = false;
+
 }
