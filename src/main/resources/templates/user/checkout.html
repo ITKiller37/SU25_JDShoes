@@ -1007,7 +1007,7 @@
           billingAddress: fullAddress,
           customerName: shippingName,
           customerPhone: shippingPhone,
-          customerEmail: $("#shipping-email").val().trim(),
+          shippingEmail: $("#shipping-email").val().trim() || null,
           note: $("#shipping-note").val().trim(),
           promotionPrice: promotion,
           voucherId: voucherId || null,
@@ -1019,6 +1019,7 @@
           shippingPhone: shippingPhone,
           shippingNote: $("#shipping-note").val().trim()
         };
+        console.log("Data being sent to /api/orderUser:", JSON.stringify(dataSend, null, 2));
 
         if (response.loggedIn && userInfo && userInfo.customer) {
           dataSend.customer = { id: userInfo.customer.id };

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface BillService {
@@ -42,6 +43,11 @@ public interface BillService {
 
     List<BillDetailProduct> getBillDetailProductBill(Long maHoaDon);
 
+    Map<String, Object> getOrderStatus(String orderCode);
+
+    Page<Bill> getBillByAccount(Pageable pageable);
+
+    Page<Bill> getBillByStatus(String status, Pageable pageable);
 }
 
 

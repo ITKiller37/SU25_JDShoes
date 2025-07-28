@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,38 +66,35 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     public List<DayInMonthStatistic2> getDailyRevenue2(String startDate, String endDate) {
-        LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T00:00:00");
-        LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T23:59:59");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try {
+            LocalDateTime startDateTime = LocalDateTime.parse(startDate + "T00:00:00");
+            LocalDateTime endDateTime = LocalDateTime.parse(endDate + "T23:59:59");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+            List<Object[]> results = billRepository.statisticRevenueDaily(startDateTime.format(formatter), endDateTime.format(formatter));
+            Map<LocalDate, BigDecimal> result = new LinkedHashMap<>();
 
-        List<Object[]> results = billRepository.statisticRevenueDaily(startDateTime.format(formatter), endDateTime.format(formatter));
+            LocalDate currentDate = startDateTime.toLocalDate();
+            while (!currentDate.isAfter(endDateTime.toLocalDate())) {
+                result.put(currentDate, BigDecimal.ZERO);
+                currentDate = currentDate.plusDays(1);
+            }
 
-        Map<LocalDate, BigDecimal> result = new LinkedHashMap<>();
+            for (Object[] object : results) {
+                LocalDate orderDate = LocalDate.parse((String) object[0]);
+                BigDecimal totalAmount = (BigDecimal) object[1];
+                result.put(orderDate, result.getOrDefault(orderDate, BigDecimal.ZERO).add(totalAmount));
+            }
 
-// Iterate through all the days in the date range
-        LocalDate currentDate = startDateTime.toLocalDate();
-        while (!currentDate.isAfter(endDateTime.toLocalDate())) {
-            result.put(currentDate, BigDecimal.ZERO);
-            currentDate = currentDate.plusDays(1);
+            return result.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(entry -> new DayInMonthStatistic2(entry.getKey().toString().substring(5), entry.getValue()))
+                    .collect(Collectors.toList());
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Định dạng ngày không hợp lệ: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi lấy thống kê doanh thu: " + e.getMessage());
         }
-
-// Update the revenue for days with orders
-        for (Object[] object : results) {
-            LocalDate orderDate = LocalDate.parse((String) object[0]);
-            BigDecimal totalAmount = BigDecimal.valueOf((Double) object[1]);
-
-            // Update the revenue for the specific day
-            result.put(orderDate, result.getOrDefault(orderDate, BigDecimal.ZERO).add(totalAmount));
-        }
-
-// Now, convert the result to a sorted List<DayInMonthStatistic2>
-        List<DayInMonthStatistic2> statistics = result.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> new DayInMonthStatistic2(entry.getKey().toString().substring(5), entry.getValue()))
-                .collect(Collectors.toList());
-
-        return statistics;
     }
 
     @Override

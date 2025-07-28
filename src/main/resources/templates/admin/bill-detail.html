@@ -139,21 +139,29 @@
                             <div class="col-sm-6">
                                 <div class="text-muted">
                                     <h5 class="font-size-16 mb-3">Khách hàng:</h5>
-                                    <h5 class="font-size-15 mb-2" th:if="${billdetail.tenKhachHang != null}"
+                                    <h5 class="font-size-15 mb-2" th:if="${billdetail.maKhachHang != null}"
                                         th:text="${billdetail.tenKhachHang}">
                                         Preston Miller
                                     </h5>
                                     <h6 class="font-size-15 mb-2 font-italic"
-                                        th:if="${billdetail.tenKhachHang == null}">
+                                        th:if="${billdetail.maKhachHang == null}">
                                         Khách lẻ
                                     </h6>
+                                    <p th:if="${billdetail.maKhachHang != null}"
+                                       th:text="${billdetail.soDienThoaiKhachHang}">
+                                        001-234-5678
+                                    </p>
+                                    <h5 class="font-size-16 mb-3">Địa chỉ giao hàng:</h5>
+                                    <h5 class="font-size-15 mb-2"
+                                        th:text="${billdetail.tenKhachDatHang}">
+                                        Preston Miller
+                                    </h5>
+                                    <p th:text="${billdetail.soDienThoaiNguoiNhan}">
+                                        001-234-5678
+                                    </p>
                                     <p class="mb-1" th:if="${billdetail.tenKhachHang != null}"
                                        th:text="${billdetail.diaChiNguoiNhan}">
                                         4068 Post Avenue Newfolden, MN 56738
-                                    </p>
-                                    <p th:if="${billdetail.tenKhachHang != null}"
-                                       th:text="${billdetail.soDienThoaiKhachHang}">
-                                        001-234-5678
                                     </p>
                                 </div>
                             </div>

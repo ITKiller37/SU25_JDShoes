@@ -65,6 +65,9 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
             "COALESCE( b.customerAddress, '') AS diaChiNguoiNhan, " +
             "b.amount AS tongTien, b.promotionPrice AS tienKhuyenMai, " +
             "COALESCE(c.name, b.customerName, 'Khách lẻ') AS tenKhachHang, " +
+            "c.name AS tenKhachTrongHeThong," +
+            "b.customerName AS tenKhachDatHang,"+
+            "b.customerId AS maKhachHang,"+
             "COALESCE(b.customerName, c.name, '') AS tenNguoiNhan, " +
             "COALESCE(c.phoneNumber, b.customerPhoneNumber, '') AS soDienThoaiKhachHang, " +
             "COALESCE(b.customerPhoneNumber, c.phoneNumber, '') AS soDienThoaiNguoiNhan, " +
@@ -239,5 +242,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
     List<BillDetailProduct> getBillDetailProductBill(@Param("maHoaDon") Long maHoaDon);
 
 
+    Page<Bill> findByCustomer_Account_Id(Long id, Pageable pageable);
 
+    Page<Bill> findAllByStatusAndCustomer_Account_Id(BillStatus status1, Long id, Pageable pageable);
 }

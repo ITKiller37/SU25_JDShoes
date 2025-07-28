@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -181,4 +182,15 @@ public class BillController {
     public Page<BillDto> getAllValidBillToReturnSearch(SearchBillDto searchBillDto, Pageable pageable) {
         return billService.searchBillJson(searchBillDto, pageable);
     }
+
+//    @ResponseBody
+//    @GetMapping("/api/order/status")
+//    public ResponseEntity<Map<String, Object>> getOrderStatus(@RequestParam String orderCode) {
+//        Map<String, Object> response = billService.getOrderStatus(orderCode);
+//        if (response.get("order") != null) {
+//            return new ResponseEntity<>(response, HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+//        }
+//    }
 }

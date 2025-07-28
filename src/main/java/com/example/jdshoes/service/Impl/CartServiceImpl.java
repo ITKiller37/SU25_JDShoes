@@ -15,6 +15,7 @@ import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.*;
 import com.example.jdshoes.service.CartService;
+import com.example.jdshoes.utils.MailServices;
 import com.example.jdshoes.utils.UserLoginUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,6 +55,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Autowired
+    private MailServices mailServices;
 
     public CartServiceImpl(CartRepository cartRepository,
                            CartDetailRepository cartDetailRepository,
@@ -340,6 +344,26 @@ public class CartServiceImpl implements CartService {
             paymentRepository.save(payment);
             paymentRepository.flush();
 
+            // Gửi email thông báo thanh toán thành công
+            String customerName = orderDto.getShippingName() != null ? orderDto.getShippingName() : (customer != null ? customer.getName() : "Khách hàng");
+            String customerEmail = orderDto.getShippingEmail() != null ? orderDto.getShippingEmail() : (customer != null ? customer.getEmail() : null);
+            if (customerEmail != null && !customerEmail.isEmpty()) {
+                String emailContent = mailServices.buildPaymentSuccessEmailTemplate(
+                        customerName,
+                        orderPrefix,
+                        finalAmount,
+                        "", // Không có thông tin ngân hàng cho COD
+                        LocalDateTime.now()
+                );
+                mailServices.sendEmail(
+                        customerEmail,
+                        "Thanh toán đơn hàng thành công",
+                        emailContent,
+                        false,
+                        true
+                );
+            }
+
             clearCart();
             response.put("status", "SUCCESS");
             response.put("billCode", orderPrefix);
@@ -443,6 +467,29 @@ public class CartServiceImpl implements CartService {
             paymentRepository.save(payment);
             paymentRepository.flush();
 
+            // Gửi email thông báo thanh toán thành công
+            String customerName = orderDto.getShippingName() != null ? orderDto.getShippingName() : (customer != null ? customer.getName() : "");
+            String customerEmail = orderDto.getShippingEmail() != null ? orderDto.getShippingEmail() : (customer != null ? customer.getEmail() : null);
+            String billCode = bill.getCode();
+            BigDecimal finalAmount = bill.getAmount().add(orderDto.getShippingFee() != null ? orderDto.getShippingFee() : BigDecimal.ZERO)
+                    .subtract(orderDto.getPromotionPrice() != null ? orderDto.getPromotionPrice() : BigDecimal.ZERO);
+            if (customerEmail != null && !customerEmail.isEmpty()) {
+                String emailContent = mailServices.buildPaymentSuccessEmailTemplate(
+                        customerName,
+                        billCode,
+                        finalAmount,
+                        payment.getOrderId() != null ? payment.getOrderId() : "", // Thông tin ngân hàng từ VNPay
+                        payment.getPaymentDate()
+                );
+                mailServices.sendEmail(
+                        customerEmail,
+                        "Thanh toán đơn hàng thành công",
+                        emailContent,
+                        false,
+                        true
+                );
+            }
+
             if (orderDto.getVoucherId() != null) {
                 Discount discount = discountRepository.findById(orderDto.getVoucherId())
                         .orElseThrow(() -> new NotFoundException("Không tìm thấy voucher với ID: " + orderDto.getVoucherId()));
@@ -490,7 +537,7 @@ public class CartServiceImpl implements CartService {
         bill.setPromotionPrice(orderDto.getPromotionPrice() != null ? orderDto.getPromotionPrice() : BigDecimal.ZERO);
         bill.setReturnStatus(false);
         bill.setIsShipping(true);
-        bill.setBillingAddress(orderDto.getBillingAddress());
+        bill.setCustomerAddress(orderDto.getBillingAddress());
         bill.setCustomerName(orderDto.getShippingName());
         bill.setCustomerPhoneNumber(orderDto.getShippingPhone());
         bill.setCustomerEmail(orderDto.getShippingEmail());

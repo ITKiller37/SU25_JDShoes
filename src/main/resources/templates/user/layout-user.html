@@ -151,7 +151,7 @@
                                 tin</a>
                             <a th:href="@{/admin}" sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_EMPLOYEE')">Trang quản
                                 lý</a>
-                            <a th:href="@{/cart-status}" th:if="${#authorization.expression('isAuthenticated()')}">Đơn
+                            <a th:href="@{/cart-status-account}" th:if="${#authorization.expression('isAuthenticated()')}">Đơn
                                 hàng</a>
                             <a th:href="@{/user_logout}" th:if="${#authorization.expression('isAuthenticated()')}">Đăng
                                 xuất</a>
@@ -196,6 +196,9 @@
 
                         <li>
                             <a th:href="@{/getcontact}">Liên hệ</a>
+                        </li>
+                        <li>
+                            <a th:href="@{/cart-status}">Tra cứu đơn hàng</a>
                         </li>
                     </ul>
                 </div>
@@ -292,6 +295,9 @@
 
             <li>
                 <a href="/getcontact">Liên hệ</a>
+            </li>
+            <li>
+                <a href="/cart-status">Tra cứu đơn hàng</a>
             </li>
         </ul>
     </div>

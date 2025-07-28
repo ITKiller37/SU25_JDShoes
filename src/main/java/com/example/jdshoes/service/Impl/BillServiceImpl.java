@@ -2,6 +2,7 @@ package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.Bill.*;
 import com.example.jdshoes.dto.Customer.CustomerDto;
+import com.example.jdshoes.entity.Account;
 import com.example.jdshoes.entity.Bill;
 import com.example.jdshoes.entity.BillDetail;
 import com.example.jdshoes.entity.ProductDetail;
@@ -13,6 +14,7 @@ import com.example.jdshoes.repository.BillRepository;
 import com.example.jdshoes.repository.ProductDetailRepository;
 import com.example.jdshoes.repository.Specification.BillSpecification;
 import com.example.jdshoes.service.BillService;
+import com.example.jdshoes.utils.UserLoginUtil;
 import com.lowagie.text.DocumentException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +29,10 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -38,6 +42,9 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     private ProductDetailRepository productDetailRepository;
+
+    @Autowired
+    private UserLoginUtil userLoginUtil;
 
     @Override
     public Page<BillDtoInterface> searchListBill(String maDinhDanh,
@@ -199,10 +206,16 @@ public class BillServiceImpl implements BillService {
         BillStatus oldStatus = bill.getStatus();
         BillStatus newStatus = BillStatus.valueOf(trangThaiDonHang);
 
+        // Kiểm tra tính hợp lệ của chuyển trạng thái
+        if (!isValidStatusTransition(oldStatus, newStatus)) {
+            throw new ShoesApiException(HttpStatus.BAD_REQUEST,
+                    "Chuyển trạng thái từ " + oldStatus + " sang " + newStatus + " không hợp lệ.");
+        }
+
         // Nếu hủy đơn
         if(newStatus == BillStatus.HUY) {
             // Chỉ cộng lại số lượng nếu đơn đã từng được xác nhận (đã trừ số lượng)
-            if(oldStatus != BillStatus.CHO_XAC_NHAN) {
+            if(oldStatus == BillStatus.DA_XAC_NHAN) {
                 List<BillDetailProduct> billDetailProducts = billRepository.getBillDetailProduct(billId);
                 billDetailProducts.forEach(item -> {
                     ProductDetail productDetail = productDetailRepository.findById(item.getId())
@@ -236,6 +249,20 @@ public class BillServiceImpl implements BillService {
         bill.setStatus(newStatus);
         bill.setUpdateDate(LocalDateTime.now());
         return billRepository.save(bill);
+    }
+
+    // Phương thức hỗ trợ để kiểm tra chuyển trạng thái hợp lệ
+    private boolean isValidStatusTransition(BillStatus oldStatus, BillStatus newStatus) {
+        // Chỉ cho phép hủy khi trạng thái hiện tại là CHO_XAC_NHAN hoặc DA_XAC_NHAN
+        if (newStatus == BillStatus.HUY) {
+            return oldStatus == BillStatus.CHO_XAC_NHAN || oldStatus == BillStatus.DA_XAC_NHAN;
+        }
+        // Chỉ cho phép xác nhận từ CHO_XAC_NHAN sang DA_XAC_NHAN
+        else if (newStatus == BillStatus.DA_XAC_NHAN) {
+            return oldStatus == BillStatus.CHO_XAC_NHAN;
+        }
+        // Không cho phép các chuyển trạng thái khác (có thể mở rộng nếu cần)
+        return false;
     }
 
     @Override
@@ -291,5 +318,49 @@ public class BillServiceImpl implements BillService {
     @Override
     public List<BillDetailProduct> getBillDetailProductBill(Long maHoaDon) {
         return billRepository.getBillDetailProductBill(maHoaDon);
+    }
+
+    @Override
+    public Map<String, Object> getOrderStatus(String orderCode) {
+        Map<String, Object> response = new HashMap<>();
+        Bill bill = billRepository.findByCode(orderCode);
+        if (bill != null) {
+            Long maHoaDon = bill.getId();
+            BillDetailDtoInterface billDetail = billRepository.getBillDetail(maHoaDon);
+            List<BillDetailProduct> products = billRepository.getBillDetailProduct(maHoaDon);
+
+            // Tính tổng tiền sản phẩm
+            BigDecimal total = products.stream()
+                    .map(product -> product.getTongTien() != null ? product.getTongTien() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            response.put("order", billDetail);
+            response.put("products", products);
+            response.put("total", total);
+        } else {
+            response.put("order", null);
+            response.put("products", null);
+            response.put("total", BigDecimal.ZERO);
+        }
+        return response;
+    }
+
+    @Override
+    public Page<Bill> getBillByAccount(Pageable pageable) {
+        Account account = userLoginUtil.getCurrentLogin();
+        return billRepository.findByCustomer_Account_Id(account.getId(), pageable);
+    }
+
+    @Override
+    public Page<Bill> getBillByStatus(String status, Pageable pageable) {
+        Account account = userLoginUtil.getCurrentLogin();
+        BillStatus status1 = null;
+
+        try {
+            status1 = BillStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+
+        }
+        return billRepository.findAllByStatusAndCustomer_Account_Id(status1, account.getId(), pageable);
     }
 }
