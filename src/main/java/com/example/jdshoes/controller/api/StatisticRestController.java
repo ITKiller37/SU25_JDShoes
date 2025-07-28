@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -69,7 +71,20 @@ public class StatisticRestController {
 
     @GetMapping("/get-statistic-user-by-month")
     public List<UserStatistic> getStatisticUserByMonth() {
-        List<UserStatistic> userStatistics = accountService.getUserStatistics("2023-01-01", "2023-12-31");
+        LocalDate currentDate = LocalDate.now();
+        LocalDate sixMonthsAgo = currentDate.minusMonths(6);
+
+        // Định dạng yyyy-MM-dd
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // Chuyển sang chuỗi
+        String currentDateStr = currentDate.format(formatter);
+        String sixMonthsAgoStr = sixMonthsAgo.format(formatter);
+
+        // In ra kết quả
+        System.out.println("Ngày hiện tại: " + currentDateStr);
+        System.out.println("Ngày cách đây 6 tháng: " + sixMonthsAgoStr);
+        List<UserStatistic> userStatistics = accountService.getUserStatistics(sixMonthsAgoStr, currentDateStr);
         return  userStatistics;
     }
 

@@ -4,10 +4,8 @@ import com.example.jdshoes.dto.Cart.CartItemDto;
 import com.example.jdshoes.dto.CartDto.CartDto;
 import com.example.jdshoes.dto.Order.OrderDto;
 import com.example.jdshoes.exception.NotFoundException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 
 @Service

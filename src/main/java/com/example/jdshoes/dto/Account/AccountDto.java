@@ -2,7 +2,6 @@ package com.example.jdshoes.dto.Account;
 
 
 import com.example.jdshoes.dto.AddressShipping.AddressShippingDto;
-import com.example.jdshoes.entity.Account;
 import lombok.Data;
 
 import java.sql.Date;

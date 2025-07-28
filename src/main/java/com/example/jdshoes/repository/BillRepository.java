@@ -242,7 +242,12 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
     List<BillDetailProduct> getBillDetailProductBill(@Param("maHoaDon") Long maHoaDon);
 
 
+
     Page<Bill> findByCustomer_Account_Id(Long id, Pageable pageable);
 
     Page<Bill> findAllByStatusAndCustomer_Account_Id(BillStatus status1, Long id, Pageable pageable);
+
+    @Query("select count(b) from Bill b where b.status='CHO_XAC_NHAN'")
+    int getTotalBillStatusWaiting();
+
 }
