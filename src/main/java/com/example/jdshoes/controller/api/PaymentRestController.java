@@ -3,7 +3,6 @@ package com.example.jdshoes.controller.api;
 import com.example.jdshoes.config.ConfigVNPay;
 import com.example.jdshoes.dto.Payment.PaymentDto;
 import com.example.jdshoes.dto.Payment.PaymentResultDto;
-import com.example.jdshoes.entity.Bill;
 import com.example.jdshoes.entity.Payment;
 import com.example.jdshoes.repository.PaymentRepository;
 import jakarta.servlet.http.HttpServletRequest;

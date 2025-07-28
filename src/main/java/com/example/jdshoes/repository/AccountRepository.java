@@ -22,9 +22,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByEmailOpt(String email);
 
     @Query(value = "SELECT CONCAT('T', MONTH(a.createDate)) AS month, COUNT(a.id) AS count FROM Account a" +
-            " WHERE a.createDate between '2023-01-01' AND '2023-12-31' " +
+            " WHERE a.createDate between ?1 AND ?2 " +
             "GROUP BY MONTH(createDate)", nativeQuery = true)
     List<Object[]> getMonthlyAccountStatistics(String startDate, String endDate);
+
 
     Account findByCustomer_PhoneNumber(String phoneNumber);
 

@@ -4,7 +4,7 @@
 
 <body>
 <div class="main-wrapper" layout:fragment="content">
-
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
   <div class="page-wrapper">
     <div class="content container-fluid">
       <div class="page-header">
@@ -111,7 +111,7 @@
           <div class="card card-table flex-fill">
             <div class="card-header">
               <h4 class="card-title float-left mt-2">Đơn mới nhất</h4>
-              <a th:href="@{/src/main/webapp/views/admin/bill-list}" class="btn btn-primary float-right veiwbutton">Xem tất cả</a>
+              <a th:href="@{/admin/bill-list}" class="btn btn-primary float-right veiwbutton">Xem tất cả</a>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -135,16 +135,16 @@
                     <td class="text-nowrap text-muted font-italic" th:if="${bill.customer == null}">Khách lẻ</td>
                     <td th:text="${#temporals.format(bill.createDate, 'dd-MM-yyyy HH:mm')}"></td>
                     <td>
-                      <span th:if="${bill.invoiceType == T(com.project.DuAnTotNghiep.entity.enumClass.InvoiceType).OFFLINE}">Tại quầy</span>
-                      <span th:if="${bill.invoiceType == T(com.project.DuAnTotNghiep.entity.enumClass.InvoiceType).ONLINE}">Online</span>
+                      <span th:if="${bill.invoiceType == T(com.example.jdshoes.entity.enumClass.InvoiceType).OFFLINE}">Tại quầy</span>
+                      <span th:if="${bill.invoiceType == T(com.example.jdshoes.entity.enumClass.InvoiceType).ONLINE}">Online</span>
                     </td>
                     <td class="text-center" th:text="${bill.paymentMethod.name}"></td>
-                    <td class="text-center" th:if="${bill.status == T(com.project.DuAnTotNghiep.entity.enumClass.BillStatus).CHO_GIAO_HANG}"> <span class="badge badge-pill bg-warning inv-badge" >Chờ giao hàng</span> </td>
-                    <td class="text-center" th:if="${bill.status == T(com.project.DuAnTotNghiep.entity.enumClass.BillStatus).CHO_LAY_HANG}"> <span class="badge badge-pill bg-primary inv-badge" >Chờ lấy hàng</span> </td>
-                    <td class="text-center" th:if="${bill.status == T(com.project.DuAnTotNghiep.entity.enumClass.BillStatus).CHO_XAC_NHAN}"> <span class="badge badge-pill bg-secondary inv-badge">Chờ xác nhận</span> </td>
-                    <td class="text-center" th:if="${bill.status == T(com.project.DuAnTotNghiep.entity.enumClass.BillStatus).HOAN_THANH}"> <span class="badge badge-pill bg-success inv-badge" >Hoàn thành</span> </td>
-                    <td class="text-center" th:if="${bill.status == T(com.project.DuAnTotNghiep.entity.enumClass.BillStatus).HUY}"> <span class="badge badge-pill bg-danger inv-badge">Hủy</span> </td>
-                    <td class="text-center" th:if="${bill.status == T(com.project.DuAnTotNghiep.entity.enumClass.BillStatus).TRA_HANG}"> <span class="badge badge-pill bg-dark inv-badge">Hoàn trả</span> </td>
+                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).DA_XAC_NHAN}"> <span class="badge badge-pill bg-warning inv-badge" >Đã xác nhận</span> </td>
+                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_LAY_HANG}"> <span class="badge badge-pill bg-primary inv-badge" >Chờ lấy hàng</span> </td>
+                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN}"> <span class="badge badge-pill bg-secondary inv-badge">Chờ xác nhận</span> </td>
+                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH}"> <span class="badge badge-pill bg-success inv-badge" >Hoàn thành</span> </td>
+                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).HUY}"> <span class="badge badge-pill bg-danger inv-badge">Hủy</span> </td>
+                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG}"> <span class="badge badge-pill bg-dark inv-badge">Hoàn trả</span> </td>
 
                   </tr>
 

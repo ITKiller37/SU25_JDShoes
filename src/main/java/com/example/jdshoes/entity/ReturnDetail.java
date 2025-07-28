@@ -27,7 +27,7 @@ public class ReturnDetail {
 
     @ManyToOne
     @JoinColumn(name = "return_id")
-    private  com.example.jdshoes.entity.BillReturn billReturn;
+    private  BillReturn billReturn;
 
 //    @ManyToOne
 //    @JoinColumn(name = "old_product_detail_id")
