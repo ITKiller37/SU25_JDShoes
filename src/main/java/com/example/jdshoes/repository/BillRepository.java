@@ -239,5 +239,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
     List<BillDetailProduct> getBillDetailProductBill(@Param("maHoaDon") Long maHoaDon);
 
 
-
+    @Query("select count(b) from Bill b where b.status='CHO_XAC_NHAN'")
+    int getTotalBillStatusWaiting();
 }

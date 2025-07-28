@@ -1,7 +1,6 @@
 package com.example.jdshoes.controller.api;
 
 import com.example.jdshoes.dto.Customer.AddressDto;
-import com.example.jdshoes.dto.Customer.CustomerDto;
 import com.example.jdshoes.dto.Customer.CustomerDtoApi;
 import com.example.jdshoes.entity.Account;
 import com.example.jdshoes.entity.AddressShipping;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.Map;
 
