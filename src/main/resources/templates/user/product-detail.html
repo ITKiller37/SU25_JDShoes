@@ -501,6 +501,9 @@
         }
 
         function loadRemainingQuantity(value) {
+
+            $('.js-name-detail span.het-hang').remove();
+
             if (value == 0) {
                 $('.js-name-detail').append('<span style="color:red; border: 1px solid #ddd; font-size: 12px; margin-left: 8px">Hết hàng</span>');
             }

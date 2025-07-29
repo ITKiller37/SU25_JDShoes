@@ -40,5 +40,7 @@ public class ProductDiscountDto {
     private BigDecimal discountedAmount;
 
     private List<Long> productDetailIds;
+
+    private BigDecimal originalValue;
 }
 

@@ -3,6 +3,7 @@ package com.example.jdshoes.service.Impl;
 
 import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
 import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
+import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDetailDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.ProductDiscount;
@@ -14,7 +15,9 @@ import com.example.jdshoes.repository.ProductDiscountRepository;
 import com.example.jdshoes.service.ProductDiscountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -55,6 +58,8 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         dto.setName(discount.getName());
         dto.setDescription(discount.getDescription());
         dto.setDiscountedAmount(discount.getDiscountedAmount());
+        dto.setValue(discount.getValue());
+        dto.setOriginalValue(discount.getOriginalValue());
         dto.setStartDate(discount.getStartDate());
         dto.setEndDate(discount.getEndDate());
         dto.setType(discount.getType());
@@ -126,42 +131,41 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         ProductDiscount discount = new ProductDiscount();
         discount.setCode(request.getCode());
         discount.setName(request.getName());
-        discount.setValue(request.getValue());
         discount.setType(request.getType());
         discount.setStartDate(request.getStartDate());
         discount.setEndDate(request.getEndDate());
         discount.setDescription(request.getDescription());
+        discount.setClosed(false);
+
+        // 👇 Thêm 3 dòng này
+        discount.setValue(request.getValue());
+        discount.setOriginalValue(request.getOriginalValue());
         discount.setDiscountedAmount(request.getDiscountedAmount());
 
-        // ✅ Bổ sung: set status theo thời gian hiện tại
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(request.getStartDate())) {
-            discount.setStatus("Chưa bắt đầu");
+            discount.setStatus("Sắp diễn ra");
         } else if (now.isAfter(request.getEndDate())) {
             discount.setStatus("Đã kết thúc");
         } else {
-            discount.setStatus("Đang hoạt động");
+            discount.setStatus("Đang diễn ra");
         }
 
-        // Lưu đợt giảm giá trước
+        // Lưu discount
         ProductDiscount savedDiscount = productDiscountRepository.save(discount);
 
-        // Lấy danh sách sản phẩm chi tiết
-        List<ProductDetail> productDetails = productDetailRepository.findAllById(request.getProductDetailIds());
+        // Lưu chi tiết giảm giá cho từng sản phẩm
+        for (ProductDiscountDetailDto detailDto : request.getProductDiscounts()) {
+            ProductDetail productDetail = productDetailRepository.findById(detailDto.getProductDetailId())
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy ProductDetail"));
 
-        // Khởi tạo nếu cần
-        if (savedDiscount.getProductDiscountDetails() == null) {
-            savedDiscount.setProductDiscountDetails(new ArrayList<>());
-        }
-
-        for (ProductDetail detail : productDetails) {
             ProductDiscountDetail discountDetail = new ProductDiscountDetail();
             discountDetail.setProductDiscount(savedDiscount);
-            discountDetail.setProductDetail(detail);
-            savedDiscount.getProductDiscountDetails().add(discountDetail);
-        }
+            discountDetail.setProductDetail(productDetail);
+            discountDetail.setDiscountedAmount(detailDto.getDiscountedAmount());
 
-        productDiscountRepository.save(savedDiscount);
+            productDiscountDetailRepository.save(discountDetail);
+        }
     }
 
 
@@ -191,6 +195,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
             dto.setBarcode(pd.getBarcode());
             dto.setOriginalPrice(pd.getPrice());
             dto.setQuantity(pd.getQuantity());
+//            dto.setOriginalPrice(pd.getO());
             BigDecimal discountedPrice = pd.getPrice();
             if ("%".equals(discount.getType())) {
                 discountedPrice = pd.getPrice().subtract(
@@ -220,17 +225,27 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         discount.setStartDate(request.getStartDate());
         discount.setEndDate(request.getEndDate());
         discount.setDescription(request.getDescription());
-        discount.setDiscountedAmount(request.getDiscountedAmount());
         discount.setCode(request.getCode());
+        discount.setOriginalValue(request.getOriginalValue());
 
-        // Cập nhật danh sách sản phẩm áp dụng
-        discount.getProductDiscountDetails().clear();
+        // Cập nhật danh sách sản phẩm chi tiết (xóa cũ, thêm mới)
+        if (discount.getProductDiscountDetails() != null) {
+            discount.getProductDiscountDetails().clear();
+        } else {
+            discount.setProductDiscountDetails(new ArrayList<>());
+        }
 
-        List<ProductDiscountDetail> newDetails = request.getProductDetailIds().stream()
-                .map(detailId -> {
+        List<ProductDiscountDetail> newDetails = request.getProductDiscounts().stream()
+                .map(dto -> {
+                    ProductDetail productDetail = productDetailRepository.findById(dto.getProductDetailId())
+                            .orElseThrow(() -> new ResponseStatusException(
+                                    HttpStatus.NOT_FOUND,
+                                    "Không tìm thấy sản phẩm chi tiết ID: " + dto.getProductDetailId()
+                            ));
                     ProductDiscountDetail detail = new ProductDiscountDetail();
                     detail.setProductDiscount(discount);
-                    detail.setProductDetail(productDetailRepository.findById(detailId).orElseThrow());
+                    detail.setProductDetail(productDetail);
+                    detail.setDiscountedAmount(dto.getDiscountedAmount()); // 💥 cần dòng này
                     return detail;
                 }).toList();
 
@@ -238,6 +253,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         productDiscountRepository.save(discount);
     }
+
 
 
 }

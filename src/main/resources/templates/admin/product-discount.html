@@ -49,9 +49,12 @@
                         <td th:text="${d.code}"></td>
                         <td th:text="${d.name}"></td>
                         <td>
-                            <span th:text="${#numbers.formatDecimal(d.discountedAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></span>
-                        </td>
+                            <span th:if="${d.type == '%'}"
+                                  th:text="${#numbers.formatDecimal(d.value, 0, 'POINT', 0, 'COMMA')} + ' %'"></span>
 
+                            <span th:if="${d.type != '%'}"
+                                  th:text="${#numbers.formatDecimal(d.value, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></span>
+                        </td>
                         <td th:text="${#temporals.format(d.startDate, 'dd/MM/yyyy HH:mm')}"></td>
                         <td th:text="${#temporals.format(d.endDate, 'dd/MM/yyyy HH:mm')}"></td>
                         <td>
