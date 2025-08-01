@@ -31,4 +31,6 @@ public class DiscountedProductDto {
 
     private Integer quantity;
 
+    private String imageUrl;
+
 }

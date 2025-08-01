@@ -5,6 +5,7 @@ import com.example.jdshoes.dto.ProductDiscount.CreateProductDiscountRequest;
 import com.example.jdshoes.dto.ProductDiscount.DiscountedProductDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDetailDto;
 import com.example.jdshoes.dto.ProductDiscount.ProductDiscountDto;
+import com.example.jdshoes.entity.Image;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.ProductDiscount;
 import com.example.jdshoes.entity.ProductDiscountDetail;
@@ -195,7 +196,13 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
             dto.setBarcode(pd.getBarcode());
             dto.setOriginalPrice(pd.getPrice());
             dto.setQuantity(pd.getQuantity());
-//            dto.setOriginalPrice(pd.getO());
+
+            // Lấy ảnh đầu tiên
+            List<Image> images = pd.getImages();
+            if (images != null && !images.isEmpty()) {
+                dto.setImageUrl(images.get(0).getLink());
+            }
+
             BigDecimal discountedPrice = pd.getPrice();
             if ("%".equals(discount.getType())) {
                 discountedPrice = pd.getPrice().subtract(
@@ -213,6 +220,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
             return dto;
         }).collect(Collectors.toList());
+
     }
     @Override
     public void updateDiscount(Long id, CreateProductDiscountRequest request) {
