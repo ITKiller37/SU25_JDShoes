@@ -2,6 +2,8 @@ package com.example.jdshoes.repository;
 
 import com.example.jdshoes.entity.ProductDiscountDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,4 +12,9 @@ import java.util.List;
 public interface ProductDiscountDetailRepository extends JpaRepository<ProductDiscountDetail, Long> {
 
     List<ProductDiscountDetail> findAllByProductDiscountId(Long discountId);
+
+    @Query("SELECT pdd FROM ProductDiscountDetail pdd " +
+            "JOIN pdd.productDiscount pd " +
+            "WHERE pdd.productDetail.id = :productDetailId AND CURRENT_TIMESTAMP BETWEEN pd.startDate AND pd.endDate")
+    ProductDiscountDetail findValidByProductDetailId(@Param("productDetailId") Long productDetailId);
 }

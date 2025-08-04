@@ -69,12 +69,13 @@ public class ProductDiscountController {
         return "admin/product-discount-edit";
     }
 
-//    @PutMapping("/api/private/product-discount/{id}")
-//    public String updateProductDiscount(@PathVariable Long id,
-//                                        @RequestBody @Valid CreateProductDiscountRequest request) {
-//        productDiscountService.updateDiscount(id, request);
-//        return "Cập nhật đợt giảm giá thành công";
-//    }
+    @PutMapping("/api/private/product-discount/{id}")
+    @ResponseBody
+    public String updateProductDiscount(@PathVariable Long id,
+                                        @RequestBody @Valid CreateProductDiscountRequest request) {
+        productDiscountService.updateDiscount(id, request);
+        return "Cập nhật đợt giảm giá thành công";
+    }
 
 }
 

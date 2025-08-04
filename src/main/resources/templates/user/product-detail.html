@@ -154,7 +154,9 @@
 
                 <div class="col-md-6 col-lg-5 p-b-30">
                     <div class="p-r-50 p-t-5 p-lr-0-lg">
-                        <h4 class="mtext-105 cl2 js-name-detail p-b-14" th:text="${product.name}"></h4>
+                        <h4 class="mtext-105 cl2 js-name-detail p-b-14" th:text="${product.name}">
+                            <span class="status-info"></span>
+                        </h4>
                         <span class="mtext-106 cl2" id="price_product" th:text="${#numbers.formatDecimal(product.productDetailDtos[0].price, 0, 'POINT', 0, 'COMMA') + ' đ'}"></span>
 
                         <p class="stext-102 cl3 p-t-23">
@@ -501,9 +503,12 @@
         }
 
         function loadRemainingQuantity(value) {
+            $(".status-info").remove(); // Xóa cũ
+
             if (value == 0) {
-                $('.js-name-detail').append('<span style="color:red; border: 1px solid #ddd; font-size: 12px; margin-left: 8px">Hết hàng</span>');
+                $('.js-name-detail').append('<span class="status-info" style="color:red; border: 1px solid #ddd; font-size: 12px; margin-left: 8px">Hết hàng</span>');
             }
+
             $(".remaning-product").html(`Còn lại <span id="remaining-quantity" data-quantity="${value}">${value}</span> sản phẩm`);
         }
 

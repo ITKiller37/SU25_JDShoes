@@ -31,7 +31,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
             "LEFT JOIN Customer a ON b.customer.id = a.id " +
             "LEFT JOIN BillDetail bd ON b.id = bd.bill.id " +
             "LEFT JOIN PaymentMethod pm ON b.paymentMethod.id = pm.id " +
-            "LEFT JOIN BillExchange br ON b.id = br.bill.id " +
+            "LEFT JOIN BillReturn br ON b.id = br.bill.id " +
             "WHERE (:maDinhDanh IS NULL OR b.code LIKE CONCAT('%', :maDinhDanh, '%')) " +
             "AND (:ngayTaoStart IS NULL OR :ngayTaoEnd IS NULL OR (b.createDate BETWEEN :ngayTaoStart AND :ngayTaoEnd)) " +
             "AND (:trangThai IS NULL OR b.status = :trangThai) " +
@@ -58,7 +58,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
             "LEFT JOIN Customer a ON b.customer.id = a.id " +
             "LEFT JOIN BillDetail bd ON b.id = bd.bill.id " +
             "LEFT JOIN PaymentMethod pm ON b.paymentMethod.id = pm.id " +
-            "LEFT JOIN BillExchange br ON b.id = br.bill.id")
+            "LEFT JOIN BillReturn br ON b.id = br.bill.id")
     Page<BillDtoInterface> listBill(Pageable pageable);
 
     @Query(value = "SELECT b.id AS maDonHang, b.code AS maDinhDanh, " +
@@ -210,7 +210,10 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
     Long doanhThuNam(Integer year);
 
 
-    @Query(value = "select * from Bill b where DATEDIFF(DAY, b.createDate, GETDATE()) <= 7 and b.status='HOAN_THANH'", nativeQuery = true)
+    @Query(value = "SELECT * FROM Bill b " +
+            "WHERE DATEDIFF(DAY, b.createDate, GETDATE()) <= 7 " +
+            "AND b.status = 'HOAN_THANH' " +
+            "AND b.invoice_type = 'ONLINE'", nativeQuery = true)
     Page<Bill> findValidBillToReturn(Pageable pageable);
 
     @Query(value = """
