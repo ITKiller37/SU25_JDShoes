@@ -19,7 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDiscount {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,6 +38,7 @@ public class ProductDiscount {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private BigDecimal discountedAmount;
+    private BigDecimal originalValue;
 
     @Nationalized
     private String status;

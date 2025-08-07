@@ -26,7 +26,6 @@
     </style>
 </head>
 <body>
-<div id="overlay"></div>
 <!-- Main modal -->
 <div class="main-discount-create bg-gray-100 min-h-screen">
     <div class="px-4 py-4">
@@ -78,6 +77,8 @@
                             <form method="post" class="d-flex flex-column h-100" id="productDiscount-edit-form" action="" th:object="${discount}">
                                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Thông tin đợt giảm giá</h2>
 
+                                <input type="hidden" th:field="*{code}" name="code" />
+
                                 <input type="hidden" name="id" th:field="*{id}">
 
                                 <!-- Tên khuyến mãi -->
@@ -90,7 +91,9 @@
                                 <div class="mb-3 form-group">
                                     <label class="form-label">Giá trị</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" th:field="*{discountedAmount}" name="value" min="1" placeholder="Nhập giá trị" required>
+                                        <input
+                                                type="number" class="form-control" th:field="*{originalValue}" id="originalValue" name="originalValue" min="0" step="0.01" placeholder="Nhập giá trị" required>
+
                                         <div class="input-group-text">
                                             <div class="form-check form-check-inline">
                                                 <input class="form-check-input" type="radio" value="%" th:field="*{type}">
@@ -103,6 +106,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+
 
                                 <!-- Ngày bắt đầu -->
                                 <div class="mb-3 form-group">
@@ -214,6 +219,10 @@
 
     <script th:inline="javascript">
         $(document).ready(function () {
+
+
+
+
             let productsSelectedFromServer = /*[[${products}]]*/ [];
 
             // Chuyển sang JS chuẩn (nếu không inline được thì render thành JSON chuỗi)
@@ -245,97 +254,58 @@
                     $('.list-select-product').append(html);
                 });
             });
-            $('#submit-button').on('click', function () {
-                const name = $('input[name="name"]').val().trim();
-
-                if (!name) {
-                    Swal.fire('Lỗi', 'Vui lòng nhập tên đợt khuyến mãi', 'error');
-                    return;
-                }
-
-                const productDiscounts = selectedProducts.map(p => ({
-                    productDetailId: p.id,
-                    discountedAmount: p.discountedAmount,
-                    startDate: p.startDate,
-                    endDate: p.endDate
-                }));
-
-                if (productDiscounts.length === 0) {
-                    Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
-                    return;
-                }
-
-                const dataSend = {
-                    name: name,
-                    productDiscounts: productDiscounts
-                };
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/api/private/product-discount',
-                    contentType: 'application/json',
-                    data: JSON.stringify(dataSend),
-                    success: function () {
-                        Toastify({
-                            text: "Tạo đợt khuyến mãi thành công",
-                            className: "success",
-                            style: { background: "green" },
-                            duration: 2000
-                        }).showToast();
-
-                        setTimeout(() => window.location.href = '/admin-only/product-discount-list', 2100);
-                    },
-                    error: function (xhr) {
-                        Swal.fire('Lỗi', xhr.responseJSON?.message || 'Không thể tạo khuyến mãi', 'error');
-                    }
-                });
-            });
         });
         $(document).ready(function () {
+
+            function collectProductDiscounts(originalValue, type) {
+                const list = [];
+                let hasInvalid = false;
+
+                $('.product-select-item').each((_, item) => {
+                    const $it = $(item);
+                    if (!$it.find('.select-discount-checkbox').is(':checked')) return;
+
+                    const detailId = +$it.find('.select-discount-checkbox').val();
+                    const priceText = $it.find('.text-right.text-blue-700')
+                        .text()
+                        .replace(/\D/g, '');
+                    const originalPrice = parseFloat(priceText);
+
+                    let discountedAmount;
+
+                    if (type === '%') {
+                        discountedAmount = Math.round(originalPrice * (1 - originalValue / 100));
+                    } else {
+                        // Loại VNĐ: kiểm tra nếu vượt giá sản phẩm
+                        if (originalValue > originalPrice) {
+                            Swal.fire(
+                                'Lỗi',
+                                `Giá trị giảm (${originalValue.toLocaleString()}đ) không được lớn hơn giá gốc sản phẩm (${originalPrice.toLocaleString()}đ).`,
+                                'error'
+                            );
+                            hasInvalid = true;
+                            return false; // Dừng vòng lặp
+                        }
+                        discountedAmount = originalPrice - originalValue;
+                    }
+
+                    list.push({ productDetailId: detailId, discountedAmount });
+                });
+
+                if (hasInvalid) return null;
+                return list;
+            }
+
+
             var productListInit= []
             var productListCurrent = []
             var productSelectedList = []
             var productSelectedListDetailId = []
-            handleSubmit();
+
 
             $('#start-date-all').val(getCurrentDate())
             $('#end-date-all').val(getLastDayOfMonth())
 
-
-            $('#open-modal-btn').on('click', function () {
-                $('#overlay').show()
-            })
-
-            $('#close-modal-apply-all').on('click', function () {
-                $('#overlay').hide()
-            })
-
-            $('#apply-all-form').on('submit', function () {
-                if($("#start-date-all").val() >= $('#end-date-all').val()) {
-                    Swal.fire({text: 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc', icon: 'error'})
-                }
-            })
-
-
-            $(".category-item").on('click', function () {
-                let categoryId = $(this).attr('data-category-id')
-                $('#dropdown-button span').text($(this).text())
-                $('#dropdown-button').attr('selected-id', categoryId)
-                $('#dropdown').removeClass('block')
-                $('#dropdown').addClass('hidden')
-                getListProduct($('#search-dropdown').val(), categoryId)
-            })
-
-            function onlyAllowNumberInput(e) {
-                const key = e.key;
-                if (!/[\d\b]/.test(key)) {
-                    e.preventDefault();
-                }
-            }
-
-            function removeAnyNonDigit(value) {
-                return value.replace(/\D/g, '');
-            }
 
 
             $.ajax({
@@ -406,16 +376,6 @@
                 });
             }
 
-            $('#apply-all-btn').on('click', function () {
-                const percent = $('#percentage-all').val()
-                const startDate = $("#start-date-all").val()
-                const endDate = $('#end-date-all').val()
-
-                $('.percentage').val(percent).trigger('input')
-                $('.startDate').val(startDate)
-                $('.endDate').val(endDate)
-                $('#overlay').hide()
-            })
 
             $('#percentage-all').on('input', function () {
                 if($(this).val() > 98) {
@@ -616,169 +576,6 @@
                 return lastDayFormatted;
             }
 
-            function handleInputPrice() {
-                // Khi người dùng thay đổi % giảm
-                $(".percentage").on('input change', function () {
-                    const $percentInput = $(this);
-                    const percentValue = parseFloat($percentInput.val());
-                    const $item = $percentInput.closest('.product-select-item');
-                    const initPrice = parseFloat(removeAnyNonDigit($item.find('.product-select-price').text()));
-
-                    if (percentValue > 98) {
-                        $percentInput.val(98);
-                        Toastify({
-                            text: "Không thể nhập quá 98%",
-                            className: "error",
-                            style: { background: "red" }
-                        }).showToast();
-                    }
-
-                    if (!isNaN(initPrice) && !isNaN(percentValue)) {
-                        const discountedPrice = Math.round(initPrice * (1 - percentValue / 100));
-                        $item.find('.amount').val(discountedPrice);
-                    }
-                });
-
-                // Khi người dùng thay đổi số tiền giảm cụ thể (amount)
-                $(".amount").on('input change', function () {
-                    const $amountInput = $(this);
-                    const $item = $amountInput.closest('.product-select-item');
-                    const initPrice = parseFloat(removeAnyNonDigit($item.find('.product-select-price').text()));
-                    const amountValue = parseFloat($amountInput.val());
-
-                    if (amountValue > initPrice) {
-                        $amountInput.val(initPrice);
-                        Toastify({
-                            text: "Không thể nhập quá giá gốc",
-                            className: "error",
-                            style: { background: "red" }
-                        }).showToast();
-                    }
-
-                    if (!isNaN(initPrice) && !isNaN(amountValue)) {
-                        const percent = ((initPrice - amountValue) / initPrice) * 100;
-                        $item.find('.percentage').val(percent.toFixed(2));
-                    } else {
-                        $item.find('.percentage').val('');
-                    }
-                });
-
-                // Chặn nhập sai định dạng cho phần trăm (float)
-                $(".percentage").on('keypress', function (e) {
-                    const charCode = e.which || e.keyCode;
-                    const charTyped = String.fromCharCode(charCode);
-                    const inputValue = $(this).val();
-
-                    if (!/[\d.]/.test(charTyped) || (charTyped === '.' && inputValue.includes('.'))) {
-                        e.preventDefault();
-                    }
-                });
-
-                // Chỉ cho phép nhập số nguyên ở amount
-                $(".amount").on('keypress', function (e) {
-                    onlyAllowNumberInput(e); // 👈 Hàm này bạn đã định nghĩa ở nơi khác rồi
-                });
-            }
-
-
-            function generateRandomCode() {
-                const now = new Date();
-                const yyyyMMdd = now.toISOString().slice(0,10).replace(/-/g, ''); // 20250711
-                const random = Math.floor(100 + Math.random() * 900); // 3 số ngẫu nhiên
-                return `KM${yyyyMMdd}${random}`; // KM20250711783
-            }
-
-            //     ============================================ HANDLE SUBMIT ==========================
-            function handleSubmit() {
-                $('#save-discount-btn').on('click', async function () {
-                    // Lấy dữ liệu từ form
-                    const discountName = $('input[name="name"]').val().trim();
-                    const discountCode = generateRandomCode();
-                    const description = $('textarea[name="description"]').val().trim();
-                    const valueRaw = $('input[name="value"]').val();
-                    const value = parseFloat(valueRaw);
-                    const type = $('input[name="type"]:checked').val();
-                    const startDateRaw = $('input[name="startDate"]').val();
-                    const endDateRaw = $('input[name="endDate"]').val();
-                    const startDate = startDateRaw ? startDateRaw + ':00' : null;
-                    const endDate = endDateRaw ? endDateRaw + ':00' : null;
-
-                    // Validate các trường bắt buộc
-                    if (!discountCode || !discountName || !valueRaw || !startDateRaw || !endDateRaw) {
-                        Swal.fire('Lỗi', 'Vui lòng nhập đầy đủ thông tin đợt giảm giá', 'error');
-                        return;
-                    }
-
-                    if (isNaN(value) || value <= 0) {
-                        Swal.fire('Lỗi', 'Giá trị giảm phải là số hợp lệ lớn hơn 0', 'error');
-                        return;
-                    }
-
-                    if (startDate >= endDate) {
-                        Swal.fire('Lỗi', 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc', 'error');
-                        return;
-                    }
-
-                    // Lấy danh sách sản phẩm được chọn
-                    const productDetailIds = [];
-                    $('.product-select-item').each((index, item) => {
-                        const $checkbox = $(item).find('.select-discount-checkbox');
-                        if ($checkbox.is(':checked')) {
-                            productDetailIds.push(parseInt($checkbox.val()));
-                        }
-                    });
-
-                    if (productDetailIds.length === 0) {
-                        Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
-                        return;
-                    }
-
-                    // Chuẩn bị dữ liệu gửi đi
-                    const dataSend = {
-                        code: discountCode,
-                        name: discountName,
-                        value: value,
-                        type: type,
-                        discountedAmount: value,
-                        startDate: startDate,
-                        endDate: endDate,
-                        description: description,
-                        productDetailIds: productDetailIds
-                    };
-
-                    // Gửi dữ liệu qua AJAX
-                    await $.ajax({
-                        type: "POST",
-                        url: `/api/private/product-discount/multiple`,
-                        // dataType: 'json',
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify(dataSend),
-                        success: function () {
-                            Swal.fire({
-                                title: 'Tạo giảm giá',
-                                text: 'Thiết lập giảm giá thành công',
-                                icon: 'success',
-                                showCancelButton: true,
-                                confirmButtonText: 'Tiếp tục thiết lập',
-                                cancelButtonText: 'Quay lại'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.reload();
-                                } else {
-                                    window.location.href = '/admin-only/product-discount';
-                                }
-                            });
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Lỗi khi gửi dữ liệu:", xhr.responseText);
-                            Swal.fire("Lỗi", "Có lỗi xảy ra khi tạo giảm giá", "error");
-                        }
-                    });
-                });
-            }
-
-
-
             $('#cancel-discount-btn').on('click', function () {
                 window.location.href = '/admin-only/product-discount'
             })
@@ -808,90 +605,50 @@
                 })
                 paginateSelectedProductList()
             })
-            $('#remove-all-select').on('click', function () {
-                $('.list-select-product').html('')
-                $('.product-item').prop('disabled', false)
-                productSelectedList = []
-                productSelectedListDetailId = []
-                setInitChoosedFalse()
-                loadHtmlProduct(productListInit)
-                paginateProductList()
-            })
 
-            $('#update-discount-btn').on('click', async function () {
-
-                const discountId = $('input[name="id"]').val();
-                console.log("Discount ID:", discountId);
-                const discountName = $('input[name="name"]').val().trim();
-                const discountCode = $('input[name="code"]').val() || generateRandomCode();
-                const description = $('textarea[name="description"]').val().trim();
-                const valueRaw = $('input[name="value"]').val();
-                const value = parseFloat(valueRaw);
+            $('#update-discount-btn').click(() => {
+                const id = +$('input[name="id"]').val();
+                const code = $('input[name="code"]').val();
+                const name = $('input[name="name"]').val();
                 const type = $('input[name="type"]:checked').val();
-                const startDateRaw = $('input[name="startDate"]').val();
-                const endDateRaw = $('input[name="endDate"]').val();
-                const startDate = startDateRaw ? startDateRaw + ':00' : null;
-                const endDate = endDateRaw ? endDateRaw + ':00' : null;
+                const value = parseFloat($('#originalValue').val());
+                const startDate = $('input[name="startDate"]').val() + ':00';
+                const endDate   = $('input[name="endDate"]').val() + ':00';
+                const description = $('textarea[name="description"]').val();
 
-                const productDetailIds = [];
-                $('.product-select-item').each((index, item) => {
-                    const $checkbox = $(item).find('.select-discount-checkbox');
-                    if ($checkbox.is(':checked')) {
-                        productDetailIds.push(parseInt($checkbox.val()));
-                    }
-                });
-
-                if (!discountName || !valueRaw || !startDateRaw || !endDateRaw) {
-                    Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin đợt giảm giá', 'error');
-                    return;
-                }
-                if (isNaN(value) || value <= 0) {
-                    Swal.fire('Lỗi', 'Giá trị giảm phải là số hợp lệ lớn hơn 0', 'error');
-                    return;
-                }
-                if (startDate >= endDate) {
-                    Swal.fire('Lỗi', 'Ngày bắt đầu phải nhỏ hơn ngày kết thúc', 'error');
-                    return;
-                }
-                if (productDetailIds.length === 0) {
-                    Swal.fire('Lỗi', 'Vui lòng chọn ít nhất một sản phẩm', 'error');
-                    return;
+                if (!name || isNaN(value) || !startDate || !endDate) {
+                    return Swal.fire('Lỗi','Vui lòng nhập đầy đủ thông tin!','error');
                 }
 
-                const dataSend = {
-                    id: discountId,
-                    code: discountCode,
-                    name: discountName,
-                    value: value,
-                    type: type,
-                    discountedAmount: value,
-                    startDate: startDate,
-                    endDate: endDate,
-                    description: description,
-                    productDetailIds: productDetailIds
+                // Dùng hàm chung để build chi tiết giảm giá
+                const productDiscounts = collectProductDiscounts(value, type);
+                if (!productDiscounts.length) {
+                    return Swal.fire('Lỗi','Bạn chưa chọn sản phẩm nào!','error');
+                }
+
+                // Lấy minDiscountedAmount
+                const minDiscountedAmount = Math.min(...productDiscounts.map(d => d.discountedAmount));
+
+                const requestData = {
+                    code, name, type, value,
+                    discountedAmount: minDiscountedAmount,
+                    startDate, endDate, description,
+                    productDiscounts,
+                    productDetailIds: productDiscounts.map(d => d.productDetailId),
+                    originalValue: value
                 };
 
-                // Gọi API update
-                fetch(`/api/private/product-discount/${discountId}`, {
+                $.ajax({
+                    url: `/api/private/product-discount/${id}`,
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dataSend)
-                })
-                    .then(res => {
-                        if (res.ok) {
-                            Swal.fire('Thành công', 'Cập nhật đợt giảm giá thành công', 'success')
-                                .then(() => window.location.href = "/admin-only/product-discount")
-                        } else {
-                            return res.text().then(text => { throw new Error(text) });
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        Swal.fire('Lỗi', 'Có lỗi xảy ra khi cập nhật', 'error');
-                    });
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: () => Swal.fire('Thành công','Cập nhật thành công','success')
+                        .then(() => window.location = '/admin-only/product-discount'),
+                    error: () => Swal.fire('Lỗi','Cập nhật thất bại','error')
+                });
             });
+
         });
     </script>
 </div>

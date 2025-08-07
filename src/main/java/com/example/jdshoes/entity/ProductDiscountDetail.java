@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "ProductDiscountDetail")
 @Data
@@ -21,6 +23,8 @@ public class ProductDiscountDetail {
     @ManyToOne
     @JoinColumn(name = "productDetailId")
     private ProductDetail productDetail;
+
+    private BigDecimal discountedAmount;
 
     public ProductDiscountDetail( ProductDiscount productDiscount, ProductDetail productDetail) {
         this.productDiscount = productDiscount;

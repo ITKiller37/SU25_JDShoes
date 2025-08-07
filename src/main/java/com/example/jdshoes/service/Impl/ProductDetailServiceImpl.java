@@ -4,8 +4,10 @@ import com.example.jdshoes.dto.Product.ProductDetailDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
 import com.example.jdshoes.entity.ProductDiscount;
+import com.example.jdshoes.entity.ProductDiscountDetail;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.repository.ProductDetailRepository;
+import com.example.jdshoes.repository.ProductDiscountDetailRepository;
 import com.example.jdshoes.repository.ProductDiscountRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.service.ProductDetailService;
@@ -26,6 +28,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Autowired
     private ProductDiscountRepository productDiscountRepository;
+
+    @Autowired
+    private ProductDiscountDetailRepository productDiscountDetailRepository;
 
     public ProductDetailServiceImpl(ProductDetailRepository productDetailRepository) {
         this.productDetailRepository = productDetailRepository;
@@ -49,32 +54,33 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public List<ProductDetailDto> getByProductId(Long id) throws NotFoundException {
-        Product product = productRepository.findById(id).orElseThrow( () -> new NotFoundException("Product not found"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
         List<ProductDetail> productDetails = productDetailRepository.getProductDetailByProductId(id);
         List<ProductDetailDto> productDetailDTOs = new ArrayList<>();
 
         for (ProductDetail productDetail : productDetails) {
-            ProductDetailDto productDetailDTO = new ProductDetailDto();
-            // Set properties of productDetailDTO based on productDetail
-            productDetailDTO.setId(productDetail.getId());
-            productDetailDTO.setProductId(productDetail.getProduct().getId());
-            productDetailDTO.setPrice(productDetail.getPrice());
-            productDetailDTO.setSize(productDetail.getSize());
-            productDetailDTO.setColor(productDetail.getColor());
-            productDetailDTO.setQuantity(productDetail.getQuantity());
+            ProductDetailDto dto = new ProductDetailDto();
+            dto.setId(productDetail.getId());
+            dto.setProductId(productDetail.getProduct().getId());
+            dto.setPrice(productDetail.getPrice());
+            dto.setSize(productDetail.getSize());
+            dto.setColor(productDetail.getColor());
+            dto.setQuantity(productDetail.getQuantity());
 
-            ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-            if(productDiscount != null) {
-//                Date endDate = productDiscount.getEndDate();
-//                Date currentDate = new Date();
-//                if (currentDate.compareTo(endDate) > 0) {
-//                }
-                productDetailDTO.setDiscountedPrice(productDiscount.getDiscountedAmount());
+            // 🔍 Tìm ProductDiscountDetail (đang active)
+            ProductDiscountDetail discountDetail = productDiscountDetailRepository
+                    .findValidByProductDetailId(productDetail.getId());
 
+            if (discountDetail != null && discountDetail.getDiscountedAmount() != null) {
+                dto.setDiscountedPrice(discountDetail.getDiscountedAmount()); // ✅ giá sau khi giảm
+                dto.setDiscountedAmount(productDetail.getPrice().subtract(discountDetail.getDiscountedAmount())); // ✅ tiền đã giảm (tuỳ chọn)
             }
-            // Set other properties as needed
-            productDetailDTOs.add(productDetailDTO);
+
+            productDetailDTOs.add(dto);
         }
+
         return productDetailDTOs;
     }
 }
