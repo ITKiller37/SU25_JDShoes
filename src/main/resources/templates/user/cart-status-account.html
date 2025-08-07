@@ -111,7 +111,7 @@
           <tr class="product-item" th:each="bill : *{bills.content}">
             <td class="text-center" th:text="${bill.code}"></td>
             <td class="text-center" th:text="${#temporals.format(bill.createDate, 'dd/MM/yyyy HH:mm')}"></td>
-            <td class="text-center" th:text="${#numbers.formatDecimal(bill.amount, 0, 'POINT', 0, 'COMMA') + ' VND'}"></td>
+            <td class="text-center" th:text="${#numbers.formatDecimal(bill.amount + bill.shippingFee, 0, 'POINT', 0, 'COMMA') + ' VND'}"></td>
             <td class="text-center" th:text="${bill.paymentMethod.name}"></td>
             <td class="text-center">
     <span th:switch="${bill.status}">

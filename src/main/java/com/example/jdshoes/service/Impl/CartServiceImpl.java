@@ -14,6 +14,7 @@ import com.example.jdshoes.entity.enumClass.InvoiceType;
 import com.example.jdshoes.exception.NotFoundException;
 import com.example.jdshoes.exception.ShoesApiException;
 import com.example.jdshoes.repository.*;
+import com.example.jdshoes.service.BillService;
 import com.example.jdshoes.service.CartService;
 import com.example.jdshoes.utils.MailServices;
 import com.example.jdshoes.utils.UserLoginUtil;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,6 +57,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private MailServices mailServices;
+
+    @Autowired
+    private BillService billService;
 
     public CartServiceImpl(CartRepository cartRepository,
                            CartDetailRepository cartDetailRepository,
@@ -460,6 +465,18 @@ public class CartServiceImpl implements CartService {
             }
 
             Bill bill = createBill(orderDto, billDetailList, customer, total, orderId);
+
+            // Save bill history
+            BigDecimal originalAmount = billDetailList.stream()
+                    .map(bd -> bd.getDetailPrice().multiply(BigDecimal.valueOf(bd.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            String historyNote = String.format("Xác nhận đơn hàng %s. Tổng tiền sản phẩm: %s VNĐ",
+                    bill.getCode(),
+                    NumberFormat.getNumberInstance(Locale.US).format(originalAmount));
+
+            billService.saveBillHistory(bill.getId(), bill.getStatus(), historyNote, account);
+
             payment.setBill(bill);
             paymentRepository.save(payment);
             paymentRepository.flush();
@@ -560,12 +577,34 @@ public class CartServiceImpl implements CartService {
 
         billRepository.save(bill);
         billRepository.flush();
+
+        // Tính toán và lưu lịch sử hóa đơn
+        BigDecimal originalProductAmount = BigDecimal.ZERO;
+        for (BillDetail billDetail : billDetailList) {
+            originalProductAmount = originalProductAmount.add(
+                    billDetail.getDetailPrice().multiply(BigDecimal.valueOf(billDetail.getQuantity()))
+            );
+        }
+
+        // Lưu lịch sử với thông tin đầy đủ
+        Account account = userLoginUtil.getCurrentLogin();
+        String note = String.format("Tạo hóa đơn. Tổng tiền sản phẩm ban đầu: %s VNĐ",
+                NumberFormat.getNumberInstance(Locale.US).format(originalProductAmount));
+
+        if (bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+            note = String.format("Xác nhận đơn hàng. Tổng tiền sản phẩm ban đầu: %s VNĐ",
+                    NumberFormat.getNumberInstance(Locale.US).format(originalProductAmount));
+        }
+
+        billService.saveBillHistory(bill.getId(), bill.getStatus(), note, account);
+
         System.out.println("[DEBUG] Saved bill with code: " + bill.getCode());
 
         return bill;
     }
 
     @Override
+    @Transactional
     public OrderDto orderAtCounter(OrderDto orderDto) {
         Bill billCurrent = billRepository.findTopByOrderByIdDesc();
         int nextCode = (billCurrent == null) ? 1 : Integer.parseInt(billCurrent.getCode().substring(2)) + 1;
@@ -582,7 +621,7 @@ public class CartServiceImpl implements CartService {
         } else {
             bill.setStatus(BillStatus.HOAN_THANH);
         }
-        bill.setPromotionPrice(orderDto.getPromotionPrice());
+        bill.setPromotionPrice(orderDto.getPromotionPrice() != null ? orderDto.getPromotionPrice() : BigDecimal.ZERO);
         bill.setReturnStatus(false);
         bill.setBillingAddress(orderDto.getBillingAddress() != null ? orderDto.getBillingAddress() : "");
 
@@ -602,9 +641,11 @@ public class CartServiceImpl implements CartService {
             }
         }
 
+        BigDecimal shippingFee = orderDto.getShippingFee() != null ? orderDto.getShippingFee() : BigDecimal.ZERO;
+
         if (orderDto.getIsShipping() != null && orderDto.getIsShipping()) {
             bill.setIsShipping(true);
-            bill.setShippingFee(orderDto.getShippingFee() != null ? orderDto.getShippingFee() : BigDecimal.ZERO);
+            bill.setShippingFee(shippingFee);
 
             if (customer != null) {
                 if (orderDto.getShippingAddressId() != null) {
@@ -658,9 +699,10 @@ public class CartServiceImpl implements CartService {
             bill.setCustomerName(customer != null ? customer.getName() : "Khách lẻ");
             bill.setCustomerPhoneNumber(customer != null ? customer.getPhoneNumber() : "");
             bill.setShippingNote("N/A");
+            bill.setShippingFee(BigDecimal.ZERO);
         }
 
-        // Xử lý chi tiết hóa đơn (giữ nguyên phần còn lại như trước)
+        // Xử lý chi tiết hóa đơn
         BigDecimal total = BigDecimal.ZERO;
         List<BillDetail> billDetailList = new ArrayList<>();
         for (OrderDetailDto item : orderDto.getOrderDetailDtos()) {
@@ -686,30 +728,31 @@ public class CartServiceImpl implements CartService {
 
             ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
             BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
+            BigDecimal detailPrice;
             if (productDiscount != null) {
-                billDetail.setDetailPrice(productDiscount.getDiscountedAmount());
+                detailPrice = productDiscount.getDiscountedAmount();
                 total = total.add(productDiscount.getDiscountedAmount().multiply(quantity));
             } else {
-                billDetail.setDetailPrice(productDetail.getPrice());
+                detailPrice = productDetail.getPrice();
                 total = total.add(productDetail.getPrice().multiply(quantity));
             }
 
             productDetail.setQuantity(productDetail.getQuantity() - item.getQuantity());
             productDetailRepository.save(productDetail);
             billDetail.setProductDetail(productDetail);
+            billDetail.setDetailPrice(detailPrice);
             billDetailList.add(billDetail);
         }
 
         bill.setAmount(total);
         bill.setBillDetail(billDetailList);
 
-        // Xử lý voucher (giữ nguyên)
+        // Xử lý voucher
         if (orderDto.getVoucherId() != null) {
             Discount discount = discountRepository.findById(orderDto.getVoucherId())
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy voucher"));
             bill.setDiscount(discount);
 
-            // Kiểm tra và giảm số lượng voucher
             if (discount.getMaximumUsage() > 0) {
                 discount.setMaximumUsage(discount.getMaximumUsage() - 1);
                 discountRepository.save(discount);
@@ -718,7 +761,7 @@ public class CartServiceImpl implements CartService {
             }
         }
 
-        // Xử lý phương thức thanh toán (giữ nguyên)
+        // Xử lý phương thức thanh toán
         PaymentMethod paymentMethod = paymentMethodRepository.findById(orderDto.getPaymentMethodId())
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy phương thức thanh toán"));
         bill.setPaymentMethod(paymentMethod);
@@ -726,23 +769,31 @@ public class CartServiceImpl implements CartService {
         // Lưu hóa đơn
         Bill savedBill = billRepository.save(bill);
 
-        // Tạo bản ghi Payment (giữ nguyên)
+        // Tạo bản ghi Payment
         Payment payment = new Payment();
         payment.setBill(savedBill);
-        payment.setAmount(String.valueOf(savedBill.getAmount()));
+        payment.setAmount(String.valueOf(savedBill.getAmount().add(shippingFee)
+                .subtract(bill.getPromotionPrice() != null ? bill.getPromotionPrice() : BigDecimal.ZERO)));
         payment.setPaymentDate(LocalDateTime.now());
-        if (paymentMethod.getId() == 3L) {
-            payment.setOrderId("QR_" + billCode);
-            payment.setOrderStatus("PENDING");
-        } else if (paymentMethod.getId() == 1L) {
+        if (paymentMethod.getId() == 1L) {
             payment.setOrderId("CASH_" + billCode);
             payment.setOrderStatus("COMPLETED");
+        } else if (paymentMethod.getId() == 3L) {
+            payment.setOrderId("QR_" + billCode);
+            payment.setOrderStatus("PENDING");
         } else if (paymentMethod.getId() == 2L) {
             payment.setOrderId("CARD_" + billCode);
             payment.setOrderStatus("PENDING");
         }
         payment.setStatusExchange(0);
         paymentRepository.save(payment);
+
+        // Lưu lịch sử hóa đơn với thông tin phí ship và tổng tiền sản phẩm ban đầu
+        Account account = userLoginUtil.getCurrentLogin();
+        String note = String.format("Tạo hóa đơn tại quầy. Tổng tiền sản phẩm ban đầu: %s VNĐ. Phí ship ban đầu: %s VNĐ",
+                NumberFormat.getNumberInstance(Locale.US).format(total),
+                NumberFormat.getNumberInstance(Locale.US).format(shippingFee));
+        billService.saveBillHistory(savedBill.getId(), savedBill.getStatus(), note, account);
 
         return convertToOrderDto(savedBill);
     }

@@ -144,7 +144,7 @@
                     <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN}"> <span class="badge badge-pill bg-secondary inv-badge">Chờ xác nhận</span> </td>
                     <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH}"> <span class="badge badge-pill bg-success inv-badge" >Hoàn thành</span> </td>
                     <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).HUY}"> <span class="badge badge-pill bg-danger inv-badge">Hủy</span> </td>
-                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG}"> <span class="badge badge-pill bg-dark inv-badge">Hoàn trả</span> </td>
+                    <td class="text-center" th:if="${bill.status == T(com.example.jdshoes.entity.enumClass.BillStatus).TRA_HANG}"> <span class="badge badge-pill bg-dark inv-badge">Đổi hàng</span> </td>
 
                   </tr>
 
@@ -212,7 +212,7 @@
                   labels.push('Hoàn thành');
                   break;
                 case 'TRA_HANG' :
-                  labels.push('Trả hàng');
+                  labels.push('Đổi hàng');
                   break;
               }
               data.push(list[i].quantity);

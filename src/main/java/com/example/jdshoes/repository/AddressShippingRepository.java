@@ -25,4 +25,6 @@ public interface AddressShippingRepository extends JpaRepository<AddressShipping
     void updateAllIsDefaultFalseByCustomer(Long customerId);
 
     Optional<AddressShipping> findByCustomerIdAndIsDefaultTrue(Long id);
+
+    List<AddressShipping> findByCustomerId(Long id);
 }

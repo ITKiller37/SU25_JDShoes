@@ -3,6 +3,7 @@ package com.example.jdshoes.repository;
 import com.example.jdshoes.dto.Bill.BillDetailDtoInterface;
 import com.example.jdshoes.dto.Bill.BillDetailProduct;
 import com.example.jdshoes.dto.Bill.BillDtoInterface;
+import com.example.jdshoes.dto.Bill.BillHistoryDto;
 import com.example.jdshoes.dto.Statistic.OrderStatistic;
 import com.example.jdshoes.entity.Bill;
 import com.example.jdshoes.entity.enumClass.BillStatus;
@@ -32,21 +33,20 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
             "LEFT JOIN BillDetail bd ON b.id = bd.bill.id " +
             "LEFT JOIN PaymentMethod pm ON b.paymentMethod.id = pm.id " +
             "LEFT JOIN BillExchange br ON b.id = br.bill.id " +
-            "WHERE (:maDinhDanh IS NULL OR b.code LIKE CONCAT('%', :maDinhDanh, '%')) " +
+            "WHERE (:keyword IS NULL OR " +
+            "       b.code LIKE CONCAT('%', :keyword, '%') OR " +
+            "       COALESCE(b.customerName, a.name, '') LIKE CONCAT('%', :keyword, '%') OR " +
+            "       COALESCE(b.customerPhoneNumber, a.phoneNumber, '') LIKE CONCAT('%', :keyword, '%')) " +
             "AND (:ngayTaoStart IS NULL OR :ngayTaoEnd IS NULL OR (b.createDate BETWEEN :ngayTaoStart AND :ngayTaoEnd)) " +
             "AND (:trangThai IS NULL OR b.status = :trangThai) " +
-            "AND (:loaiDon IS NULL OR b.invoiceType = :loaiDon) " +
-            "AND (:soDienThoai IS NULL OR b.customerPhoneNumber LIKE CONCAT('%', :soDienThoai, '%') OR a.phoneNumber LIKE CONCAT('%', :soDienThoai, '%')) " +
-            "AND (:hoVaTen IS NULL OR b.customerName LIKE CONCAT('%', :hoVaTen, '%') OR a.name LIKE CONCAT('%', :hoVaTen, '%'))")
+            "AND (:loaiDon IS NULL OR b.invoiceType = :loaiDon)")
     Page<BillDtoInterface> listSearchBill(
-                                          @Param("maDinhDanh") String maDinhDanh,
-                                          @Param("ngayTaoStart") LocalDateTime ngayTaoStart,
-                                          @Param("ngayTaoEnd") LocalDateTime ngayTaoEnd,
-                                          @Param("trangThai") BillStatus trangThai,
-                                          @Param("loaiDon") InvoiceType loaiDon,
-                                          @Param("soDienThoai") String soDienThoai,
-                                          @Param("hoVaTen") String hoVaTen,
-                                          Pageable pageable);
+            @Param("keyword") String keyword,
+            @Param("ngayTaoStart") LocalDateTime ngayTaoStart,
+            @Param("ngayTaoEnd") LocalDateTime ngayTaoEnd,
+            @Param("trangThai") BillStatus trangThai,
+            @Param("loaiDon") InvoiceType loaiDon,
+            Pageable pageable);
 
     @Query(value = "SELECT DISTINCT b.id AS maHoaDon, b.code AS maDinhDanh, " +
             "COALESCE(b.customerName, a.name, 'Khách lẻ') AS hoVaTen, " +
@@ -249,5 +249,13 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
 
     @Query("select count(b) from Bill b where b.status='CHO_XAC_NHAN'")
     int getTotalBillStatusWaiting();
+
+    @Query(value = "SELECT bh.id, bh.status, bh.note, bh.created_at AS createdAt, " +
+            "COALESCE(a.name, N'Hệ thống') AS createdBy " +
+            "FROM BillHistory bh " +
+            "LEFT JOIN Account a ON bh.created_by = a.id " +  // Sử dụng LEFT JOIN thay vì JOIN
+            "WHERE bh.billId = :billId " +
+            "ORDER BY bh.created_at DESC", nativeQuery = true)
+    List<BillHistoryDto> getBillHistory(@Param("billId") Long billId);
 
 }

@@ -33,8 +33,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> , JpaSpe
            SUM(pd.quantity) as totalQuantity
     FROM Product p
     LEFT JOIN ProductDetail pd ON p.id = pd.product.id
-    WHERE (:maSanPham is null or p.code like CONCAT('%', :maSanPham, '%'))
-      AND (:tenSanPham is null or p.name like CONCAT('%', :tenSanPham, '%'))
+    WHERE (:keyword is null or p.code like CONCAT('%', :keyword, '%') or p.name like CONCAT('%', :keyword, '%'))
       AND (:nhanHang is null or p.brand.id = :nhanHang)
       AND (:chatLieu is null or p.material.id = :chatLieu)
       AND (:theLoai is null or p.category.id = :theLoai)
@@ -42,7 +41,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> , JpaSpe
       AND p.deleteFlag = false
     GROUP BY p.id, p.code, p.name, p.brand.name, p.material.name, p.category.name, p.status, p.createDate
     """)
-    Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable);
+    Page<ProductSearchDto> listSearchProduct(String keyword, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable);
 
     @Query(value = """
     SELECT p.id as idSanPham,

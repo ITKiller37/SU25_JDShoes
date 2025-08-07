@@ -4,6 +4,7 @@ import com.example.jdshoes.dto.Product.ProductDto;
 import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.dto.Product.SearchProductDto;
 import com.example.jdshoes.entity.Product;
+import com.example.jdshoes.entity.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ public interface ProductService {
 
     ProductDto getByProductDetailId(Long detailId);
 
-    Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable);
+    Page<ProductSearchDto> listSearchProduct(String keyword, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable);
 
     Page<ProductDto> searchProduct(SearchProductDto searchDto, Pageable pageable);
 
@@ -42,4 +43,6 @@ public interface ProductService {
     ProductDto getProductDtoByCode(String code);
 
     ProductDto findById(Long id);
+
+    List<ProductDetail> findAll();
 }
