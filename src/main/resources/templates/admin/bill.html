@@ -72,7 +72,7 @@
         <a th:href="@{/admin/bill-list(page=0, sort=${sortField == 'code' && sortDirection == 'desc' ? 'code,asc' : 'code,desc'}, keyword=${keyword}, ngayTaoStart=${ngayTaoStart}, ngayTaoEnd=${ngayTaoEnd}, trangThai=${trangThai}, loaiDon=${loaiDon})}"
            class="sort-link">↓</a>
       </th>
-      <th scope="col">Mã đổi trả</th>
+      <th scope="col">Mã đổi hàng</th>
       <th scope="col">Họ và tên
         <a th:href="@{/admin/bill-list(page=0, sort=${sortField == 'hoVaTen' && sortDirection == 'asc' ? 'hoVaTen,desc' : 'hoVaTen,asc'}, keyword=${keyword}, ngayTaoStart=${ngayTaoStart}, ngayTaoEnd=${ngayTaoEnd}, trangThai=${trangThai}, loaiDon=${loaiDon})}"
            class="sort-link">↑</a>

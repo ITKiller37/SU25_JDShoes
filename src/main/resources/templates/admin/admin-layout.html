@@ -61,12 +61,6 @@
                         <li><i class="fas fa-tag"></i><a th:href="@{/admin-only/product-discount}">Giảm giá sản phẩm</a></li>
                     </ul>
                 </li>
-                <li class="menu-item-has-children dropdown" sec:authorize="hasRole('ADMIN')">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="menu-icon fas fa-exchange-alt"></i>Giao dịch</a>
-                    <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fas fa-undo"></i><a th:href="@{/admin-only/need-refund-mng}">Đơn hoàn tiền</a></li>
-                    </ul>
-                </li>
                 <li class="menu-item-has-children dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="menu-icon fas fa-chart-bar"></i>Thống kê</a>
                     <ul class="sub-menu children dropdown-menu">
