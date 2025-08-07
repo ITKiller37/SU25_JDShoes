@@ -4,10 +4,14 @@ package com.example.jdshoes.service.Impl;
 import com.example.jdshoes.dto.Customer.AddressDto;
 import com.example.jdshoes.dto.Customer.CustomerDto;
 import com.example.jdshoes.dto.Customer.CustomerDtoApi;
+import com.example.jdshoes.entity.AddressShipping;
 import com.example.jdshoes.entity.Customer;
 import com.example.jdshoes.exception.ShoesApiException;
+import com.example.jdshoes.repository.AddressShippingRepository;
 import com.example.jdshoes.repository.CustomerRepository;
 import com.example.jdshoes.service.CustomerService;
+import com.example.jdshoes.utils.UserLoginUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,6 +27,12 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerServiceImpl(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
+
+    @Autowired
+    private UserLoginUtil userLoginUtil;
+
+    @Autowired
+    private AddressShippingRepository addressShippingRepository;
 
     @Override
     public Page<CustomerDto> getAllCustomers(Pageable pageable) {
@@ -89,6 +99,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customerDtoApi;
     }
+
 
     private CustomerDto convertToDto(Customer customer) {
         CustomerDto customerDto = new CustomerDto();

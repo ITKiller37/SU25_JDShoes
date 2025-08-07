@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{user/layout-user.html}">
+<head>
+  <meta charset="UTF-8">
+  <title>Tra cứu đơn hàng</title>
+  <link rel="icon" type="image/png" th:href="@{/image1/icons/J.png}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/vendor/bootstrap/css/bootstrap.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/fonts/font-awesome-4.7.0/css/font-awesome.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/fonts/iconic/css/material-design-iconic-font.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/fonts/linearicons-v1.0.0/icon-font.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/vendor/animate/animate.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/vendor/css-hamburgers/hamburgers.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/vendor/animsition/css/animsition.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/vendor/select2/select2.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/vendor/perfect-scrollbar/perfect-scrollbar.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/util.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"/>
+  <style>
+    .order-search-form {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .order-search-form .input-group {
+      display: flex;
+      gap: 10px;
+    }
+    .order-search-form input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .order-search-form button {
+      padding: 10px 20px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .order-search-form button:hover {
+      background-color: #333;
+    }
+    .order-result {
+      margin-top: 30px;
+    }
+    .order-result .card {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .order-result .card-body {
+      padding: 20px;
+    }
+    .track {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      padding: 20px 20px;
+    }
+
+    .track .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .track .step .icon {
+      width: 40px;
+      height: 40px;
+      background: #e9ecef;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      color: #6c757d;
+      position: relative;
+      z-index: 2;
+    }
+    .track .step.active .icon {
+      background: #ff9800;
+      color: #fff;
+    }
+    .track .step .text {
+      font-size: 14px;
+      color: #6c757d;
+    }
+    .track .step.active .text {
+      color: #ff9800;
+      font-weight: bold;
+    }
+    .track .step:not(:last-child):after {
+      content: '';
+      position: absolute;
+      width: 150%;
+      height: 2px;
+      background: #e9ecef;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: -1;
+    }
+
+    .track .step.active:not(:last-child):after {
+      background: #ff9800;
+    }
+
+    .status-failed {
+      background-color: #fff;
+      color: #dc3545;
+      font-weight: bold;
+      border: 1px solid #dc3545;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      display: inline-block;
+      margin-top: 5px;
+      box-shadow: none;
+    }
+    .invoice-title .float-end {
+      margin-right: 20px;
+    }
+    .table-responsive {
+      margin-top: 20px;
+    }
+    .text-muted {
+      color: #6c757d !important;
+    }
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+    .loading-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-align: center;
+    }
+    .no-orders {
+      text-align: center;
+      padding: 20px;
+      font-size: 18px;
+      color: #dc3545;
+    }
+    #orderDetailCard.show-light-background {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <!-- Title page -->
+  <section class="bg-img1 txt-center p-lr-15 p-tb-92" style="background-image: url('/image1/bg-01.jpg');">
+    <h2 class="ltext-105 cl0 txt-center">
+      Tra cứu đơn hàng
+    </h2>
+  </section>
+
+  <!-- Content page -->
+  <section class="bg0 p-t-75 p-b-120">
+    <div class="container">
+      <div class="order-search-form">
+        <h3 class="mtext-111 cl2 p-b-16 txt-center">
+          Nhập mã đơn hàng
+        </h3>
+        <div class="input-group">
+          <input type="text" id="orderCode" placeholder="Nhập mã đơn hàng" class="flex-grow-1 p-2 border border-gray-300 rounded">
+          <button id="searchOrderBtn" class="px-5 py-2 bg-black text-white rounded whitespace-nowrap">
+            Tra cứu
+          </button>
+        </div>
+        <span class="error-text text-danger" style="display: none; font-size: 12px;">Vui lòng nhập mã đơn hàng hợp lệ</span>
+      </div>
+
+      <div class="order-result" id="orderResult">
+        <div class="card" id="orderDetailCard" style="display: none;">
+          <div class="card-body">
+            <div class="invoice-title">
+              <div class="float-end">
+                <div class="track" id="orderTimeline"></div>
+                <div id="orderStatusSpecial" style="display: none;"></div>
+              </div>
+              <div class="mb-4">
+                <h2 class="mb-1 text-muted" id="invoiceTitle"></h2>
+              </div>
+              <div class="text-muted">
+                <p class="mb-1">Giày thể thao nam JDShoes</p>
+                <p class="mb-1"><i class="uil uil-envelope-alt me-1"></i> Jdshoes@gmail.com</p>
+                <p><i class="uil uil-phone me-1"></i> 012-345-6789</p>
+              </div>
+            </div>
+
+            <hr class="my-4"/>
+
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="text-muted">
+                  <h5 class="font-size-16 mb-3">Địa chỉ giao hàng:</h5>
+                  <h5 class="font-size-15 mb-2" id="customerName"></h5>
+                  <p class="mb-1" id="customerAddress"></p>
+                  <p id="customerPhone"></p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="text-muted text-sm-end">
+                  <div class="mt-4">
+                    <h5 class="font-size-15 mb-1">Ngày mua hàng:</h5>
+                    <p id="orderDate"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="py-2 mb-4">
+              <div><h5>Voucher:</h5></div>
+              <div id="voucherInfo"></div>
+            </div>
+
+            <div class="mb-4">
+              <div>Loại đơn: <h5 style="color: rgb(21, 219, 153)" id="orderType"></h5></div>
+            </div>
+
+            <div class="mb-4">
+              <span>Mã giao dịch: <span class="text-warning font-weight-bold" id="transactionCode"></span></span>
+            </div>
+
+            <div class="py-2">
+              <h5 class="font-size-15">Danh sách đơn hàng</h5>
+              <div class="table-responsive">
+                <table class="table align-middle table-nowrap table-centered mb-0">
+                  <thead>
+                  <tr>
+                    <th>Sản phẩm</th>
+                    <th>Màu sắc</th>
+                    <th>Kích cỡ</th>
+                    <th>Giá tiền</th>
+                    <th>Số lượng</th>
+                    <th class="text-end" style="width: 120px">Thành tiền</th>
+                  </tr>
+                  </thead>
+                  <tbody id="orderTableBody"></tbody>
+                  <tr>
+                    <th scope="row" colspan="5" class="text-end">Tổng thanh toán sản phẩm</th>
+                    <td class="text-end" id="totalProduct"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" colspan="5" class="border-0 text-end">Voucher :</th>
+                    <td class="border-0 text-end" id="voucherDiscount"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" colspan="5" class="border-0 text-end">Phí ship :</th>
+                    <td class="border-0 text-end" id="shippingFee"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" colspan="5" class="border-0 text-end">Tổng thanh toán</th>
+                    <td class="border-0 text-end"><h4 class="m-0 fw-semibold" id="totalAmount"></h4></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="noOrders" class="no-orders" style="display: none;">
+          Không tìm thấy đơn hàng nào
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Back to top -->
+  <div class="btn-back-to-top" id="myBtn">
+    <span class="symbol-btn-back-to-top"><i class="zmdi zmdi-chevron-up"></i></span>
+  </div>
+
+
+<script th:src="@{/vendor/jquery/jquery-3.2.1.min.js}"></script>
+<script th:src="@{/vendor/animsition/js/animsition.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/popper.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.min.js}"></script>
+<script th:src="@{/vendor/select2/select2.min.js}"></script>
+<script th:src="@{/vendor/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:inline="javascript">
+  $(document).ready(function () {
+    // Xử lý sự kiện click nút tra cứu
+    console.log("Document ready"); // Kiểm tra jQuery đã load
+    $("#searchOrderBtn").on('click', function (e) {
+      console.log("Button clicked"); // Kiểm tra sự kiện click
+      e.preventDefault();
+
+      var orderCode = $("#orderCode").val().trim();
+      console.log("Order code:", orderCode); // Kiểm tra giá trị nhập
+      if (!orderCode) {
+        $("#orderCode").next(".error-text").text("Vui lòng nhập mã đơn hàng").show();
+        return;
+      }
+      $("#orderCode").next(".error-text").hide();
+
+      // Hiển thị loading
+      $('#loading-overlay').show();
+      $('#orderResult').hide();
+
+      // Gọi API tra cứu
+      $.ajax({
+        type: 'GET',
+        url: '/api/order/status?orderCode=' + encodeURIComponent(orderCode),
+        dataType: 'json',
+        success: function (response) {
+          $('#loading-overlay').hide();
+
+          if (response && response.order) {
+            displayOrderDetails(response);
+            $('#orderDetailCard').addClass('show-light-background');
+          } else {
+            $('#orderDetailCard').removeClass('show-light-background');
+            $('#orderDetailCard').hide();
+            $('#noOrders').show();
+            Swal.fire({
+              title: "Thông báo",
+              text: "Không tìm thấy đơn hàng với mã " + orderCode,
+              icon: "info"
+            });
+          }
+          $('#orderResult').show();
+        },
+        error: function (xhr) {
+          $('#loading-overlay').hide();
+          $('#orderDetailCard').hide();
+          $('#noOrders').show();
+
+          let errorMessage = xhr.responseJSON?.message || "Đã xảy ra lỗi khi tra cứu đơn hàng";
+          console.error("Lỗi AJAX:", errorMessage);
+
+          Swal.fire({
+            title: "Lỗi",
+            text: errorMessage,
+            icon: "error"
+          });
+        }
+      });
+    });
+
+    // Hàm hiển thị chi tiết đơn hàng
+    function displayOrderDetails(response) {
+      const order = response.order;
+      const products = response.products || [];
+      const total = response.total || 0;
+      const voucherDiscount = order.tienKhuyenMai || 0;
+      const shippingFee = order.phiShip || 0;
+
+      // Render timeline
+      const statusMap = {
+        'CHO_XAC_NHAN': 'Chờ xác nhận',
+        'DA_XAC_NHAN': 'Đã xác nhận',
+        'CHO_LAY_HANG': 'Chờ lấy hàng',
+        'DANG_GIAO_HANG': 'Đang giao hàng',
+        'GIAO_HANG_THANH_CONG': 'Giao hàng thành công',
+        'HOAN_THANH': 'Hoàn thành',
+        'HUY': 'Đã hủy',
+        'TRA_HANG': 'Đổi hàng',
+        'GIAO_HANG_THAT_BAI': 'Giao hàng thất bại'
+      };
+
+      let timelineHtml = '<div class="track">';
+      const statuses = ['CHO_XAC_NHAN', 'DA_XAC_NHAN', 'CHO_LAY_HANG', 'DANG_GIAO_HANG', 'GIAO_HANG_THANH_CONG', 'HOAN_THANH'];
+
+      statuses.forEach((status, index) => {
+        const isActive = statuses.slice(0, statuses.indexOf(order.trangThaiDonHang) + 1).includes(status);
+        timelineHtml += `
+          <div class="step ${isActive ? 'active' : ''}">
+            <span class="icon">${index === 0 ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256"><path fill="currentColor" d="M232 136.66A104.12 104.12 0 1 1 119.34 24a8 8 0 0 1 1.32 16A88.12 88.12 0 1 0 216 135.34a8 8 0 0 1 16 1.32ZM120 72v56a8 8 0 0 0 8 8h56a8 8 0 0 0 0-16h-48V72a8 8 0 0 0-16 0Zm40-24a12 12 0 1 0-12-12a12 12 0 0 0 12 12Zm36 24a12 12 0 1 0-12-12a12 12 0 0 0 12 12Zm24 36a12 12 0 1 0-12-12a12 12 0 0 0 12 12Z"/></svg>' :
+                index === 1 ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18 10h-1.26A8 8 0 1 0 9 16h9a5 5 0 0 0 0-10Zm-8 6a6 6 0 1 1 6-6h2a3 3 0 1 1 0 6h-8Zm11-3a1 1 0 1 1-2 0a1 1 0 0 1 2 0Zm-3-1a1 1 0 1 1-2 0a1 1 0 0 1 2 0Zm-3-1a1 1 0 1 1-2 0a1 1 0 0 1 2 0Z"/></svg>' :
+                        index === 2 ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke-width="1.5"><path fill="currentColor" d="m2.695 7.185l9 4l.61-1.37l-9-4l-.61 1.37ZM12.75 21.5v-11h-1.5v11h1.5Zm-.445-10.315l9-4l-.61-1.37l-9 4l.61 1.37Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M3 17.11V6.89a.6.6 0 0 1 .356-.548l8.4-3.734a.6.6 0 0 1 .488 0l8.4 3.734A.6.6 0 0 1 21 6.89v10.22a.6.6 0 0 1-.356.548l-8.4 3.734a.6.6 0 0 1-.488 0l-8.4-3.734A.6.6 0 0 1 3 17.11Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m7.5 4.5l8.644 3.842a.6.6 0 0 1 .356.548v3.61"/></g></svg>' :
+                                index === 3 ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M20 8h-3V6.22c0-1.39-1.06-2.53-2.45-2.66c-1.75-.16-3.29.96-3.65 2.62l-.03.13l-.37 2.9H4l-1 5v6h10v-2h8v2h2v-6l-1-5h-2Zm-7.5-1.72c0-.66.54-1.2 1.2-1.2s1.2.54 1.2 1.2v.07l-.12.93h-2.16l-.12-.93v-.07ZM4.96 12l.6-3h12.88l.6 3H4.96ZM12 18H6v-4h6v4Zm10 0h-8v-4h8v4Z"/></svg>' :
+                                        index === 4 ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2Zm-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9Z"/></svg>' :
+                                                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13c.7 0 1.37.13 2 .35V12l-1-5H4l-1 5v2h1v6h9.09c-.05-.33-.09-.66-.09-1c0-1.23.37-2.36 1-3.31V14h1.69c.95-.63 2.08-1 3.31-1m-7 5H6v-4h6v4m-6.96-6l.6-3h12.72l.6 3H5.04M20 6H4V4h16v2m2.5 11.25L17.75 22L15 19l1.16-1.16l1.59 1.59l3.59-3.59l1.16 1.41"/></svg>'}</span>
+            <span class="text">${statusMap[status]}</span>
+          </div>
+        `;
+      });
+      timelineHtml += '</div>';
+
+      if (['HUY', 'TRA_HANG', 'GIAO_HANG_THAT_BAI'].includes(order.trangThaiDonHang)) {
+        timelineHtml = '';
+        let specialStatus = '';
+        if (order.trangThaiDonHang === 'HUY') {
+          specialStatus = '<div class="text-danger font-weight-bold border rounded p-2 border-danger">ĐÃ HỦY</div>';
+        } else if (order.trangThaiDonHang === 'TRA_HANG') {
+          specialStatus = '<div class="text-danger font-weight-bold border rounded p-2 border-danger">ĐỔI HÀNG</div>';
+        } else if (order.trangThaiDonHang === 'GIAO_HANG_THAT_BAI') {
+          specialStatus = '<div class="status-failed">GIAO HÀNG THẤT BẠI</div>';
+        }
+        $('#orderStatusSpecial').html(specialStatus).show();
+      } else {
+        $('#orderStatusSpecial').hide();
+      }
+
+      $('#orderTimeline').html(timelineHtml);
+
+      // Render order details
+      $('#invoiceTitle').text('Hóa đơn #' + order.maDinhDanh);
+      $('#customerName').text(order.tenKhachDatHang || 'Khách lẻ');
+      $('#customerAddress').text(order.diaChiNguoiNhan || '');
+      $('#customerPhone').text(order.soDienThoaiNguoiNhan || '');
+      $('#orderDate').text(new Date(order.createdDate).toLocaleString('vi-VN'));
+      $('#voucherInfo').html(order.voucherName ? `<span style="color: red; font-size: 16px">${order.voucherName}</span>` : '<span class="text-muted">Không sử dụng</span>');
+      $('#orderType').text(order.loaiHoaDon === 'OFFLINE' ? 'Tại quầy' : 'Online');
+      $('#transactionCode').text(order.maGiaoDich || '');
+
+      // Render product table
+      let productHtml = '';
+      products.forEach(product => {
+        productHtml += `
+          <tr>
+            <td><h6 class="text-truncate font-size-14 mb-1">${product.tenSanPham}</h6></td>
+            <td>${product.tenMau}</td>
+            <td>${product.kichCo}</td>
+            <td>${formatNumber(product.giaTien)} ₫</td>
+            <td>${product.soLuong}</td>
+            <td class="text-end">${formatNumber(product.tongTien)} ₫</td>
+          </tr>
+        `;
+      });
+
+      $('#orderTableBody').html(productHtml);
+      $('#totalProduct').text(formatNumber(total) + ' ₫');
+      $('#voucherDiscount').text(formatNumber(-voucherDiscount) + ' ₫');
+      $('#shippingFee').text(formatNumber(shippingFee) + ' ₫');
+      $('#totalAmount').text(formatNumber(total - voucherDiscount + shippingFee) + ' ₫');
+
+      $('#noOrders').hide();
+      $('#orderDetailCard').show();
+    }
+
+    // Hàm định dạng số
+    function formatNumber(number) {
+      if (!number) return '0';
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+  });
+</script>
+
+<!-- Loading overlay -->
+<div id="loading-overlay">
+  <div class="loading-content">
+    <div class="spinner-border text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Đang tải thông tin...</p>
+  </div>
+</div>
+</div>
+</body>
+</html>

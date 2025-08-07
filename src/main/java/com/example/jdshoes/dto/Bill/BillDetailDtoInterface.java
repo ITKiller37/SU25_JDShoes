@@ -43,4 +43,12 @@ public interface BillDetailDtoInterface {
     String getVoucherName();
 
     LocalDateTime getCreatedDate();
+
+    String getTenKhachTrongHeThong();
+
+    String getTenKhachDatHang();
+
+    String getMaKhachHang();
+
+
 }

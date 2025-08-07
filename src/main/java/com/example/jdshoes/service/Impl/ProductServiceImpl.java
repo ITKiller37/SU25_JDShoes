@@ -50,8 +50,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductSearchDto> listSearchProduct(String maSanPham, String tenSanPham, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable) {
-        Page<ProductSearchDto> productSearchDtos = productRepository.listSearchProduct(maSanPham, tenSanPham, nhanHang, chatLieu, theLoai, trangThai, pageable);
+    public Page<ProductSearchDto> listSearchProduct(String keyword, Long nhanHang, Long chatLieu, Long theLoai, Integer trangThai, Pageable pageable) {
+        Page<ProductSearchDto> productSearchDtos = productRepository.listSearchProduct(keyword, nhanHang, chatLieu, theLoai, trangThai, pageable);
         return productSearchDtos;
     }
 
@@ -300,6 +300,11 @@ public class ProductServiceImpl implements ProductService {
 
         dto.setProductDetailDtos(detailDtos);
         return dto;
+    }
+
+    @Override
+    public List<ProductDetail> findAll() {
+        return productDetailRepository.findAll();
     }
 
 

@@ -56,8 +56,7 @@ public class ProductController {
             Model model,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "sort", defaultValue = "createDate,desc") String sortField,
-            @RequestParam(name = "maSanPham", required = false) String maSanPham,
-            @RequestParam(name = "tenSanPham", required = false) String tenSanPham,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "nhanHang", required = false) Long nhanHang,
             @RequestParam(name = "chatLieu", required = false) Long chatLieu,
             @RequestParam(name = "theLoai", required = false) Long theLoai,
@@ -90,16 +89,14 @@ public class ProductController {
         Page<ProductSearchDto> listProducts;
 
         boolean hasSearchParams = Stream.of(
-                maSanPham != null && !maSanPham.trim().isEmpty() ? maSanPham : null,
-                tenSanPham != null && !tenSanPham.trim().isEmpty() ? tenSanPham : null,
+                keyword,
                 nhanHang, chatLieu, theLoai, trangThai
         ).anyMatch(Objects::nonNull);
 
         try {
             if (hasSearchParams) {
-                maSanPham = maSanPham != null && maSanPham.trim().isEmpty() ? null : maSanPham;
-                tenSanPham = tenSanPham != null && tenSanPham.trim().isEmpty() ? null : tenSanPham;
-                listProducts = productService.listSearchProduct(maSanPham, tenSanPham, nhanHang, chatLieu, theLoai, trangThai, pageable);
+                keyword = keyword != null && keyword.trim().isEmpty() ? null : keyword;
+                listProducts = productService.listSearchProduct(keyword, nhanHang, chatLieu, theLoai, trangThai, pageable);
             } else {
                 listProducts = productService.getAll(pageable);
             }
@@ -112,8 +109,7 @@ public class ProductController {
             listProducts = Page.empty(pageable);
         }
 
-        model.addAttribute("maSanPham", maSanPham);
-        model.addAttribute("tenSanPham", tenSanPham);
+        model.addAttribute("keyword", keyword);
         model.addAttribute("nhanHang", nhanHang);
         model.addAttribute("chatLieu", chatLieu);
         model.addAttribute("theLoai", theLoai);
