@@ -307,5 +307,10 @@ public class ProductServiceImpl implements ProductService {
         return productDetailRepository.findAll();
     }
 
+    @Override
+    public List<ProductDetail> findAllActiveWithQuantity() {
+        return productDetailRepository.findAllActiveWithQuantity();
+    }
+
 
 }

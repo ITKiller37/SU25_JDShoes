@@ -45,4 +45,6 @@ public interface ProductService {
     ProductDto findById(Long id);
 
     List<ProductDetail> findAll();
+
+    List<ProductDetail> findAllActiveWithQuantity();
 }

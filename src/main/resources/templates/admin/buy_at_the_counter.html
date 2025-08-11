@@ -667,6 +667,7 @@
                 let voucherChoosed;
                 var maxQuantiyAllow = 99999999; // Đặt giá trị mặc định, không giới hạn
                 var pendingOrders = []; // Mảng lưu hóa đơn treo
+                let productInventory = {}; // Lưu trữ số lượng thực tế của sản phẩm
 
                 // Gắn sự kiện change cho tất cả checkbox is-shipping
                 $('.is-shipping').change(function () {
@@ -678,6 +679,21 @@
                         calculateLastPrice(tabNumber);
                     }
                 });
+
+
+                $(window).on('beforeunload', async function() {
+                    await restoreAllQuantities();
+                });
+
+                // Hàm khởi tạo inventory từ productList
+                function initializeInventory() {
+                    productList.forEach(product => {
+                        product.productDetailDtos.forEach(detail => {
+                            productInventory[detail.id] = detail.quantity;
+                        });
+                    });
+                }
+
 
                 // Khởi tạo sự kiện toggle giao hàng cho các tab hiện có
                 function bindShippingToggleEvents() {
@@ -1117,25 +1133,53 @@
     </tr>`);
                 }
 
-                function removeProductItem(productItem, tabNumber) {
-                    const itemProductDetailId = productItem.attr('data-product-detail-id');
-                    const quantityToAddBack = parseInt(productItem.find('.product-select-quantity').val() || 1);
-
-                    // Cập nhật lại số lượng trong productList
+                function updateProductQuantityInList(productDetailId, newQuantity) {
+                    // Cập nhật trong productList
                     productList.forEach(product => {
-                        const detail = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
-                        if (detail) {
-                            detail.quantity += quantityToAddBack;
-                        }
+                        product.productDetailDtos.forEach(detail => {
+                            if (detail.id == productDetailId) {
+                                detail.quantity = newQuantity;
+                            }
+                        });
                     });
 
-                    productItem.remove();
-                    loadOrdreNumber();
-                    calculateAllPrice();
-                    calculateLastPrice();
+                    // Cập nhật trong giao diện tìm kiếm
+                    $(`.search-product-item[data-product-detail-id="${productDetailId}"] .product-quantity`).text(newQuantity);
+                }
 
-                    // Chỉ cập nhật danh sách tìm kiếm cho tab hiện tại
-                    updateSearchProductForTab(tabNumber);
+                async function removeProductItem(productItem, tabNumber) {
+                    const itemProductDetailId = productItem.attr('data-product-detail-id');
+                    const quantityToAddBack = parseInt(productItem.find('.product-select-quantity').val() || 1);
+                    const currentQuantity = parseInt(productItem.attr('data-max-quan')) - quantityToAddBack;
+
+                    try {
+                        // Hoàn trả số lượng vào database
+                        const newQuantity = currentQuantity + quantityToAddBack;
+                        await updateProductQuantityInDatabase(itemProductDetailId, newQuantity);
+
+                        // Cập nhật lại productList và giao diện
+                        updateProductQuantityInList(itemProductDetailId, newQuantity);
+
+                        productItem.remove();
+                        loadOrdreNumber();
+                        calculateAllPrice();
+                        calculateLastPrice(tabNumber);
+
+                        // Cập nhật danh sách tìm kiếm
+                        updateSearchProductForTab(tabNumber);
+
+                        Toastify({
+                            text: "Đã xóa sản phẩm và hoàn trả số lượng",
+                            className: "success",
+                            style: { background: "green" }
+                        }).showToast();
+                    } catch (error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: error.message,
+                            icon: "error"
+                        });
+                    }
                 }
 
                 function updateSearchProductForTab(tabNumber) {
@@ -1221,7 +1265,32 @@
                     });
                 }
 
-                function closeTab(tabNumber) {
+                async function closeTab(tabNumber) {
+                    // Hoàn trả số lượng sản phẩm trong tab này
+                    const productItems = $(`.product-select-body[data-tab-number="${tabNumber}"] .product-select-item`);
+
+                    // Lặp qua từng sản phẩm trong tab và hoàn trả số lượng
+                    for (const item of productItems) {
+                        const $item = $(item);
+                        const productDetailId = $item.attr('data-product-detail-id');
+                        const quantity = parseInt($item.find('.product-select-quantity').val());
+                        const currentQuantityInStock = parseInt($item.attr('data-max-quan')) - quantity; // Số lượng hiện có trong kho
+
+                        if (productDetailId && !isNaN(quantity)) {
+                            try {
+                                // Tính toán số lượng mới = số lượng hiện có trong kho + số lượng đã chọn
+                                const newQuantity = currentQuantityInStock + quantity;
+                                await updateProductQuantityInDatabase(productDetailId, newQuantity);
+                                updateProductQuantityInList(productDetailId, newQuantity);
+                            } catch (error) {
+                                console.error("Lỗi khi hoàn trả số lượng:", error);
+                                // Nếu có lỗi, không xóa tab để tránh mất dữ liệu
+                                return;
+                            }
+                        }
+                    }
+
+                    // Xóa các phần tử liên quan đến tab
                     $(`.tab[data-tab-number="${tabNumber}"]`).remove();
                     $(`.product-select-body[data-tab-number="${tabNumber}"]`).remove();
                     $(`.selected-customer[data-tab-number="${tabNumber}"]`).remove();
@@ -1229,6 +1298,7 @@
                     $(`.shipping-toggle-container[data-tab-number="${tabNumber}"]`).remove();
                     $(`.shipping-container[data-tab-number="${tabNumber}"]`).remove();
 
+                    // Kích hoạt tab đầu tiên nếu còn tab nào đó
                     if ($('.tab.active').length === 0 && $('.tab').length > 0) {
                         const firstTab = $('.tab').first();
                         const firstTabNumber = firstTab.attr('data-tab-number');
@@ -1288,27 +1358,54 @@
                     calculateLastPrice(tabNumber);
                 }
 
-                // Hàm mới để cập nhật sự kiện click cho tất cả các tab
-                function updateTabClickEvents() {
-                    $('.tab').off('click').on('click', function() {
-                        $('.tab-container .tab').removeClass('active');
-                        $(this).addClass('active');
-                        $('.product-select-body').addClass('hidden');
-                        $('.product-select-body').removeClass('active');
-                        $('.selected-customer').addClass('hidden');
-                        $('.selected-customer').removeClass('active');
-                        document.querySelector('.product-select-body').classList.remove('hidden');
-                        document.querySelector('.product-select-body').classList.add('active');
-                        document.querySelector('.selected-customer').classList.remove('hidden');
-                        document.querySelector('.selected-customer').classList.add('active');
-                        calculateAllPrice();
-                        voucherChoosed = null;
-                        $('#customerPayInput').val('');
-                        pay.customerPay = 0;
-                        $('#money-change').text(0);
-                        calculateVoucherPrice();
-                        calculateLastPrice();
-                    });
+                async function updateProductQuantityInDatabase(productDetailId, newQuantity) {
+                    try {
+                        // Cập nhật số lượng trong inventory trước
+                        productInventory[productDetailId] = newQuantity;
+
+                        // Gọi API cập nhật
+                        await $.ajax({
+                            type: 'PUT',
+                            url: `/api/product-details/${productDetailId}/quantity`,
+                            contentType: "application/json",
+                            data: JSON.stringify({ quantity: newQuantity }),
+                            success: function() {
+                                console.log(`Đã cập nhật số lượng sản phẩm ${productDetailId} thành ${newQuantity}`);
+                            },
+                            error: function(xhr) {
+                                console.error(`Lỗi khi cập nhật số lượng sản phẩm ${productDetailId}:`, xhr.responseJSON);
+                                throw new Error(xhr.responseJSON.message || "Lỗi khi cập nhật số lượng");
+                            }
+                        });
+                    } catch (error) {
+                        console.error(error);
+                        throw error;
+                    }
+                }
+
+                // Hàm hoàn trả số lượng khi đóng trang
+                async function restoreAllQuantities() {
+                    const tabs = $('.tab');
+                    for (const tab of tabs) {
+                        const tabNumber = $(tab).attr('data-tab-number');
+                        const productItems = $(`.product-select-body[data-tab-number="${tabNumber}"] .product-select-item`);
+
+                        for (const item of productItems) {
+                            const $item = $(item);
+                            const productDetailId = $item.attr('data-product-detail-id');
+                            const quantity = parseInt($item.find('.product-select-quantity').val());
+                            const maxQuantity = parseInt($item.attr('data-max-quan'));
+
+                            if (productDetailId && !isNaN(quantity)) {
+                                try {
+                                    const newQuantity = (productInventory[productDetailId] || maxQuantity) + quantity;
+                                    await updateProductQuantityInDatabase(productDetailId, newQuantity);
+                                } catch (error) {
+                                    console.error("Lỗi khi hoàn trả số lượng:", error);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 var lastSearchKey = ''; // Biến lưu từ khóa tìm kiếm trước đó
@@ -1373,66 +1470,75 @@
 
                 var productList = [];
 
-                function handleAddToOrder(productDetailSe, productDetailId, canAdd, product) {
-                    if (productDetailSe.quantity < 0) {
+                async function handleAddToOrder(productDetailSe, productDetailId, canAdd, product) {
+                    const currentInventory = productInventory[productDetailId] || productDetailSe.quantity;
+
+                    if (currentInventory < 1) {
                         Toastify({
                             text: "Sản phẩm này đã hết",
                             className: "error",
-                            style: {background: "red"}
+                            style: { background: "red" }
                         }).showToast();
                         return 1;
                     }
 
-                    // Lấy tab hiện tại đang active
                     const currentTabNumber = $('.tab.active').attr('data-tab-number');
+                    const quantityToAdd = 1;
 
-                    // Kiểm tra nếu sản phẩm đã có trong tab hiện tại
-                    $(`.product-select-body[data-tab-number="${currentTabNumber}"] .product-select-item`).each((index, element) => {
-                        const item = $(element);
-                        const itemProductDetailId = item.attr('data-product-detail-id');
-                        if (itemProductDetailId == productDetailId) {
-                            const input = item.find('input');
-                            var currentVal = parseInt(input.val());
-                            var nextVal = currentVal + 1;
-                            input.val(nextVal);
-                            const maxQuan = parseInt(item.attr('data-max-quan'));
-                            if (nextVal > maxQuan) {
+                    try {
+                        const newQuantity = currentInventory - quantityToAdd;
+                        await updateProductQuantityInDatabase(productDetailId, newQuantity);
+
+                        // Cập nhật lại productList và giao diện
+                        updateProductQuantityInList(productDetailId, newQuantity);
+
+                        let existingItem = null;
+                        $(`.product-select-body[data-tab-number="${currentTabNumber}"] .product-select-item`).each(function() {
+                            const item = $(this);
+                            if (item.attr('data-product-detail-id') == productDetailId) {
+                                existingItem = item;
+                                return false;
+                            }
+                        });
+
+                        if (existingItem) {
+                            const input = existingItem.find('input');
+                            const currentVal = parseInt(input.val());
+                            const newVal = currentVal + quantityToAdd;
+                            const maxQuan = parseInt(existingItem.attr('data-max-quan'));
+
+                            if (newVal > maxQuan) {
+                                await updateProductQuantityInDatabase(productDetailId, productInventory[productDetailId] + quantityToAdd);
+                                updateProductQuantityInList(productDetailId, productInventory[productDetailId] + quantityToAdd);
+
                                 Swal.fire({
                                     title: "Lỗi",
                                     text: "Số lượng tối đa của sản phẩm này là " + maxQuan,
                                     icon: "error"
                                 });
-                                input.val(maxQuan);
-                                nextVal = maxQuan;
+                                return;
                             }
 
-                            // Cập nhật số lượng trong productList
-                            productDetailSe.quantity = maxQuan - nextVal;
-                            updateSearchProductQuantity(productDetailId, productDetailSe.quantity);
-
-                            const productPrice = removeAnyNonDigit(item.find('.product-select-price').text());
-                            const totalPrice = nextVal * parseFloat(productPrice);
-                            const totalPriceProductEl = item.find('.total-price-product');
-                            totalPriceProductEl.text(formatNumber(totalPrice));
-                            calculateAllPrice();
-                            calculateLastPrice();
-                            canAdd = false;
+                            input.val(newVal);
+                            const productPrice = removeAnyNonDigit(existingItem.find('.product-select-price').text());
+                            const totalPrice = newVal * parseFloat(productPrice);
+                            existingItem.find('.total-price-product').text(formatNumber(totalPrice));
+                        } else {
+                            addNewProductToCurrentTab(productDetailSe, productDetailId, product, currentTabNumber);
                         }
-                    });
 
-                    if (!canAdd) {
-                        calculateLastPrice();
-                        return;
+                        calculateAllPrice();
+                        calculateLastPrice(currentTabNumber);
+                        updateSearchProductForTab(currentTabNumber);
+                        return 0;
+                    } catch (error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: error.message,
+                            icon: "error"
+                        });
+                        return 1;
                     }
-
-                    // Chỉ trừ số lượng ở đây khi thêm sản phẩm mới
-                    productDetailSe.quantity -= 1;
-                    updateSearchProductQuantity(productDetailId, productDetailSe.quantity);
-
-                    // Thêm sản phẩm vào tab hiện tại
-                    addNewProductToCurrentTab(productDetailSe, productDetailId, product, currentTabNumber);
-
-                    calculateLastPrice();
                 }
 
                 function addNewProductToCurrentTab(productDetailSe, productDetailId, product, tabNumber) {
@@ -1484,8 +1590,16 @@
                     });
 
                     // Gắn sự kiện thay đổi số lượng
-                    htmlProductItem.find('.product-select-quantity').on('input change', function(e) {
-                        handleQuantityChange($(this), tabNumber);
+                    htmlProductItem.find('.product-select-quantity').on('input change keydown', function(e) {
+                        // Cho phép xóa hết nội dung
+                        if (e.key === 'Backspace' && $(this).val() === '') {
+                            return;
+                        }
+
+                        // Xử lý thay đổi số lượng
+                        if (e.type === 'change' || e.type === 'input' || e.key === 'Enter') {
+                            handleQuantityChange($(this), tabNumber);
+                        }
                     });
 
                     loadOrdreNumber();
@@ -1493,27 +1607,26 @@
                     calculateLastPrice();
                 }
 
-                function handleQuantityChange(input, tabNumber) {
-                    let val = input.val().trim(); // Lấy giá trị và loại bỏ khoảng trắng thừa
+                async function handleQuantityChange(input, tabNumber) {
+                    let val = input.val().trim();
                     const productItem = input.closest('.product-select-item');
                     const maxQuan = parseInt(productItem.attr('data-max-quan'));
                     const itemProductDetailId = productItem.attr('data-product-detail-id');
 
-                    // Nếu rỗng hoặc không hợp lệ, đặt về 1
-                    if (val === '' || isNaN(parseInt(val))) {
-                        val = 1;
+                    // Nếu rỗng, không làm gì cả (để người dùng có thể xóa hết)
+                    if (val === '') {
+                        return;
+                    }
+
+                    // Nếu không phải là số, đặt về 1
+                    if (isNaN(parseInt(val))) {
                         input.val(1);
+                        val = 1;
                     } else {
                         val = parseInt(val);
                     }
 
-                    // Tìm productDetail tương ứng trong productList
-                    let productDetailToUpdate = null;
-                    productList.forEach(product => {
-                        const detail = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
-                        if (detail) productDetailToUpdate = detail;
-                    });
-
+                    // Kiểm tra giới hạn số lượng
                     if (val > maxQuan) {
                         Swal.fire({
                             title: "Lỗi",
@@ -1527,41 +1640,73 @@
                         val = 1;
                     }
 
-                    if (productDetailToUpdate) {
-                        productDetailToUpdate.quantity = maxQuan - val;
-                        updateSearchProductQuantity(itemProductDetailId, productDetailToUpdate.quantity);
-                    }
+                    try {
+                        // Tính toán số lượng mới trong kho
+                        const newQuantity = maxQuan - val;
+                        await updateProductQuantityInDatabase(itemProductDetailId, newQuantity);
 
-                    const productPrice = removeAnyNonDigit(productItem.find('.product-select-price').text());
-                    const totalPrice = val * parseFloat(productPrice);
-                    productItem.find('.total-price-product').text(formatNumber(totalPrice));
-                    calculateAllPrice();
-                    calculateLastPrice(tabNumber);
+                        // Cập nhật productList
+                        updateProductQuantityInList(itemProductDetailId, newQuantity);
+
+                        const productPrice = removeAnyNonDigit(productItem.find('.product-select-price').text());
+                        const totalPrice = val * parseFloat(productPrice);
+                        productItem.find('.total-price-product').text(formatNumber(totalPrice));
+                        calculateAllPrice();
+                        calculateLastPrice(tabNumber);
+                    } catch (error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: error.message,
+                            icon: "error"
+                        });
+                        // Reset về giá trị cũ nếu có lỗi
+                        const oldVal = maxQuan - (parseInt(productItem.attr('data-max-quan')) - parseInt(input.val()));
+                        input.val(oldVal);
+                    }
                 }
 
                 // Gắn sự kiện cho các ô input
                 $(document).ready(function () {
+                    // Xử lý sự kiện cho các input số lượng đã tồn tại
                     $('.product-select-quantity').each(function () {
                         const input = $(this);
+                        const tabNumber = input.closest('.product-select-body').attr('data-tab-number');
 
-                        // Gắn sự kiện keydown để ngăn nhập ký tự không phải số
                         input.on('keydown', function (e) {
                             onlyAllowNumberInput(e);
                         });
 
-                        // Gắn sự kiện focusout để đặt giá trị về 1 khi rỗng
                         input.on('focusout', function () {
-                            let val = $(this).val().trim();
-                            if (val === '' || isNaN(parseInt(val)) || parseInt(val) < 1) {
-                                $(this).val(1);
-                                handleQuantityChange($(this), tabNumber); // Cập nhật lại giá trị và tính toán
+                            if (input.val().trim() === '') {
+                                input.val(1);
+                                handleQuantityChange(input, tabNumber);
                             }
                         });
 
-                        // Gắn sự kiện input/change để xử lý thay đổi số lượng
                         input.on('input change', function () {
-                            handleQuantityChange($(this), tabNumber);
+                            handleQuantityChange(input, tabNumber);
                         });
+                    });
+
+                    // Xử lý sự kiện cho các input số lượng được thêm động sau này
+                    $(document).on('keydown', '.product-select-quantity', function (e) {
+                        onlyAllowNumberInput(e);
+                    });
+
+                    $(document).on('focusout', '.product-select-quantity', function () {
+                        const input = $(this);
+                        const tabNumber = input.closest('.product-select-body').attr('data-tab-number');
+
+                        if (input.val().trim() === '') {
+                            input.val(1);
+                            handleQuantityChange(input, tabNumber);
+                        }
+                    });
+
+                    $(document).on('input change', '.product-select-quantity', function () {
+                        const input = $(this);
+                        const tabNumber = input.closest('.product-select-body').attr('data-tab-number');
+                        handleQuantityChange(input, tabNumber);
                     });
                 });
 
@@ -1573,6 +1718,10 @@
 
                 function loadProductSearch(data) {
                     const newProductList = data.content;
+                    productList = newProductList;
+
+                    // Khởi tạo inventory
+                    initializeInventory();
 
                     // Nếu productList đã tồn tại, giữ nguyên quantity của các sản phẩm đã được cập nhật
                     if (productList.length > 0) {
@@ -2691,12 +2840,12 @@
                         calculateLastPrice();
                     });
 
-                    // Gắn sự kiện click cho close-voucher-btn
-                    $('.close-voucher-btn').off('click').on('click', function () {
+                    // Sửa lại phần gắn sự kiện close
+                    $(document).on('click', '.close-voucher-btn', function(e) {
+                        e.stopPropagation();
                         const currentTabNumber = $('.tab.active').attr('data-tab-number');
                         $(`.selected-voucher[data-tab-number="${currentTabNumber}"]`).html('').attr('selected-id', '').removeClass('active');
                         voucherChoosed = null;
-                        console.log("Voucher removed, selected-id:", $(`.selected-voucher[data-tab-number="${currentTabNumber}"]`).attr('selected-id'));
                         calculateVoucherPrice();
                         calculateLastPrice();
                     });
@@ -2884,9 +3033,16 @@
                 }
 
                 function onlyAllowNumberInput(e) {
-                    const key = e.key;
-                    // Chỉ cho phép các số (0-9), phím Backspace, Tab, Enter, và các phím điều hướng
-                    if (!/[0-9]/.test(key) && key !== 'Backspace' && key !== 'Tab' && key !== 'Enter' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
+                    // Cho phép: backspace, delete, tab, escape, enter, các phím mũi tên
+                    // Và các phím điều khiển (Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X)
+                    if ([8, 46, 9, 27, 13, 110, 190].includes(e.keyCode) ||
+                        (e.ctrlKey && [65, 67, 86, 88].includes(e.keyCode)) ||
+                        (e.keyCode >= 35 && e.keyCode <= 39)) {
+                        return;
+                    }
+
+                    // Chỉ cho phép nhập số (0-9 cả numpad và phím số thường)
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
                         e.preventDefault();
                     }
                 }

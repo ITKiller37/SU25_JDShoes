@@ -335,6 +335,17 @@ public class CartServiceImpl implements CartService {
         if (orderDto.getPaymentMethodId() == 1L) {
             Bill bill = createBill(orderDto, billDetailList, customer, total, orderPrefix);
 
+            // Giảm số lần sử dụng voucher nếu có
+            if (orderDto.getVoucherId() != null) {
+                Discount discount = discountRepository.findById(orderDto.getVoucherId())
+                        .orElseThrow(() -> new NotFoundException("Không tìm thấy voucher với ID: " + orderDto.getVoucherId()));
+                if (discount.getMaximumUsage() <= 0) {
+                    throw new ShoesApiException(HttpStatus.BAD_REQUEST, "Voucher đã hết lượt sử dụng");
+                }
+                discount.setMaximumUsage(discount.getMaximumUsage() - 1);
+                discountRepository.save(discount);
+            }
+
             // Tạo bản ghi Payment cho thanh toán tiền mặt
             Payment payment = new Payment();
             payment.setAmount(finalAmount.toString()); // Sử dụng finalAmount đã trừ voucher
@@ -737,8 +748,8 @@ public class CartServiceImpl implements CartService {
                 total = total.add(productDetail.getPrice().multiply(quantity));
             }
 
-            productDetail.setQuantity(productDetail.getQuantity() - item.getQuantity());
-            productDetailRepository.save(productDetail);
+
+//            productDetailRepository.save(productDetail);
             billDetail.setProductDetail(productDetail);
             billDetail.setDetailPrice(detailPrice);
             billDetailList.add(billDetail);

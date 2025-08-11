@@ -370,7 +370,8 @@
 
                         <!-- Nút Thêm sản phẩm và Lịch sử hóa đơn -->
                         <div class="action-buttons">
-                            <div th:if="${billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG &&
+                            <div th:if="${billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).CHO_XAC_NHAN &&
+                                          billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).DANG_GIAO_HANG &&
                                           billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).GIAO_HANG_THANH_CONG &&
                                           billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).HOAN_THANH &&
                                           billdetail.trangThaiDonHang != T(com.example.jdshoes.entity.enumClass.BillStatus).HUY &&
@@ -484,8 +485,8 @@
                                     <tr th:if="${billdetail.phuongThucThanhToan == 'CHUYEN_KHOAN'}">
                                         <th scope="row" colspan="5" class="text-end">Số tiền đã thanh toán (sản phẩm ban đầu + phí ship cũ):</th>
                                         <td class="border-0 text-end">
-                                            <span th:with="paidAmount = ${originalProductAmount + (oldShippingFee != null ? oldShippingFee : 0)}"
-                                                  th:text="${#numbers.formatDecimal(paidAmount, 0, 'POINT', 0, 'COMMA')}"></span>
+                                          <span th:with="paidAmount = ${originalProductAmount - (billdetail.tienKhuyenMai != null ? billdetail.tienKhuyenMai : 0) + (oldShippingFee != null ? oldShippingFee : 0)}"
+                                           th:text="${#numbers.formatDecimal(paidAmount, 0, 'POINT', 0, 'COMMA')}"></span>
                                         </td>
                                     </tr>
                                     <!-- Trường hợp TIEN_MAT và OFFLINE -->
@@ -562,22 +563,21 @@
                             <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="addProductModalLabel">Thêm sản phẩm vào hóa
-                                            đơn</h5>
+                                        <h5 class="modal-title" id="addProductModalLabel">Thêm sản phẩm vào hóa đơn</h5>
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal"
                                                 aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                    <form th:action="@{'/admin/add-product-to-bill/' + ${billdetail.maDonHang}}"
+                                    <form id="addProductForm" th:action="@{'/admin/add-product-to-bill/' + ${billdetail.maDonHang}}"
                                           method="post">
                                         <div class="modal-body">
                                             <div class="form-group">
                                                 <label for="productDetailId">Sản phẩm</label>
-                                                <select class="form-control" id="productDetailId"
-                                                        name="productDetailId">
+                                                <select class="form-control" id="productDetailId" name="productDetailId">
                                                     <option th:each="product : ${products}"
                                                             th:value="${product.id}"
+                                                            th:data-quantity="${product.quantity}"
                                                             th:text="${product.product.name + ' - ' + product.color.name + ' - ' + product.size.name + ' (Số lượng: ' + product.quantity + ' )'}">
                                                     </option>
                                                 </select>
@@ -586,6 +586,8 @@
                                                 <label for="quantity">Số lượng</label>
                                                 <input type="number" class="form-control" id="quantity"
                                                        name="quantity" min="1" value="1">
+                                                <span class="error-text text-danger"
+                                                      style="display: none; font-size: 12px;">Số lượng vượt quá tồn kho</span>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -774,6 +776,27 @@
                         $('#noteModal').modal('show');
                     }
                 });
+            });
+
+            // Validate số lượng sản phẩm khi submit form thêm sản phẩm
+            $('#addProductForm').submit(function (e) {
+                var selectedProduct = $('#productDetailId option:selected');
+                var maxQuantity = parseInt(selectedProduct.data('quantity')) || 0;
+                var inputQuantity = parseInt($('#quantity').val()) || 0;
+
+                if (inputQuantity > maxQuantity) {
+                    e.preventDefault();
+                    $('#quantity').next('.error-text').show();
+                    Swal.fire({
+                        title: 'Lỗi',
+                        text: 'Số lượng nhập vượt quá số lượng tồn kho (' + maxQuantity + '). Vui lòng chọn lại!',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return false;
+                } else {
+                    $('#quantity').next('.error-text').hide();
+                }
             });
 
             // Đảm bảo modal đóng đúng cách
