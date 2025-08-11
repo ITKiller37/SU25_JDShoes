@@ -479,24 +479,32 @@
                 dataType: "json",
                 url: `/productDetails/${productId}/product`,
                 success: function (data) {
-
                     const productDetail = data.find(item => item.size.id == sizeId && item.color.id == colorId);
                     if (!productDetail) return;
 
-                    loadRemainingQuantity(productDetail.quantity)
+                    loadRemainingQuantity(productDetail.quantity);
 
-                    if(!productDetail.discountedPrice) {
+                    // Nếu productDetail có nhiều khuyến mãi => chọn giá giảm nhiều nhất
+                    let finalPrice = productDetail.price;
+                    if (productDetail.discounts && productDetail.discounts.length > 0) {
+                        // Lấy giá sau giảm nhỏ nhất
+                        finalPrice = Math.min(...productDetail.discounts.map(d => d.discountedPrice));
+                    } else if (productDetail.discountedPrice) {
+                        finalPrice = productDetail.discountedPrice;
+                    }
+
+                    if (finalPrice >= productDetail.price) {
+                        // Không giảm hoặc giảm không hợp lệ
                         $("#price_product").html(formatNumber(parseFloat(productDetail.price)) + ' đ');
                     } else {
                         const oldPrice = formatNumber(parseFloat(productDetail.price));
-                        const discountedPrice = formatNumber(parseFloat(productDetail.discountedPrice));
+                        const discountedPrice = formatNumber(parseFloat(finalPrice));
                         $("#price_product").html(`
-
                     <span style="font-size: 12px; text-decoration: line-through">${oldPrice} đ</span>
                     <span class="mtext-106 cl2" id="price_product">${discountedPrice} đ</span>
                 `);
-
                     }
+
                     $("#productDetailId").val(productDetail.id);
                 }
             });
