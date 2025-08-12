@@ -70,14 +70,16 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             dto.setQuantity(productDetail.getQuantity());
 
             // 🔍 Tìm ProductDiscountDetail (đang active)
-            ProductDiscountDetail discountDetail = productDiscountDetailRepository
-                    .findValidByProductDetailId(productDetail.getId());
+            List<ProductDiscountDetail> discountDetails =
+                    productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
 
-            if (discountDetail != null && discountDetail.getDiscountedAmount() != null) {
-                dto.setDiscountedPrice(discountDetail.getDiscountedAmount()); // ✅ giá sau khi giảm
-                dto.setDiscountedAmount(productDetail.getPrice().subtract(discountDetail.getDiscountedAmount())); // ✅ tiền đã giảm (tuỳ chọn)
+            if (!discountDetails.isEmpty()) {
+                // Chọn bản giảm giá nhiều nhất
+                ProductDiscountDetail bestDiscount = discountDetails.get(0);
+
+                dto.setDiscountedPrice(bestDiscount.getDiscountedAmount());
+                dto.setDiscountedAmount(productDetail.getPrice().subtract(bestDiscount.getDiscountedAmount()));
             }
-
             productDetailDTOs.add(dto);
         }
 
