@@ -48,7 +48,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
     @Override
     public List<ProductDiscountDto> getAllDiscounts() {
-        List<ProductDiscount> discounts = productDiscountRepository.findAll();
+        List<ProductDiscount> discounts = productDiscountRepository.findDeletedDiscounts();
         return discounts.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
@@ -88,11 +88,14 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
 
     @Override
-    public void deleteById(Long id) {
+    public void toggleClosed(Long id) {
         ProductDiscount productDiscount = productDiscountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy đợt giảm giá có id = " + id));
-        productDiscountRepository.delete(productDiscount);
+
+        productDiscount.setClosed(!productDiscount.isClosed()); // Đảo giá trị true/false
+        productDiscountRepository.save(productDiscount);
     }
+
 
     @Override
     public ProductDiscount createDiscount(ProductDiscountDto dto) {
@@ -106,7 +109,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         discount.setStartDate(dto.getStartDate());
         discount.setEndDate(dto.getEndDate());
-        discount.setClosed(false);
+        discount.setClosed(true);
         discount.setDescription(dto.getDescription());
 
         // Logic xác định status theo ngày hiện tại
@@ -136,7 +139,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         discount.setStartDate(request.getStartDate());
         discount.setEndDate(request.getEndDate());
         discount.setDescription(request.getDescription());
-        discount.setClosed(false);
+        discount.setClosed(true);
 
         // 👇 Thêm 3 dòng này
         discount.setValue(request.getValue());

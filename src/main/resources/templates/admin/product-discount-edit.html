@@ -506,17 +506,19 @@
 
                     product.productDetailDtos.forEach(detail => {
                         if (productSelectedListDetailId.includes(detail.id)) return;
+                        // ✅ Chỉ lấy sản phẩm có số lượng > 0
+                        if (detail.quantity > 0 && !productSelectedListDetailId.includes(detail.id)) {
+                            productSelectedListDetailId.push(detail.id);
 
-                        productSelectedListDetailId.push(detail.id);
+                            const selectedProduct = {
+                                name: product.name,
+                                imageUrl: product.imageUrl,
+                                detail: detail
+                            };
 
-                        const selectedProduct = {
-                            name: product.name,
-                            imageUrl: product.imageUrl,
-                            detail: detail
-                        };
-
-                        productSelectedList.push(selectedProduct);
-                        appendSelectProduct(selectedProduct);
+                            productSelectedList.push(selectedProduct);
+                            appendSelectProduct(selectedProduct);
+                        }
                     });
 
                     paginateSelectedProductList();
@@ -618,6 +620,12 @@
 
                 if (!name || isNaN(value) || !startDate || !endDate) {
                     return Swal.fire('Lỗi','Vui lòng nhập đầy đủ thông tin!','error');
+                }
+
+                if (type === '%' && (value <= 1 || value > 100)) {
+                    return Swal.fire('Lỗi', 'Giá trị giảm % phải lớn hơn 1% và không vượt quá 100%', 'error');
+                } else if (type === 'VND' && value < 0) {
+                    return Swal.fire('Lỗi', 'Số tiền giảm không được âm', 'error');
                 }
 
                 // Dùng hàm chung để build chi tiết giảm giá
