@@ -104,10 +104,12 @@
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <script th:inline="javascript">
+        <script th:inline="none">
             $(document).ready(function () {
                 new DataTable('#myTable', {
                     order: [],
+                    pageLength: 5,
+                    lengthMenu: [[3, 5, 10, 15], [3, 5, 10, 15]],
                     language: {
                         search: "Tìm kiếm:",
                         lengthMenu: "Hiển thị _MENU_ bản ghi 1 trang",
@@ -118,7 +120,7 @@
                             last: ">>",
                             next: ">",
                             previous: "<"
-                        },
+                        }
                     }
                 }).on('draw.dt', () => setEvent());
 
@@ -138,7 +140,7 @@
                         }).then(async (result) => {
                             if (result.isConfirmed) {
                                 await $.ajax({
-                                    type: 'DELETE',
+                                    type: 'PATCH',
                                     url: `/api/private/product-discount/${deleteId}`,
                                     success: async function () {
                                         await Toastify({
@@ -147,7 +149,6 @@
                                             style: { background: "green" },
                                             duration: 2000
                                         }).showToast();
-
                                         window.location.reload();
                                     },
                                     error: function (xhr) {

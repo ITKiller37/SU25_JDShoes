@@ -443,9 +443,6 @@
         chooseProduct(); // Gắn lại sự kiện
       }
 
-
-
-
       function chooseProduct() {
         $('.choose-product-btn').off('click').on('click', function () {
           const productItemEl = $(this).closest('.product-item');
@@ -454,23 +451,25 @@
           if (!product) return;
 
           product.productDetailDtos.forEach(detail => {
-            if (productSelectedListDetailId.includes(detail.id)) return;
+            // ✅ Chỉ lấy sản phẩm có số lượng > 0
+            if (detail.quantity > 0 && !productSelectedListDetailId.includes(detail.id)) {
+              productSelectedListDetailId.push(detail.id);
 
-            productSelectedListDetailId.push(detail.id);
+              const selectedProduct = {
+                name: product.name,
+                imageUrl: product.imageUrl,
+                detail: detail
+              };
 
-            const selectedProduct = {
-              name: product.name,
-              imageUrl: product.imageUrl,
-              detail: detail
-            };
-
-            productSelectedList.push(selectedProduct);
-            appendSelectProduct(selectedProduct);
+              productSelectedList.push(selectedProduct);
+              appendSelectProduct(selectedProduct);
+            }
           });
 
           paginateSelectedProductList();
         });
       }
+
 
       function appendSelectProduct(product) {
         const detail = product.detail;

@@ -22,13 +22,13 @@ public class ProductDiscountController {
     private final ProductRepository productRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
-    @DeleteMapping("/api/private/product-discount/{id}")
+    @PatchMapping("/api/private/product-discount/{id}")
     @ResponseBody
-    public String deleteProductDiscount(@PathVariable Long id) {
-        System.out.println("Xóa ID: " + id);
-        productDiscountService.deleteById(id);
-        return "Xóa thành công";
+    public String toggleClosed(@PathVariable Long id) {
+        productDiscountService.toggleClosed(id);
+        return "Cập nhật trạng thái thành công";
     }
+
 
     @GetMapping("/admin-only/product-discount")
     public String showDiscounts(Model model) {
