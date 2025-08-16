@@ -57,6 +57,9 @@ public class OrderRestController {
     @Autowired
     private CartDetailRepository cartDetailRepository;
 
+    @Autowired
+    private ProductDiscountDetailRepository productDiscountDetailRepository;
+
     // Đặt hàng trực tuyến
     @PostMapping("/orderUser")
     public ResponseEntity<?> orderUser(@RequestBody OrderDto orderDto, Authentication authentication) {
@@ -141,10 +144,11 @@ public class OrderRestController {
                         .collect(Collectors.toList());
                 productDetailDto.setImages(imageDtos);
 
-                // Nếu có khuyến mãi
-                ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-                if (productDiscount != null) {
-                    productDetailDto.setDiscountedAmount(productDiscount.getDiscountedAmount());
+                // Lấy giá giảm từ ProductDiscountDetail
+                List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
+                if (!discountDetails.isEmpty()) {
+                    ProductDiscountDetail bestDiscount = discountDetails.get(0); // Chọn mức giảm giá tốt nhất
+                    productDetailDto.setDiscountedAmount(bestDiscount.getDiscountedAmount());
                 }
 
                 // Tạo CartItem
@@ -250,8 +254,9 @@ public class OrderRestController {
         for (CartDetail cartDetail : updatedCartDetails) {
             ProductDetail productDetail = cartDetail.getProductDetail();
             Product product = productRepository.findByProductDetailId(productDetail.getId());
-            ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-            BigDecimal price = productDiscount != null ? productDiscount.getDiscountedAmount() : productDetail.getPrice();
+            // Lấy giá giảm từ ProductDiscountDetail
+            List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
+            BigDecimal price = !discountDetails.isEmpty() ? discountDetails.get(0).getDiscountedAmount() : productDetail.getPrice();
 
             CartItemResponse itemResponse = new CartItemResponse();
             itemResponse.setProductDetailId(productDetail.getId());

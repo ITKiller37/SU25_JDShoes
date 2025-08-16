@@ -61,6 +61,9 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private BillService billService;
 
+    @Autowired
+    private ProductDiscountDetailRepository productDiscountDetailRepository;
+
     public CartServiceImpl(CartRepository cartRepository,
                            CartDetailRepository cartDetailRepository,
                            CustomerRepository customerRepository,
@@ -276,12 +279,14 @@ public class CartServiceImpl implements CartService {
                                 product.getName(), productDetail.getSize().getName(), productDetail.getColor().getName(), productDetail.getQuantity()));
             }
 
-            ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
+            // Lấy giá giảm từ ProductDiscountDetail
+            List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
             BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
             BigDecimal detailPrice;
-            if (productDiscount != null) {
-                detailPrice = productDiscount.getDiscountedAmount();
-                total = total.add(productDiscount.getDiscountedAmount().multiply(quantity));
+            if (!discountDetails.isEmpty()) {
+                ProductDiscountDetail bestDiscount = discountDetails.get(0); // Chọn mức giảm giá tốt nhất
+                detailPrice = bestDiscount.getDiscountedAmount();
+                total = total.add(bestDiscount.getDiscountedAmount().multiply(quantity));
             } else {
                 detailPrice = productDetail.getPrice();
                 total = total.add(productDetail.getPrice().multiply(quantity));
@@ -460,10 +465,18 @@ public class CartServiceImpl implements CartService {
                                     product.getName(), productDetail.getSize().getName(), productDetail.getColor().getName(), productDetail.getQuantity()));
                 }
 
-                ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
+                // Lấy giá giảm từ ProductDiscountDetail
+                List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
                 BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
-                BigDecimal detailPrice = productDiscount != null ? productDiscount.getDiscountedAmount() : productDetail.getPrice();
-                total = total.add(detailPrice.multiply(quantity));
+                BigDecimal detailPrice;
+                if (!discountDetails.isEmpty()) {
+                    ProductDiscountDetail bestDiscount = discountDetails.get(0); // Chọn mức giảm giá tốt nhất
+                    detailPrice = bestDiscount.getDiscountedAmount();
+                    total = total.add(bestDiscount.getDiscountedAmount().multiply(quantity));
+                } else {
+                    detailPrice = productDetail.getPrice();
+                    total = total.add(productDetail.getPrice().multiply(quantity));
+                }
 
                 BillDetail billDetail = new BillDetail();
                 billDetail.setQuantity(item.getQuantity());
@@ -737,12 +750,14 @@ public class CartServiceImpl implements CartService {
                                 productDetail.getColor().getName() + " chỉ còn lại " + productDetail.getQuantity());
             }
 
-            ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
+           // Lấy giá giảm từ ProductDiscountDetail
+            List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
             BigDecimal quantity = BigDecimal.valueOf(item.getQuantity());
             BigDecimal detailPrice;
-            if (productDiscount != null) {
-                detailPrice = productDiscount.getDiscountedAmount();
-                total = total.add(productDiscount.getDiscountedAmount().multiply(quantity));
+            if (!discountDetails.isEmpty()) {
+                ProductDiscountDetail bestDiscount = discountDetails.get(0); // Chọn mức giảm giá tốt nhất
+                detailPrice = bestDiscount.getDiscountedAmount();
+                total = total.add(bestDiscount.getDiscountedAmount().multiply(quantity));
             } else {
                 detailPrice = productDetail.getPrice();
                 total = total.add(productDetail.getPrice().multiply(quantity));
@@ -936,10 +951,11 @@ public class CartServiceImpl implements CartService {
                     .collect(Collectors.toList());
             productDetailDto.setImages(imageDtos);
 
-            // Nếu có khuyến mãi
-            ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-            if (productDiscount != null) {
-                productDetailDto.setDiscountedAmount(productDiscount.getDiscountedAmount());
+            // Lấy giá giảm từ ProductDiscountDetail
+            List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
+            if (!discountDetails.isEmpty()) {
+                ProductDiscountDetail bestDiscount = discountDetails.get(0); // Chọn mức giảm giá tốt nhất
+                productDetailDto.setDiscountedAmount(bestDiscount.getDiscountedAmount());
             }
 
             // Tạo CartItem
