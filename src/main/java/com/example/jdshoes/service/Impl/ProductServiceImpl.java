@@ -8,7 +8,9 @@ import com.example.jdshoes.dto.Product.ProductSearchDto;
 import com.example.jdshoes.dto.Product.SearchProductDto;
 import com.example.jdshoes.entity.Product;
 import com.example.jdshoes.entity.ProductDetail;
+import com.example.jdshoes.entity.ProductDiscountDetail;
 import com.example.jdshoes.repository.ProductDetailRepository;
+import com.example.jdshoes.repository.ProductDiscountDetailRepository;
 import com.example.jdshoes.repository.ProductRepository;
 import com.example.jdshoes.repository.Specification.ProductSpecification;
 import com.example.jdshoes.service.ProductService;
@@ -36,6 +38,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductDetailRepository productDetailRepository;
+
+    @Autowired
+    private ProductDiscountDetailRepository productDiscountDetailRepository;
 
 
     @Override
@@ -118,12 +123,12 @@ public class ProductServiceImpl implements ProductService {
         productDto.setUpdatedDate(product.getUpdatedDate());
 
         List<ProductDetailDto> productDetailDtoList = new ArrayList<>();
-        BigDecimal priceMin = new BigDecimal("100000000");
+        BigDecimal priceMin = null;
 
         String representativeImageUrl = null;
 
         for (ProductDetail productDetail : product.getProductDetails()) {
-            if (productDetail.getPrice().compareTo(priceMin) < 0) {
+            if (priceMin == null || productDetail.getPrice().compareTo(priceMin) < 0) {
                 priceMin = productDetail.getPrice();
             }
             ProductDetailDto productDetailDto = new ProductDetailDto();
@@ -134,6 +139,12 @@ public class ProductServiceImpl implements ProductService {
             productDetailDto.setPrice(productDetail.getPrice());
             productDetailDto.setQuantity(productDetail.getQuantity());
             productDetailDto.setBarcode(productDetail.getBarcode());
+
+            // Lấy giá giảm tốt nhất từ ProductDiscountDetail
+            List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetail.getId());
+            if (!discountDetails.isEmpty()) {
+                productDetailDto.setDiscountedPrice(discountDetails.get(0).getDiscountedAmount());
+            }
 
 
                 // Ánh xạ danh sách ảnh
@@ -159,7 +170,7 @@ public class ProductServiceImpl implements ProductService {
 
                 productDetailDtoList.add(productDetailDto);
             }
-            productDto.setPriceMin(priceMin);
+            productDto.setPriceMin(priceMin != null ? priceMin : BigDecimal.ZERO);
             productDto.setProductDetailDtos(productDetailDtoList);
             productDto.setImageUrl(representativeImageUrl);
             return productDto;

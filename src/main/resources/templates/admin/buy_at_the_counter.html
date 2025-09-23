@@ -340,7 +340,7 @@
                 <span id="currentDate" class="text-gray-400 mr-3"></span>
                 <span id="currentTime" class="text-gray-400"></span>
             </div>
-            <div class="search-customer-container w- my-3" >
+            <div class="search-customer-container w- my-3"  data-tab-number="1" >
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
@@ -702,17 +702,6 @@
                         $(this).off('change').on('change', function () {
                             if ($(this).is(':checked')) {
                                 showShippingForm(tabNumber);
-
-                                // Tự động điền thông tin từ khách hàng nếu có
-                                const customerName = $(`.selected-customer[data-tab-number="${tabNumber}"] .font-bold`).text();
-                                const customerPhone = $(`.selected-customer[data-tab-number="${tabNumber}"] .font-bold:last`).text();
-
-                                if (customerName && customerName !== 'Khách lẻ') {
-                                    $(`#shipping-name-${tabNumber}`).val(customerName);
-                                }
-                                if (customerPhone) {
-                                    $(`#shipping-phone-${tabNumber}`).val(customerPhone);
-                                }
                             } else {
                                 $(`.shipping-container[data-tab-number="${tabNumber}"]`).empty();
                                 calculateLastPrice(tabNumber);
@@ -723,25 +712,19 @@
                 bindShippingToggleEvents();
 
 
-                $('.tab').click(function () {
-                    $('.tab-container .tab').removeClass('active');
-                    $(this).addClass('active');
-                    $('.product-select-body').addClass('hidden');
-                    $('.product-select-body').removeClass('active');
-                    $('.selected-customer').addClass('hidden');
-                    $('.selected-customer').removeClass('active');
-                    document.querySelector('.product-select-body').classList.remove('hidden');
-                    document.querySelector('.product-select-body').classList.add('active');
-                    document.querySelector('.selected-customer').classList.remove('hidden');
-                    document.querySelector('.selected-customer').classList.add('active');
-                    calculateAllPrice();
-                    voucherChoosed = null;
-                    $('#customerPayInput').val('');
-                    pay.customerPay = 0;
-                    $('#money-change').text(0);
-                    calculateVoucherPrice();
-                    calculateLastPrice();
+
+                // Gắn sự kiện click cho các tab thông qua delegation
+                $(document).on('click', '.tab', function() {
+                    const tabNumber = $(this).attr('data-tab-number');
+                    switchToTab(tabNumber);
                 });
+
+                // Gắn sự kiện cho các tab mới được tạo động
+                function setupTabEvents(tab, tabNumber) {
+                    tab.off('click').on('click', function() {
+                        switchToTab(tabNumber);
+                    });
+                }
 
                 $('.add-tab-btn').click(function () {
                     if ($('.tab').length > 6) {
@@ -752,8 +735,26 @@
                         }).showToast();
                         return;
                     }
-                    var lastTabNumber = parseInt($('.tab-container .tab:last-child').attr('data-tab-number'));
-                    var newTabNumber = lastTabNumber + 1;
+
+                    // Tìm số tab lớn nhất từ cả tab hiện tại và tab đang treo
+                    var maxTabNumber = 0;
+
+                    // Tìm số lớn nhất trong các tab hiện tại
+                    $('.tab').each(function() {
+                        var tabNumber = parseInt($(this).attr('data-tab-number'));
+                        if (tabNumber > maxTabNumber) {
+                            maxTabNumber = tabNumber;
+                        }
+                    });
+
+                    // Tìm số lớn nhất trong các tab đang treo
+                    pendingOrders.forEach(function(order) {
+                        if (parseInt(order.tabNumber) > maxTabNumber) {
+                            maxTabNumber = parseInt(order.tabNumber);
+                        }
+                    });
+
+                    var newTabNumber = maxTabNumber + 1;
 
                     // Tạo tab mới
                     var newTab = $(`<div data-tab-number="${newTabNumber}" class="tab font-bold relative cursor-pointer">
@@ -1097,7 +1098,8 @@
                     // Gộp tên sản phẩm, màu và cỡ
                     var productDisplayName = `${product.name} ${productDetailCopy.colorName ? '- ' + productDetailCopy.colorName : ''} ${productDetailCopy.sizeName ? '- ' + productDetailCopy.sizeName : ''}`.trim();
 
-                    var priceHtml = productDetailCopy.discountedPrice ?
+                    // Sử dụng giá giảm tốt nhất từ discountedPrice (nếu có) hoặc giá gốc
+                    var priceHtml = productDetailCopy.discountedPrice && productDetailCopy.discountedPrice < productDetailCopy.price ?
                         `<td class="px-6 py-4 text-lg">
             <span class="flex flex-col">
                 <span class="text-sm line-through">${formatNumber(productDetailCopy.price)}</span>
@@ -1169,7 +1171,7 @@
                         updateSearchProductForTab(tabNumber);
 
                         Toastify({
-                            text: "Đã xóa sản phẩm và hoàn trả số lượng",
+                            text: "Đã xóa sản phẩm thành công",
                             className: "success",
                             style: { background: "green" }
                         }).showToast();
@@ -1254,16 +1256,10 @@
                     // Tính toán lại giá
                     calculateAllPrice();
                     calculateLastPrice();
-                    handleChangeQuantity();
+
                 }
 
-                function setupTabEvents(tab, tabNumber) {
 
-
-                    tab.off('click').on('click', function () {
-                        switchToTab(tabNumber);
-                    });
-                }
 
                 async function closeTab(tabNumber) {
                     // Hoàn trả số lượng sản phẩm trong tab này
@@ -1542,7 +1538,7 @@
                 }
 
                 function addNewProductToCurrentTab(productDetailSe, productDetailId, product, tabNumber) {
-                    const priceHtml = productDetailSe.discountedPrice ?
+                    const priceHtml = productDetailSe.discountedPrice && productDetailSe.discountedPrice < productDetailSe.price ?
                         `<td class="px-6 py-4 text-lg">
             <span class="flex flex-col">
                 <span class="text-sm line-through">${formatNumber(productDetailSe.price)}</span>
@@ -1591,12 +1587,9 @@
 
                     // Gắn sự kiện thay đổi số lượng
                     htmlProductItem.find('.product-select-quantity').on('input change keydown', function(e) {
-                        // Cho phép xóa hết nội dung
                         if (e.key === 'Backspace' && $(this).val() === '') {
                             return;
                         }
-
-                        // Xử lý thay đổi số lượng
                         if (e.type === 'change' || e.type === 'input' || e.key === 'Enter') {
                             handleQuantityChange($(this), tabNumber);
                         }
@@ -1728,7 +1721,6 @@
                         newProductList.forEach(newProduct => {
                             const existingProduct = productList.find(p => p.id === newProduct.id);
                             if (existingProduct) {
-                                // Giữ nguyên quantity của productDetailDtos đã được cập nhật
                                 newProduct.productDetailDtos.forEach(newDetail => {
                                     const existingDetail = existingProduct.productDetailDtos.find(d => d.id === newDetail.id);
                                     if (existingDetail) {
@@ -1748,14 +1740,14 @@
                         productList.forEach(product => {
                             product.productDetailDtos.forEach(productDetail => {
                                 var price = ``;
-                                if (productDetail.discountedPrice) {
+                                if (productDetail.discountedPrice && productDetail.discountedPrice < productDetail.price) {
                                     price = `<span>
-                        <span class="product-old-price text-sm line-through text-gray-500 italic">${productDetail.price}</span>
-                        <span class="product-price text-md font-bold text-blue-500">${productDetail.discountedPrice}</span>
+                        <span class="product-old-price text-sm line-through text-gray-500 italic">${formatNumber(productDetail.price)}</span>
+                        <span class="product-price text-md font-bold text-blue-500">${formatNumber(productDetail.discountedPrice)}</span>
                     </span>`;
                                 } else {
                                     price = `<span>
-                        <span class="product-price text-md font-bold text-blue-500">${productDetail.price}</span>
+                        <span class="product-price text-md font-bold text-blue-500">${formatNumber(productDetail.price)}</span>
                     </span>`;
                                 }
                                 var imageUrl = productDetail.images && productDetail.images.length > 0 ? productDetail.images[0].link : '/default-image.jpg';
@@ -1766,18 +1758,18 @@
                         </div>
                         <div class="search-product-info flex-1">
                             <div class="flex justify-between">
-                                <h5 class="product-name font-bold">${product.name}</h5>
+                                <span class="product-name font-bold">${product.name}</span>
                                 <span class="product-code text-gray-600 text-sm">#${product.code}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-400 text-sm">
-                                    <span>Màu: </span><span>${productDetail.colorName || 'N/A'}</span></span>
+                                    <span>Màu: </span><span>${productDetail.colorName || 'N/A'}</span>
                                 </span>
                                 <span class="text-gray-400 text-sm">
-                                    <span>Cỡ: </span><span>${productDetail.sizeName || 'N/A'}</span></span>
+                                    <span>Cỡ: </span><span>${productDetail.sizeName || 'N/A'}</span>
                                 </span>
                                 <span class="text-sm">
-                                    <span>Số lượng: </span> <span class="product-quantity">${productDetail.quantity}</span>
+                                    <span>Số lượng: </span><span class="product-quantity">${productDetail.quantity}</span>
                                 </span>
                                 ${price}
                             </div>
@@ -1798,13 +1790,10 @@
                                 var productDetailSe = foundProduct.productDetailDtos.find(x => x.id == productDetailId);
 
                                 if (productDetailSe && productDetailSe.quantity >= 1) {
-                                    // Chỉ gọi handleAddToOrder mà không trừ số lượng ở đây
-                                    var result = handleAddToOrder(productDetailSe, productDetailId, canAdd, foundProduct);
-
-                                    if (result !== 1) { // Nếu không phải lỗi hết hàng
-                                        // Cập nhật lại danh sách tìm kiếm
+                                    var result = await handleAddToOrder(productDetailSe, productDetailId, canAdd, foundProduct);
+                                    if (result !== 1) {
                                         $(".list-search-product").html('');
-                                        loadProductSearch({content: productList});
+                                        loadProductSearch({ content: productList });
                                     }
                                 } else {
                                     Swal.fire({
@@ -1995,29 +1984,37 @@
 
                     $selectedCustomer.attr('selected-id', customerId || '');
                     $selectedCustomer.attr('data-email', customerEmail || '');
+                    $selectedCustomer.attr('data-customer-name', customerName || '');
+                    $selectedCustomer.attr('data-customer-phone', customerPhone || '');
 
                     if (customerId) {
                         $selectedCustomer.html(`
             <div class="p-2 flex items-center justify-between">
                 <div>
-                    <span class="font-bold">${customerName || 'Khách lẻ'}</span>
+                    <span class="customer-name font-bold">${customerName || 'Khách lẻ'}</span>
                     <br>
                     <span class="text-gray-400">${customerCode || ''}</span>
                 </div>
                 <div>
-                    <span class="font-bold">${customerPhone || ''}</span>
+                    <span class="customer-phone font-bold">${customerPhone || ''}</span>
                 </div>
-                <span id="delete-selected-customer-btn" class="p-1 hover:bg-gray-400 rounded-full font-bold cursor-pointer">×</span>
+                <span class="delete-selected-customer-btn p-1 hover:bg-gray-400 rounded-full font-bold cursor-pointer">×</span>
             </div>
         `);
                     } else {
                         $selectedCustomer.html('<span class="font-bold italic text-gray-500">Khách lẻ</span>');
+                        $selectedCustomer.removeAttr('data-customer-name');
+                        $selectedCustomer.removeAttr('data-customer-phone');
                     }
 
                     // Xử lý sự kiện xóa khách hàng
-                    $('#delete-selected-customer-btn').off('click').on('click', () => {
+                    $selectedCustomer.off('click', '.delete-selected-customer-btn').on('click', '.delete-selected-customer-btn', function(e) {
+                        e.stopPropagation();
                         $selectedCustomer.html('<span class="font-bold italic text-gray-500">Khách lẻ</span>');
                         $selectedCustomer.attr('selected-id', '');
+                        $selectedCustomer.removeAttr('data-customer-name');
+                        $selectedCustomer.removeAttr('data-customer-phone');
+                        $selectedCustomer.removeAttr('data-email');
 
                         if ($(`.is-shipping[data-tab-number="${tabNumber}"]`).is(':checked')) {
                             $(`.shipping-container[data-tab-number="${tabNumber}"]`).empty();
@@ -2265,9 +2262,11 @@
 
 
                 function showShippingForm(tabNumber) {
-                    const customerName = $(`.selected-customer[data-tab-number="${tabNumber}"] .font-bold`).text() || "";
-                    const customerPhone = $(`.selected-customer[data-tab-number="${tabNumber}"] .customer-phone`).text() || "";
-                    const customerId = $(`.selected-customer[data-tab-number="${tabNumber}"]`).attr('selected-id') || null;
+                    const customerElement = $(`.selected-customer[data-tab-number="${tabNumber}"]`);
+                    const customerId = customerElement.attr('selected-id') || null;
+
+                    // Kiểm tra nếu là khách lẻ (customerId rỗng) thì không điền thông tin
+                    const isGuestCustomer = !customerId;
 
                     const shippingForm = `
     <div id="shipping-form-${tabNumber}" class="mt-4 p-6 bg-white rounded-lg shadow-md border border-gray-200">
@@ -2275,11 +2274,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tên người nhận <span class="text-red-500">*</span></label>
-                <input type="text" id="shipping-name-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="${customerName || 'Khách lẻ'}" required>
+                <input type="text" id="shipping-name-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="" required>
             </div>
             <div class="form-group">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại <span class="text-red-500">*</span></label>
-                <input type="text" id="shipping-phone-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="${customerPhone}" required>
+                <input type="text" id="shipping-phone-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="" required>
             </div>
             <div class="form-group">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố <span class="text-red-500">*</span></label>
@@ -2318,14 +2317,27 @@
 
                     $(`.shipping-container[data-tab-number="${tabNumber}"]`).html(shippingForm);
 
-                    // Điền thông tin cơ bản
-                    $(`#shipping-name-${tabNumber}`).val(customerName);
-                    $(`#shipping-phone-${tabNumber}`).val(customerPhone);
+                    // Chỉ điền thông tin nếu không phải là khách lẻ
+                    if (!isGuestCustomer) {
+                        // Lấy thông tin từ DATA ATTRIBUTES thay vì từ HTML
+                        const customerName = customerElement.attr('data-customer-name') || '';
+                        const customerPhone = customerElement.attr('data-customer-phone') || '';
+
+                        // Lọc bỏ ký tự đặc biệt và số từ tên (chỉ giữ chữ cái và khoảng trắng)
+                        const cleanCustomerName = customerName.replace(/[^a-zA-ZÀ-ỹ\s]/g, '').trim();
+
+                        if (cleanCustomerName) {
+                            $(`#shipping-name-${tabNumber}`).val(cleanCustomerName);
+                        }
+                        if (customerPhone) {
+                            $(`#shipping-phone-${tabNumber}`).val(customerPhone);
+                        }
+                    }
 
                     // Load danh sách tỉnh từ GHN
                     loadGHNProvinces(tabNumber, function() {
-                        // Nếu có customerId, load thông tin địa chỉ
-                        if (customerId) {
+                        // Nếu có customerId và không phải là khách lẻ, load thông tin địa chỉ
+                        if (customerId && !isGuestCustomer) {
                             $.ajax({
                                 url: `/api/customer/${customerId}`,
                                 method: 'GET',
@@ -2871,6 +2883,7 @@
                         contentType: "application/json; charset=utf-8",
                         success: async function (data) {
                             $('#loading-overlay').hide();
+                            $(".qr-payment-container").addClass('hidden');
                             resetForm(currentTabNumber);
                             $(".product-select-body.active").html('');
                             Toastify({
@@ -2921,6 +2934,7 @@
 
                 $("#confirm-pay").click(function () {
                     handleAjaxRequest(dataSendIfChuyenKhoan);
+                    $(".qr-payment-container").addClass('hidden');
                 });
 
                 $(".close-modal-payment").click(function () {

@@ -58,6 +58,9 @@ public class BillServiceImpl implements BillService {
     @Autowired
     private ProductDiscountRepository productDiscountRepository;
 
+    @Autowired
+    private ProductDiscountDetailRepository productDiscountDetailRepository;
+
     @Override
     public Page<BillDtoInterface> searchListBill(String keyword,
                                                  LocalDateTime ngayTaoStart,
@@ -492,9 +495,11 @@ public class BillServiceImpl implements BillService {
                             productDetail.getQuantity()));
         }
 
-        // Tính giá sản phẩm (ưu tiên giá khuyến mãi nếu có)
-        ProductDiscount productDiscount = productDiscountRepository.findValidDiscountByProductDetailId(productDetail.getId());
-        BigDecimal detailPrice = productDiscount != null ? productDiscount.getDiscountedAmount() : productDetail.getPrice();
+        // Tính giá sản phẩm (ưu tiên giá khuyến mãi từ ProductDiscountDetail nếu có)
+        List<ProductDiscountDetail> discountDetails = productDiscountDetailRepository.findAllValidByProductDetailId(productDetailId);
+        BigDecimal detailPrice = discountDetails.isEmpty() ?
+                productDetail.getPrice() :
+                discountDetails.get(0).getDiscountedAmount();
         BigDecimal newProductAmount = detailPrice.multiply(new BigDecimal(quantity));
 
         // Tạo BillDetail mới
