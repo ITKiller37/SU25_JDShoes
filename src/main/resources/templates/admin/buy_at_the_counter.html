@@ -340,7 +340,7 @@
                 <span id="currentDate" class="text-gray-400 mr-3"></span>
                 <span id="currentTime" class="text-gray-400"></span>
             </div>
-            <div class="search-customer-container w- my-3" >
+            <div class="search-customer-container w- my-3"  data-tab-number="1" >
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
@@ -667,6 +667,7 @@
                 let voucherChoosed;
                 var maxQuantiyAllow = 99999999; // Đặt giá trị mặc định, không giới hạn
                 var pendingOrders = []; // Mảng lưu hóa đơn treo
+                let productInventory = {}; // Lưu trữ số lượng thực tế của sản phẩm
 
                 // Gắn sự kiện change cho tất cả checkbox is-shipping
                 $('.is-shipping').change(function () {
@@ -679,6 +680,21 @@
                     }
                 });
 
+
+                $(window).on('beforeunload', async function() {
+                    await restoreAllQuantities();
+                });
+
+                // Hàm khởi tạo inventory từ productList
+                function initializeInventory() {
+                    productList.forEach(product => {
+                        product.productDetailDtos.forEach(detail => {
+                            productInventory[detail.id] = detail.quantity;
+                        });
+                    });
+                }
+
+
                 // Khởi tạo sự kiện toggle giao hàng cho các tab hiện có
                 function bindShippingToggleEvents() {
                     $('.is-shipping').each(function () {
@@ -686,17 +702,6 @@
                         $(this).off('change').on('change', function () {
                             if ($(this).is(':checked')) {
                                 showShippingForm(tabNumber);
-
-                                // Tự động điền thông tin từ khách hàng nếu có
-                                const customerName = $(`.selected-customer[data-tab-number="${tabNumber}"] .font-bold`).text();
-                                const customerPhone = $(`.selected-customer[data-tab-number="${tabNumber}"] .font-bold:last`).text();
-
-                                if (customerName && customerName !== 'Khách lẻ') {
-                                    $(`#shipping-name-${tabNumber}`).val(customerName);
-                                }
-                                if (customerPhone) {
-                                    $(`#shipping-phone-${tabNumber}`).val(customerPhone);
-                                }
                             } else {
                                 $(`.shipping-container[data-tab-number="${tabNumber}"]`).empty();
                                 calculateLastPrice(tabNumber);
@@ -707,25 +712,19 @@
                 bindShippingToggleEvents();
 
 
-                $('.tab').click(function () {
-                    $('.tab-container .tab').removeClass('active');
-                    $(this).addClass('active');
-                    $('.product-select-body').addClass('hidden');
-                    $('.product-select-body').removeClass('active');
-                    $('.selected-customer').addClass('hidden');
-                    $('.selected-customer').removeClass('active');
-                    document.querySelector('.product-select-body').classList.remove('hidden');
-                    document.querySelector('.product-select-body').classList.add('active');
-                    document.querySelector('.selected-customer').classList.remove('hidden');
-                    document.querySelector('.selected-customer').classList.add('active');
-                    calculateAllPrice();
-                    voucherChoosed = null;
-                    $('#customerPayInput').val('');
-                    pay.customerPay = 0;
-                    $('#money-change').text(0);
-                    calculateVoucherPrice();
-                    calculateLastPrice();
+
+                // Gắn sự kiện click cho các tab thông qua delegation
+                $(document).on('click', '.tab', function() {
+                    const tabNumber = $(this).attr('data-tab-number');
+                    switchToTab(tabNumber);
                 });
+
+                // Gắn sự kiện cho các tab mới được tạo động
+                function setupTabEvents(tab, tabNumber) {
+                    tab.off('click').on('click', function() {
+                        switchToTab(tabNumber);
+                    });
+                }
 
                 $('.add-tab-btn').click(function () {
                     if ($('.tab').length > 6) {
@@ -736,8 +735,26 @@
                         }).showToast();
                         return;
                     }
-                    var lastTabNumber = parseInt($('.tab-container .tab:last-child').attr('data-tab-number'));
-                    var newTabNumber = lastTabNumber + 1;
+
+                    // Tìm số tab lớn nhất từ cả tab hiện tại và tab đang treo
+                    var maxTabNumber = 0;
+
+                    // Tìm số lớn nhất trong các tab hiện tại
+                    $('.tab').each(function() {
+                        var tabNumber = parseInt($(this).attr('data-tab-number'));
+                        if (tabNumber > maxTabNumber) {
+                            maxTabNumber = tabNumber;
+                        }
+                    });
+
+                    // Tìm số lớn nhất trong các tab đang treo
+                    pendingOrders.forEach(function(order) {
+                        if (parseInt(order.tabNumber) > maxTabNumber) {
+                            maxTabNumber = parseInt(order.tabNumber);
+                        }
+                    });
+
+                    var newTabNumber = maxTabNumber + 1;
 
                     // Tạo tab mới
                     var newTab = $(`<div data-tab-number="${newTabNumber}" class="tab font-bold relative cursor-pointer">
@@ -1081,7 +1098,8 @@
                     // Gộp tên sản phẩm, màu và cỡ
                     var productDisplayName = `${product.name} ${productDetailCopy.colorName ? '- ' + productDetailCopy.colorName : ''} ${productDetailCopy.sizeName ? '- ' + productDetailCopy.sizeName : ''}`.trim();
 
-                    var priceHtml = productDetailCopy.discountedPrice ?
+                    // Sử dụng giá giảm tốt nhất từ discountedPrice (nếu có) hoặc giá gốc
+                    var priceHtml = productDetailCopy.discountedPrice && productDetailCopy.discountedPrice < productDetailCopy.price ?
                         `<td class="px-6 py-4 text-lg">
             <span class="flex flex-col">
                 <span class="text-sm line-through">${formatNumber(productDetailCopy.price)}</span>
@@ -1117,25 +1135,53 @@
     </tr>`);
                 }
 
-                function removeProductItem(productItem, tabNumber) {
-                    const itemProductDetailId = productItem.attr('data-product-detail-id');
-                    const quantityToAddBack = parseInt(productItem.find('.product-select-quantity').val() || 1);
-
-                    // Cập nhật lại số lượng trong productList
+                function updateProductQuantityInList(productDetailId, newQuantity) {
+                    // Cập nhật trong productList
                     productList.forEach(product => {
-                        const detail = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
-                        if (detail) {
-                            detail.quantity += quantityToAddBack;
-                        }
+                        product.productDetailDtos.forEach(detail => {
+                            if (detail.id == productDetailId) {
+                                detail.quantity = newQuantity;
+                            }
+                        });
                     });
 
-                    productItem.remove();
-                    loadOrdreNumber();
-                    calculateAllPrice();
-                    calculateLastPrice();
+                    // Cập nhật trong giao diện tìm kiếm
+                    $(`.search-product-item[data-product-detail-id="${productDetailId}"] .product-quantity`).text(newQuantity);
+                }
 
-                    // Chỉ cập nhật danh sách tìm kiếm cho tab hiện tại
-                    updateSearchProductForTab(tabNumber);
+                async function removeProductItem(productItem, tabNumber) {
+                    const itemProductDetailId = productItem.attr('data-product-detail-id');
+                    const quantityToAddBack = parseInt(productItem.find('.product-select-quantity').val() || 1);
+                    const currentQuantity = parseInt(productItem.attr('data-max-quan')) - quantityToAddBack;
+
+                    try {
+                        // Hoàn trả số lượng vào database
+                        const newQuantity = currentQuantity + quantityToAddBack;
+                        await updateProductQuantityInDatabase(itemProductDetailId, newQuantity);
+
+                        // Cập nhật lại productList và giao diện
+                        updateProductQuantityInList(itemProductDetailId, newQuantity);
+
+                        productItem.remove();
+                        loadOrdreNumber();
+                        calculateAllPrice();
+                        calculateLastPrice(tabNumber);
+
+                        // Cập nhật danh sách tìm kiếm
+                        updateSearchProductForTab(tabNumber);
+
+                        Toastify({
+                            text: "Đã xóa sản phẩm thành công",
+                            className: "success",
+                            style: { background: "green" }
+                        }).showToast();
+                    } catch (error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: error.message,
+                            icon: "error"
+                        });
+                    }
                 }
 
                 function updateSearchProductForTab(tabNumber) {
@@ -1210,18 +1256,37 @@
                     // Tính toán lại giá
                     calculateAllPrice();
                     calculateLastPrice();
-                    handleChangeQuantity();
+
                 }
 
-                function setupTabEvents(tab, tabNumber) {
 
 
-                    tab.off('click').on('click', function () {
-                        switchToTab(tabNumber);
-                    });
-                }
+                async function closeTab(tabNumber) {
+                    // Hoàn trả số lượng sản phẩm trong tab này
+                    const productItems = $(`.product-select-body[data-tab-number="${tabNumber}"] .product-select-item`);
 
-                function closeTab(tabNumber) {
+                    // Lặp qua từng sản phẩm trong tab và hoàn trả số lượng
+                    for (const item of productItems) {
+                        const $item = $(item);
+                        const productDetailId = $item.attr('data-product-detail-id');
+                        const quantity = parseInt($item.find('.product-select-quantity').val());
+                        const currentQuantityInStock = parseInt($item.attr('data-max-quan')) - quantity; // Số lượng hiện có trong kho
+
+                        if (productDetailId && !isNaN(quantity)) {
+                            try {
+                                // Tính toán số lượng mới = số lượng hiện có trong kho + số lượng đã chọn
+                                const newQuantity = currentQuantityInStock + quantity;
+                                await updateProductQuantityInDatabase(productDetailId, newQuantity);
+                                updateProductQuantityInList(productDetailId, newQuantity);
+                            } catch (error) {
+                                console.error("Lỗi khi hoàn trả số lượng:", error);
+                                // Nếu có lỗi, không xóa tab để tránh mất dữ liệu
+                                return;
+                            }
+                        }
+                    }
+
+                    // Xóa các phần tử liên quan đến tab
                     $(`.tab[data-tab-number="${tabNumber}"]`).remove();
                     $(`.product-select-body[data-tab-number="${tabNumber}"]`).remove();
                     $(`.selected-customer[data-tab-number="${tabNumber}"]`).remove();
@@ -1229,6 +1294,7 @@
                     $(`.shipping-toggle-container[data-tab-number="${tabNumber}"]`).remove();
                     $(`.shipping-container[data-tab-number="${tabNumber}"]`).remove();
 
+                    // Kích hoạt tab đầu tiên nếu còn tab nào đó
                     if ($('.tab.active').length === 0 && $('.tab').length > 0) {
                         const firstTab = $('.tab').first();
                         const firstTabNumber = firstTab.attr('data-tab-number');
@@ -1288,27 +1354,54 @@
                     calculateLastPrice(tabNumber);
                 }
 
-                // Hàm mới để cập nhật sự kiện click cho tất cả các tab
-                function updateTabClickEvents() {
-                    $('.tab').off('click').on('click', function() {
-                        $('.tab-container .tab').removeClass('active');
-                        $(this).addClass('active');
-                        $('.product-select-body').addClass('hidden');
-                        $('.product-select-body').removeClass('active');
-                        $('.selected-customer').addClass('hidden');
-                        $('.selected-customer').removeClass('active');
-                        document.querySelector('.product-select-body').classList.remove('hidden');
-                        document.querySelector('.product-select-body').classList.add('active');
-                        document.querySelector('.selected-customer').classList.remove('hidden');
-                        document.querySelector('.selected-customer').classList.add('active');
-                        calculateAllPrice();
-                        voucherChoosed = null;
-                        $('#customerPayInput').val('');
-                        pay.customerPay = 0;
-                        $('#money-change').text(0);
-                        calculateVoucherPrice();
-                        calculateLastPrice();
-                    });
+                async function updateProductQuantityInDatabase(productDetailId, newQuantity) {
+                    try {
+                        // Cập nhật số lượng trong inventory trước
+                        productInventory[productDetailId] = newQuantity;
+
+                        // Gọi API cập nhật
+                        await $.ajax({
+                            type: 'PUT',
+                            url: `/api/product-details/${productDetailId}/quantity`,
+                            contentType: "application/json",
+                            data: JSON.stringify({ quantity: newQuantity }),
+                            success: function() {
+                                console.log(`Đã cập nhật số lượng sản phẩm ${productDetailId} thành ${newQuantity}`);
+                            },
+                            error: function(xhr) {
+                                console.error(`Lỗi khi cập nhật số lượng sản phẩm ${productDetailId}:`, xhr.responseJSON);
+                                throw new Error(xhr.responseJSON.message || "Lỗi khi cập nhật số lượng");
+                            }
+                        });
+                    } catch (error) {
+                        console.error(error);
+                        throw error;
+                    }
+                }
+
+                // Hàm hoàn trả số lượng khi đóng trang
+                async function restoreAllQuantities() {
+                    const tabs = $('.tab');
+                    for (const tab of tabs) {
+                        const tabNumber = $(tab).attr('data-tab-number');
+                        const productItems = $(`.product-select-body[data-tab-number="${tabNumber}"] .product-select-item`);
+
+                        for (const item of productItems) {
+                            const $item = $(item);
+                            const productDetailId = $item.attr('data-product-detail-id');
+                            const quantity = parseInt($item.find('.product-select-quantity').val());
+                            const maxQuantity = parseInt($item.attr('data-max-quan'));
+
+                            if (productDetailId && !isNaN(quantity)) {
+                                try {
+                                    const newQuantity = (productInventory[productDetailId] || maxQuantity) + quantity;
+                                    await updateProductQuantityInDatabase(productDetailId, newQuantity);
+                                } catch (error) {
+                                    console.error("Lỗi khi hoàn trả số lượng:", error);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 var lastSearchKey = ''; // Biến lưu từ khóa tìm kiếm trước đó
@@ -1373,70 +1466,79 @@
 
                 var productList = [];
 
-                function handleAddToOrder(productDetailSe, productDetailId, canAdd, product) {
-                    if (productDetailSe.quantity < 0) {
+                async function handleAddToOrder(productDetailSe, productDetailId, canAdd, product) {
+                    const currentInventory = productInventory[productDetailId] || productDetailSe.quantity;
+
+                    if (currentInventory < 1) {
                         Toastify({
                             text: "Sản phẩm này đã hết",
                             className: "error",
-                            style: {background: "red"}
+                            style: { background: "red" }
                         }).showToast();
                         return 1;
                     }
 
-                    // Lấy tab hiện tại đang active
                     const currentTabNumber = $('.tab.active').attr('data-tab-number');
+                    const quantityToAdd = 1;
 
-                    // Kiểm tra nếu sản phẩm đã có trong tab hiện tại
-                    $(`.product-select-body[data-tab-number="${currentTabNumber}"] .product-select-item`).each((index, element) => {
-                        const item = $(element);
-                        const itemProductDetailId = item.attr('data-product-detail-id');
-                        if (itemProductDetailId == productDetailId) {
-                            const input = item.find('input');
-                            var currentVal = parseInt(input.val());
-                            var nextVal = currentVal + 1;
-                            input.val(nextVal);
-                            const maxQuan = parseInt(item.attr('data-max-quan'));
-                            if (nextVal > maxQuan) {
+                    try {
+                        const newQuantity = currentInventory - quantityToAdd;
+                        await updateProductQuantityInDatabase(productDetailId, newQuantity);
+
+                        // Cập nhật lại productList và giao diện
+                        updateProductQuantityInList(productDetailId, newQuantity);
+
+                        let existingItem = null;
+                        $(`.product-select-body[data-tab-number="${currentTabNumber}"] .product-select-item`).each(function() {
+                            const item = $(this);
+                            if (item.attr('data-product-detail-id') == productDetailId) {
+                                existingItem = item;
+                                return false;
+                            }
+                        });
+
+                        if (existingItem) {
+                            const input = existingItem.find('input');
+                            const currentVal = parseInt(input.val());
+                            const newVal = currentVal + quantityToAdd;
+                            const maxQuan = parseInt(existingItem.attr('data-max-quan'));
+
+                            if (newVal > maxQuan) {
+                                await updateProductQuantityInDatabase(productDetailId, productInventory[productDetailId] + quantityToAdd);
+                                updateProductQuantityInList(productDetailId, productInventory[productDetailId] + quantityToAdd);
+
                                 Swal.fire({
                                     title: "Lỗi",
                                     text: "Số lượng tối đa của sản phẩm này là " + maxQuan,
                                     icon: "error"
                                 });
-                                input.val(maxQuan);
-                                nextVal = maxQuan;
+                                return;
                             }
 
-                            // Cập nhật số lượng trong productList
-                            productDetailSe.quantity = maxQuan - nextVal;
-                            updateSearchProductQuantity(productDetailId, productDetailSe.quantity);
-
-                            const productPrice = removeAnyNonDigit(item.find('.product-select-price').text());
-                            const totalPrice = nextVal * parseFloat(productPrice);
-                            const totalPriceProductEl = item.find('.total-price-product');
-                            totalPriceProductEl.text(formatNumber(totalPrice));
-                            calculateAllPrice();
-                            calculateLastPrice();
-                            canAdd = false;
+                            input.val(newVal);
+                            const productPrice = removeAnyNonDigit(existingItem.find('.product-select-price').text());
+                            const totalPrice = newVal * parseFloat(productPrice);
+                            existingItem.find('.total-price-product').text(formatNumber(totalPrice));
+                        } else {
+                            addNewProductToCurrentTab(productDetailSe, productDetailId, product, currentTabNumber);
                         }
-                    });
 
-                    if (!canAdd) {
-                        calculateLastPrice();
-                        return;
+                        calculateAllPrice();
+                        calculateLastPrice(currentTabNumber);
+                        updateSearchProductForTab(currentTabNumber);
+                        return 0;
+                    } catch (error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: error.message,
+                            icon: "error"
+                        });
+                        return 1;
                     }
-
-                    // Chỉ trừ số lượng ở đây khi thêm sản phẩm mới
-                    productDetailSe.quantity -= 1;
-                    updateSearchProductQuantity(productDetailId, productDetailSe.quantity);
-
-                    // Thêm sản phẩm vào tab hiện tại
-                    addNewProductToCurrentTab(productDetailSe, productDetailId, product, currentTabNumber);
-
-                    calculateLastPrice();
                 }
 
                 function addNewProductToCurrentTab(productDetailSe, productDetailId, product, tabNumber) {
-                    const priceHtml = productDetailSe.discountedPrice ?
+                    const priceHtml = productDetailSe.discountedPrice && productDetailSe.discountedPrice < productDetailSe.price ?
                         `<td class="px-6 py-4 text-lg">
             <span class="flex flex-col">
                 <span class="text-sm line-through">${formatNumber(productDetailSe.price)}</span>
@@ -1484,8 +1586,13 @@
                     });
 
                     // Gắn sự kiện thay đổi số lượng
-                    htmlProductItem.find('.product-select-quantity').on('input change', function(e) {
-                        handleQuantityChange($(this), tabNumber);
+                    htmlProductItem.find('.product-select-quantity').on('input change keydown', function(e) {
+                        if (e.key === 'Backspace' && $(this).val() === '') {
+                            return;
+                        }
+                        if (e.type === 'change' || e.type === 'input' || e.key === 'Enter') {
+                            handleQuantityChange($(this), tabNumber);
+                        }
                     });
 
                     loadOrdreNumber();
@@ -1493,27 +1600,26 @@
                     calculateLastPrice();
                 }
 
-                function handleQuantityChange(input, tabNumber) {
-                    let val = input.val().trim(); // Lấy giá trị và loại bỏ khoảng trắng thừa
+                async function handleQuantityChange(input, tabNumber) {
+                    let val = input.val().trim();
                     const productItem = input.closest('.product-select-item');
                     const maxQuan = parseInt(productItem.attr('data-max-quan'));
                     const itemProductDetailId = productItem.attr('data-product-detail-id');
 
-                    // Nếu rỗng hoặc không hợp lệ, đặt về 1
-                    if (val === '' || isNaN(parseInt(val))) {
-                        val = 1;
+                    // Nếu rỗng, không làm gì cả (để người dùng có thể xóa hết)
+                    if (val === '') {
+                        return;
+                    }
+
+                    // Nếu không phải là số, đặt về 1
+                    if (isNaN(parseInt(val))) {
                         input.val(1);
+                        val = 1;
                     } else {
                         val = parseInt(val);
                     }
 
-                    // Tìm productDetail tương ứng trong productList
-                    let productDetailToUpdate = null;
-                    productList.forEach(product => {
-                        const detail = product.productDetailDtos.find(pd => pd.id == itemProductDetailId);
-                        if (detail) productDetailToUpdate = detail;
-                    });
-
+                    // Kiểm tra giới hạn số lượng
                     if (val > maxQuan) {
                         Swal.fire({
                             title: "Lỗi",
@@ -1527,41 +1633,73 @@
                         val = 1;
                     }
 
-                    if (productDetailToUpdate) {
-                        productDetailToUpdate.quantity = maxQuan - val;
-                        updateSearchProductQuantity(itemProductDetailId, productDetailToUpdate.quantity);
-                    }
+                    try {
+                        // Tính toán số lượng mới trong kho
+                        const newQuantity = maxQuan - val;
+                        await updateProductQuantityInDatabase(itemProductDetailId, newQuantity);
 
-                    const productPrice = removeAnyNonDigit(productItem.find('.product-select-price').text());
-                    const totalPrice = val * parseFloat(productPrice);
-                    productItem.find('.total-price-product').text(formatNumber(totalPrice));
-                    calculateAllPrice();
-                    calculateLastPrice(tabNumber);
+                        // Cập nhật productList
+                        updateProductQuantityInList(itemProductDetailId, newQuantity);
+
+                        const productPrice = removeAnyNonDigit(productItem.find('.product-select-price').text());
+                        const totalPrice = val * parseFloat(productPrice);
+                        productItem.find('.total-price-product').text(formatNumber(totalPrice));
+                        calculateAllPrice();
+                        calculateLastPrice(tabNumber);
+                    } catch (error) {
+                        Swal.fire({
+                            title: "Lỗi",
+                            text: error.message,
+                            icon: "error"
+                        });
+                        // Reset về giá trị cũ nếu có lỗi
+                        const oldVal = maxQuan - (parseInt(productItem.attr('data-max-quan')) - parseInt(input.val()));
+                        input.val(oldVal);
+                    }
                 }
 
                 // Gắn sự kiện cho các ô input
                 $(document).ready(function () {
+                    // Xử lý sự kiện cho các input số lượng đã tồn tại
                     $('.product-select-quantity').each(function () {
                         const input = $(this);
+                        const tabNumber = input.closest('.product-select-body').attr('data-tab-number');
 
-                        // Gắn sự kiện keydown để ngăn nhập ký tự không phải số
                         input.on('keydown', function (e) {
                             onlyAllowNumberInput(e);
                         });
 
-                        // Gắn sự kiện focusout để đặt giá trị về 1 khi rỗng
                         input.on('focusout', function () {
-                            let val = $(this).val().trim();
-                            if (val === '' || isNaN(parseInt(val)) || parseInt(val) < 1) {
-                                $(this).val(1);
-                                handleQuantityChange($(this), tabNumber); // Cập nhật lại giá trị và tính toán
+                            if (input.val().trim() === '') {
+                                input.val(1);
+                                handleQuantityChange(input, tabNumber);
                             }
                         });
 
-                        // Gắn sự kiện input/change để xử lý thay đổi số lượng
                         input.on('input change', function () {
-                            handleQuantityChange($(this), tabNumber);
+                            handleQuantityChange(input, tabNumber);
                         });
+                    });
+
+                    // Xử lý sự kiện cho các input số lượng được thêm động sau này
+                    $(document).on('keydown', '.product-select-quantity', function (e) {
+                        onlyAllowNumberInput(e);
+                    });
+
+                    $(document).on('focusout', '.product-select-quantity', function () {
+                        const input = $(this);
+                        const tabNumber = input.closest('.product-select-body').attr('data-tab-number');
+
+                        if (input.val().trim() === '') {
+                            input.val(1);
+                            handleQuantityChange(input, tabNumber);
+                        }
+                    });
+
+                    $(document).on('input change', '.product-select-quantity', function () {
+                        const input = $(this);
+                        const tabNumber = input.closest('.product-select-body').attr('data-tab-number');
+                        handleQuantityChange(input, tabNumber);
                     });
                 });
 
@@ -1573,13 +1711,16 @@
 
                 function loadProductSearch(data) {
                     const newProductList = data.content;
+                    productList = newProductList;
+
+                    // Khởi tạo inventory
+                    initializeInventory();
 
                     // Nếu productList đã tồn tại, giữ nguyên quantity của các sản phẩm đã được cập nhật
                     if (productList.length > 0) {
                         newProductList.forEach(newProduct => {
                             const existingProduct = productList.find(p => p.id === newProduct.id);
                             if (existingProduct) {
-                                // Giữ nguyên quantity của productDetailDtos đã được cập nhật
                                 newProduct.productDetailDtos.forEach(newDetail => {
                                     const existingDetail = existingProduct.productDetailDtos.find(d => d.id === newDetail.id);
                                     if (existingDetail) {
@@ -1599,14 +1740,14 @@
                         productList.forEach(product => {
                             product.productDetailDtos.forEach(productDetail => {
                                 var price = ``;
-                                if (productDetail.discountedPrice) {
+                                if (productDetail.discountedPrice && productDetail.discountedPrice < productDetail.price) {
                                     price = `<span>
-                        <span class="product-old-price text-sm line-through text-gray-500 italic">${productDetail.price}</span>
-                        <span class="product-price text-md font-bold text-blue-500">${productDetail.discountedPrice}</span>
+                        <span class="product-old-price text-sm line-through text-gray-500 italic">${formatNumber(productDetail.price)}</span>
+                        <span class="product-price text-md font-bold text-blue-500">${formatNumber(productDetail.discountedPrice)}</span>
                     </span>`;
                                 } else {
                                     price = `<span>
-                        <span class="product-price text-md font-bold text-blue-500">${productDetail.price}</span>
+                        <span class="product-price text-md font-bold text-blue-500">${formatNumber(productDetail.price)}</span>
                     </span>`;
                                 }
                                 var imageUrl = productDetail.images && productDetail.images.length > 0 ? productDetail.images[0].link : '/default-image.jpg';
@@ -1617,18 +1758,18 @@
                         </div>
                         <div class="search-product-info flex-1">
                             <div class="flex justify-between">
-                                <h5 class="product-name font-bold">${product.name}</h5>
+                                <span class="product-name font-bold">${product.name}</span>
                                 <span class="product-code text-gray-600 text-sm">#${product.code}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-400 text-sm">
-                                    <span>Màu: </span><span>${productDetail.colorName || 'N/A'}</span></span>
+                                    <span>Màu: </span><span>${productDetail.colorName || 'N/A'}</span>
                                 </span>
                                 <span class="text-gray-400 text-sm">
-                                    <span>Cỡ: </span><span>${productDetail.sizeName || 'N/A'}</span></span>
+                                    <span>Cỡ: </span><span>${productDetail.sizeName || 'N/A'}</span>
                                 </span>
                                 <span class="text-sm">
-                                    <span>Số lượng: </span> <span class="product-quantity">${productDetail.quantity}</span>
+                                    <span>Số lượng: </span><span class="product-quantity">${productDetail.quantity}</span>
                                 </span>
                                 ${price}
                             </div>
@@ -1649,13 +1790,10 @@
                                 var productDetailSe = foundProduct.productDetailDtos.find(x => x.id == productDetailId);
 
                                 if (productDetailSe && productDetailSe.quantity >= 1) {
-                                    // Chỉ gọi handleAddToOrder mà không trừ số lượng ở đây
-                                    var result = handleAddToOrder(productDetailSe, productDetailId, canAdd, foundProduct);
-
-                                    if (result !== 1) { // Nếu không phải lỗi hết hàng
-                                        // Cập nhật lại danh sách tìm kiếm
+                                    var result = await handleAddToOrder(productDetailSe, productDetailId, canAdd, foundProduct);
+                                    if (result !== 1) {
                                         $(".list-search-product").html('');
-                                        loadProductSearch({content: productList});
+                                        loadProductSearch({ content: productList });
                                     }
                                 } else {
                                     Swal.fire({
@@ -1846,29 +1984,37 @@
 
                     $selectedCustomer.attr('selected-id', customerId || '');
                     $selectedCustomer.attr('data-email', customerEmail || '');
+                    $selectedCustomer.attr('data-customer-name', customerName || '');
+                    $selectedCustomer.attr('data-customer-phone', customerPhone || '');
 
                     if (customerId) {
                         $selectedCustomer.html(`
             <div class="p-2 flex items-center justify-between">
                 <div>
-                    <span class="font-bold">${customerName || 'Khách lẻ'}</span>
+                    <span class="customer-name font-bold">${customerName || 'Khách lẻ'}</span>
                     <br>
                     <span class="text-gray-400">${customerCode || ''}</span>
                 </div>
                 <div>
-                    <span class="font-bold">${customerPhone || ''}</span>
+                    <span class="customer-phone font-bold">${customerPhone || ''}</span>
                 </div>
-                <span id="delete-selected-customer-btn" class="p-1 hover:bg-gray-400 rounded-full font-bold cursor-pointer">×</span>
+                <span class="delete-selected-customer-btn p-1 hover:bg-gray-400 rounded-full font-bold cursor-pointer">×</span>
             </div>
         `);
                     } else {
                         $selectedCustomer.html('<span class="font-bold italic text-gray-500">Khách lẻ</span>');
+                        $selectedCustomer.removeAttr('data-customer-name');
+                        $selectedCustomer.removeAttr('data-customer-phone');
                     }
 
                     // Xử lý sự kiện xóa khách hàng
-                    $('#delete-selected-customer-btn').off('click').on('click', () => {
+                    $selectedCustomer.off('click', '.delete-selected-customer-btn').on('click', '.delete-selected-customer-btn', function(e) {
+                        e.stopPropagation();
                         $selectedCustomer.html('<span class="font-bold italic text-gray-500">Khách lẻ</span>');
                         $selectedCustomer.attr('selected-id', '');
+                        $selectedCustomer.removeAttr('data-customer-name');
+                        $selectedCustomer.removeAttr('data-customer-phone');
+                        $selectedCustomer.removeAttr('data-email');
 
                         if ($(`.is-shipping[data-tab-number="${tabNumber}"]`).is(':checked')) {
                             $(`.shipping-container[data-tab-number="${tabNumber}"]`).empty();
@@ -2116,9 +2262,11 @@
 
 
                 function showShippingForm(tabNumber) {
-                    const customerName = $(`.selected-customer[data-tab-number="${tabNumber}"] .font-bold`).text() || "";
-                    const customerPhone = $(`.selected-customer[data-tab-number="${tabNumber}"] .customer-phone`).text() || "";
-                    const customerId = $(`.selected-customer[data-tab-number="${tabNumber}"]`).attr('selected-id') || null;
+                    const customerElement = $(`.selected-customer[data-tab-number="${tabNumber}"]`);
+                    const customerId = customerElement.attr('selected-id') || null;
+
+                    // Kiểm tra nếu là khách lẻ (customerId rỗng) thì không điền thông tin
+                    const isGuestCustomer = !customerId;
 
                     const shippingForm = `
     <div id="shipping-form-${tabNumber}" class="mt-4 p-6 bg-white rounded-lg shadow-md border border-gray-200">
@@ -2126,11 +2274,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="form-group">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tên người nhận <span class="text-red-500">*</span></label>
-                <input type="text" id="shipping-name-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="${customerName || 'Khách lẻ'}" required>
+                <input type="text" id="shipping-name-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="" required>
             </div>
             <div class="form-group">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại <span class="text-red-500">*</span></label>
-                <input type="text" id="shipping-phone-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="${customerPhone}" required>
+                <input type="text" id="shipping-phone-${tabNumber}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" value="" required>
             </div>
             <div class="form-group">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố <span class="text-red-500">*</span></label>
@@ -2169,14 +2317,27 @@
 
                     $(`.shipping-container[data-tab-number="${tabNumber}"]`).html(shippingForm);
 
-                    // Điền thông tin cơ bản
-                    $(`#shipping-name-${tabNumber}`).val(customerName);
-                    $(`#shipping-phone-${tabNumber}`).val(customerPhone);
+                    // Chỉ điền thông tin nếu không phải là khách lẻ
+                    if (!isGuestCustomer) {
+                        // Lấy thông tin từ DATA ATTRIBUTES thay vì từ HTML
+                        const customerName = customerElement.attr('data-customer-name') || '';
+                        const customerPhone = customerElement.attr('data-customer-phone') || '';
+
+                        // Lọc bỏ ký tự đặc biệt và số từ tên (chỉ giữ chữ cái và khoảng trắng)
+                        const cleanCustomerName = customerName.replace(/[^a-zA-ZÀ-ỹ\s]/g, '').trim();
+
+                        if (cleanCustomerName) {
+                            $(`#shipping-name-${tabNumber}`).val(cleanCustomerName);
+                        }
+                        if (customerPhone) {
+                            $(`#shipping-phone-${tabNumber}`).val(customerPhone);
+                        }
+                    }
 
                     // Load danh sách tỉnh từ GHN
                     loadGHNProvinces(tabNumber, function() {
-                        // Nếu có customerId, load thông tin địa chỉ
-                        if (customerId) {
+                        // Nếu có customerId và không phải là khách lẻ, load thông tin địa chỉ
+                        if (customerId && !isGuestCustomer) {
                             $.ajax({
                                 url: `/api/customer/${customerId}`,
                                 method: 'GET',
@@ -2691,12 +2852,12 @@
                         calculateLastPrice();
                     });
 
-                    // Gắn sự kiện click cho close-voucher-btn
-                    $('.close-voucher-btn').off('click').on('click', function () {
+                    // Sửa lại phần gắn sự kiện close
+                    $(document).on('click', '.close-voucher-btn', function(e) {
+                        e.stopPropagation();
                         const currentTabNumber = $('.tab.active').attr('data-tab-number');
                         $(`.selected-voucher[data-tab-number="${currentTabNumber}"]`).html('').attr('selected-id', '').removeClass('active');
                         voucherChoosed = null;
-                        console.log("Voucher removed, selected-id:", $(`.selected-voucher[data-tab-number="${currentTabNumber}"]`).attr('selected-id'));
                         calculateVoucherPrice();
                         calculateLastPrice();
                     });
@@ -2722,6 +2883,7 @@
                         contentType: "application/json; charset=utf-8",
                         success: async function (data) {
                             $('#loading-overlay').hide();
+                            $(".qr-payment-container").addClass('hidden');
                             resetForm(currentTabNumber);
                             $(".product-select-body.active").html('');
                             Toastify({
@@ -2772,6 +2934,7 @@
 
                 $("#confirm-pay").click(function () {
                     handleAjaxRequest(dataSendIfChuyenKhoan);
+                    $(".qr-payment-container").addClass('hidden');
                 });
 
                 $(".close-modal-payment").click(function () {
@@ -2884,9 +3047,16 @@
                 }
 
                 function onlyAllowNumberInput(e) {
-                    const key = e.key;
-                    // Chỉ cho phép các số (0-9), phím Backspace, Tab, Enter, và các phím điều hướng
-                    if (!/[0-9]/.test(key) && key !== 'Backspace' && key !== 'Tab' && key !== 'Enter' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
+                    // Cho phép: backspace, delete, tab, escape, enter, các phím mũi tên
+                    // Và các phím điều khiển (Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X)
+                    if ([8, 46, 9, 27, 13, 110, 190].includes(e.keyCode) ||
+                        (e.ctrlKey && [65, 67, 86, 88].includes(e.keyCode)) ||
+                        (e.keyCode >= 35 && e.keyCode <= 39)) {
+                        return;
+                    }
+
+                    // Chỉ cho phép nhập số (0-9 cả numpad và phím số thường)
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
                         e.preventDefault();
                     }
                 }

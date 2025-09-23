@@ -65,69 +65,7 @@
       </div>
     </div>
   </div>
-<!--        <div class="wrap-table-shopping-cart">-->
-<!--          <table class="table-shopping-cart" th:if="${cart.items != null and cart.items.size() > 0}">-->
-<!--            <tr class="table_head">-->
-<!--              <th class="column-3 ml-2">Ảnh</th>-->
-<!--              <th class="column-2">Tên sản phẩm</th>-->
-<!--              <th class="column-1">Cỡ</th>-->
-<!--              <th class="column-1">Màu</th>-->
-<!--              <th class="column-3">Đơn giá</th>-->
-<!--              <th class="column-4">Số lượng</th>-->
-<!--              <th class="column-5">Thành tiền</th>-->
-<!--            </tr>-->
-<!--            <tr class="table-row product-item" th:each="item : ${cart.items}">-->
-<!--              <input type="hidden" th:value="${item.id}" class="cartId">-->
-<!--              <input type="hidden" th:value="${item.productDetail.id}" class="detailId">-->
-<!--              <td class="column-3">-->
-<!--                <div class="how-itemcart1 ml-2">-->
-<!--                  <img th:src="@{'/' + ${item.product.imageUrl}}" alt="IMG">-->
-<!--                </div>-->
-<!--              </td>-->
-<!--              <td class="column-3" th:text="${item.product.name}"></td>-->
-<!--              <td class="column-1" th:text="${item.productDetail.sizeName}"></td>-->
-<!--              <td class="column-1" th:text="${item.productDetail.colorName}"></td>-->
-<!--              <td class="column-3">-->
-<!--                <span class="product-old-price" th:if="${item.productDetail.discountedAmount != null}"-->
-<!--                      th:text="${#numbers.formatDecimal(item.productDetail.price, 0, 'POINT', 0, 'COMMA')}"-->
-<!--                      style="text-decoration: line-through; font-size: 12px"></span>-->
-<!--                <span class="product-price" th:if="${item.productDetail.discountedAmount != null}"-->
-<!--                      th:text="${#numbers.formatDecimal(item.productDetail.discountedAmount, 0, 'POINT', 0, 'COMMA')}"></span>-->
-<!--                <span class="product-price" th:if="${item.productDetail.discountedAmount == null}"-->
-<!--                      th:text="${#numbers.formatDecimal(item.productDetail.price, 0, 'POINT', 0, 'COMMA')}"></span>-->
-<!--              </td>-->
-<!--              <td class="column-4">-->
-<!--                <div class="wrap-num-product flex-w m-l-auto m-r-0">-->
-<!--                  <div class="btn-num-product-down js-update-cart-down cl8 hov-btn3 trans-04 flex-c-m">-->
-<!--                    <i class="fs-16 zmdi zmdi-minus"></i>-->
-<!--                  </div>-->
-<!--                  <input class="mtext-104 cl3 txt-center num-product" type="number"-->
-<!--                         th:name="'num-product'+${item.id}" th:value="${item.quantity}">-->
-<!--                  <div class="btn-num-product-up js-update-cart-up cl8 hov-btn3 trans-04 flex-c-m">-->
-<!--                    <i class="fs-16 zmdi zmdi-plus"></i>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </td>-->
-<!--              <td class="column-5 total-money"></td>-->
-<!--            </tr>-->
-<!--          </table>-->
-<!--        </div>-->
-<!--        <div class="flex-w flex-t p-t-27 p-b-33" th:if="${cart.items != null and cart.items.size() > 0}">-->
-<!--          <div class="size-208">-->
-<!--            <span class="mtext-101 cl2">Tổng thành tiền:</span>-->
-<!--          </div>-->
-<!--          <div class="size-209 p-t-1">-->
-<!--            <span class="mtext-110 cl2" id="all-total"></span>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <div class="text-right" th:if="${cart.items != null and cart.items.size() > 0}">-->
-<!--          <a th:href="@{/checkout}" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">-->
-<!--            Thanh toán-->
-<!--          </a>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
+
 
   <!-- Back to top -->
   <div class="btn-back-to-top" id="myBtn">

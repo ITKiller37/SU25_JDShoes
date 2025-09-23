@@ -17,6 +17,7 @@ public interface ProductDiscountDetailRepository extends JpaRepository<ProductDi
             "JOIN pdd.productDiscount pd " +
             "WHERE pdd.productDetail.id = :productDetailId " +
             "AND CURRENT_TIMESTAMP BETWEEN pd.startDate AND pd.endDate " +
+            "AND pd.closed = true " +
             "ORDER BY pdd.discountedAmount ASC")
     List<ProductDiscountDetail> findAllValidByProductDetailId(@Param("productDetailId") Long productDetailId);
 

@@ -26,7 +26,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
     @Query(value = "SELECT DISTINCT b.id AS maHoaDon, b.code AS maDinhDanh, " +
             "COALESCE(b.customerName, a.name, 'Khách lẻ') AS hoVaTen, " +
             "COALESCE(b.customerPhoneNumber, a.phoneNumber, '') AS soDienThoai, " +
-            "b.createDate AS ngayTao, b.amount AS tongTien, b.status AS trangThai, b.invoiceType AS loaiDon, " +
+            "b.createDate AS ngayTao, (b.amount + COALESCE(b.shippingFee, 0)) AS tongTien, b.status AS trangThai, b.invoiceType AS loaiDon, " +
             "pm.name AS hinhThucThanhToan, COALESCE(br.code, '') AS maDoiTra " +
             "FROM Bill b " +
             "LEFT JOIN Customer a ON b.customer.id = a.id " +
@@ -51,7 +51,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> , JpaSpecifica
     @Query(value = "SELECT DISTINCT b.id AS maHoaDon, b.code AS maDinhDanh, " +
             "COALESCE(b.customerName, a.name, 'Khách lẻ') AS hoVaTen, " +
             "COALESCE(b.customerPhoneNumber, a.phoneNumber, '') AS soDienThoai, " +
-            "b.createDate AS ngayTao, b.amount AS tongTien, b.status AS trangThai, b.invoiceType AS loaiDon, " +
+            "b.createDate AS ngayTao, (b.amount + COALESCE(b.shippingFee, 0)) AS tongTien, b.status AS trangThai, b.invoiceType AS loaiDon, " +
             "pm.name AS hinhThucThanhToan, COALESCE(br.code, '') AS maDoiTra, pmt.orderId AS maGiaoDich " +
             "FROM Bill b " +
             "JOIN Payment pmt ON b.id = pmt.bill.id " +

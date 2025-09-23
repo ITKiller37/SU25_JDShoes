@@ -220,7 +220,7 @@ public class BillController {
         BillDetailDtoInterface billDetailDtoInterface = billService.getBillDetail(maHoaDon);
         List<BillDetailProduct> billDetailProducts = billService.getBillDetailProduct(maHoaDon);
         List<BillHistoryDto> billHistory = billService.getBillHistory(maHoaDon);
-        List<ProductDetail> products = productService.findAll();
+        List<ProductDetail> products = productService.findAllActiveWithQuantity();
         BigDecimal total = BigDecimal.ZERO; // Khởi tạo total là 0 với BigDecimal
         for (BillDetailProduct billDetailProduct : billDetailProducts) {
             int quantity = billDetailProduct.getSoLuong();
